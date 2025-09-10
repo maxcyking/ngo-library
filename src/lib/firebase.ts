@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -12,6 +12,20 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
+// Debug: Log configuration (remove in production)
+if (process.env.NODE_ENV === 'development') {
+  console.log('Firebase Config:', {
+    projectId: firebaseConfig.projectId,
+    authDomain: firebaseConfig.authDomain,
+    hasApiKey: !!firebaseConfig.apiKey
+  });
+}
+
+// Validate required config
+if (!firebaseConfig.projectId || !firebaseConfig.apiKey) {
+  throw new Error('Firebase configuration is incomplete. Please check your environment variables.');
+}
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
@@ -19,5 +33,16 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+
+// Enable offline persistence for better UX
+if (typeof window !== 'undefined') {
+  // Only run on client side
+  import('firebase/firestore').then(({ enableNetwork, disableNetwork }) => {
+    // Enable network by default
+    enableNetwork(db).catch((error) => {
+      console.warn('Failed to enable Firestore network:', error);
+    });
+  });
+}
 
 export default app;

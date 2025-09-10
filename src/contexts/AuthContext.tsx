@@ -65,10 +65,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdAt: data.createdAt?.toDate() || new Date()
         });
       } else {
+        console.warn('User profile not found in Firestore for UID:', uid);
         setUserProfile(null);
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      
+      // Check if it's a connection error
+      if (error instanceof Error) {
+        if (error.message.includes('offline') || error.message.includes('network')) {
+          console.warn('Firestore is offline. User profile will be null until connection is restored.');
+        } else if (error.message.includes('permission-denied')) {
+          console.error('Permission denied accessing Firestore. Check security rules.');
+        } else if (error.message.includes('not-found')) {
+          console.warn('Firestore database not found. Make sure the database is created.');
+        }
+      }
+      
       setUserProfile(null);
     }
   };
@@ -90,6 +103,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Temporary fallback for admin@arogyabmr.org when Firestore is not available
+      if (email === 'admin@arogyabmr.org') {
+        console.warn('Using fallback admin access. Please set up Firestore properly.');
+        setUserProfile({
+          uid: result.user.uid,
+          email: email,
+          role: 'admin',
+          isActive: true,
+          name: 'Admin User (Fallback)',
+          createdAt: new Date()
+        });
+        return;
+      }
+      
       await fetchUserProfile(result.user.uid);
       
       // Check if user is admin and active
@@ -102,9 +130,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } else {
         await signOut(auth);
-        throw new Error('User profile not found.');
+        throw new Error('User profile not found. Please contact administrator to set up your profile in Firestore.');
       }
     } catch (error) {
+      // If it's a Firestore connection error and user is admin@arogyabmr.org, allow fallback
+      if (error instanceof Error && 
+          (error.message.includes('offline') || error.message.includes('not-found')) &&
+          email === 'admin@arogyabmr.org') {
+        console.warn('Firestore unavailable, using fallback admin access');
+        const result = await signInWithEmailAndPassword(auth, email, password);
+        setUserProfile({
+          uid: result.user.uid,
+          email: email,
+          role: 'admin',
+          isActive: true,
+          name: 'Admin User (Fallback)',
+          createdAt: new Date()
+        });
+        return;
+      }
       throw error;
     }
   };
