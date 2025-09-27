@@ -56,25 +56,49 @@ export function LibraryShowcase() {
 
   useEffect(() => {
     fetchLibraryData();
+    const cleanup = setupRealTimeListeners();
+    return cleanup;
   }, []);
+
+  const setupRealTimeListeners = () => {
+    // Real-time listener for categories
+    const categoriesQuery = query(
+      collection(db, 'book-categories'),
+      where('isActive', '==', true),
+      orderBy('order', 'asc'),
+      limit(6)
+    );
+
+    const unsubscribeCategories = onSnapshot(
+      categoriesQuery, 
+      (snapshot) => {
+        const categoriesData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as BookCategory[];
+        
+        setBookCategories(categoriesData);
+      },
+      (error) => {
+        console.error('Error fetching categories:', error);
+        // Set fallback sample data when database is not accessible
+        setBookCategories([
+          { id: 'sample-1', name: "धार्मिक साहित्य", bookCount: 450, color: "orange", description: "धार्मिक ग्रंथ और आध्यात्मिक पुस्तकें", isActive: true, order: 1 },
+          { id: 'sample-2', name: "शैक्षणिक पुस्तकें", bookCount: 680, color: "blue", description: "विभिन्न विषयों की शैक्षणिक सामग्री", isActive: true, order: 2 },
+          { id: 'sample-3', name: "उपन्यास", bookCount: 320, color: "purple", description: "हिंदी और अन्य भाषाओं के उपन्यास", isActive: true, order: 3 },
+          { id: 'sample-4', name: "बाल साहित्य", bookCount: 280, color: "green", description: "बच्चों के लिए रोचक कहानियां", isActive: true, order: 4 }
+        ]);
+      }
+    );
+
+    // Cleanup function
+    return () => {
+      unsubscribeCategories();
+    };
+  };
 
   const fetchLibraryData = async () => {
     try {
-      // Fetch categories
-      const categoriesQuery = query(
-        collection(db, 'book-categories'),
-        where('isActive', '==', true),
-        orderBy('bookCount', 'desc'),
-        limit(6)
-      );
-      
-      const categoriesSnapshot = await getDocs(categoriesQuery);
-      const categoriesData = categoriesSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as BookCategory[];
-      
-      setBookCategories(categoriesData);
 
       // Fetch featured books
       const booksQuery = query(
@@ -119,13 +143,7 @@ export function LibraryShowcase() {
 
     } catch (error) {
       console.error('Error fetching library data:', error);
-      // Set fallback data
-      setBookCategories([
-        { id: '1', name: "धार्मिक साहित्य", bookCount: 450, color: "orange", description: "", isActive: true, order: 1 },
-        { id: '2', name: "शैक्षणिक पुस्तकें", bookCount: 680, color: "blue", description: "", isActive: true, order: 2 },
-        { id: '3', name: "उपन्यास", bookCount: 320, color: "purple", description: "", isActive: true, order: 3 },
-        { id: '4', name: "बाल साहित्य", bookCount: 280, color: "green", description: "", isActive: true, order: 4 }
-      ]);
+      // Don't set fallback data, let the component show empty state
     } finally {
       setLoading(false);
     }
@@ -202,8 +220,10 @@ export function LibraryShowcase() {
             </h3>
             <div className="space-y-4">
               {bookCategories.length === 0 ? (
-                <div className="text-center py-4">
-                  <p className="text-gray-600">श्रेणियां लोड हो रही हैं...</p>
+                <div className="text-center py-8">
+                  <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">अभी तक कोई श्रेणी नहीं मिली</p>
+                  <p className="text-sm text-gray-500">एडमिन पैनल से श्रेणियां जोड़ें</p>
                 </div>
               ) : (
                 bookCategories.map((category) => {
@@ -211,20 +231,27 @@ export function LibraryShowcase() {
                   const percentage = maxCount > 0 ? (category.bookCount / maxCount) * 100 : 0;
                   
                   return (
-                    <div key={category.id} className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
-                      <div className="flex items-center">
-                        <Badge className={`${getColorClass(category.color)} mr-3`}>
-                          {category.bookCount}
-                        </Badge>
-                        <span className="font-medium text-gray-800">{category.name}</span>
+                    <Link key={category.id} href={`/library?category=${category.id}`}>
+                      <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group">
+                        <div className="flex items-center">
+                          <Badge className={`${getColorClass(category.color)} mr-3 group-hover:scale-105 transition-transform`}>
+                            {category.bookCount}
+                          </Badge>
+                          <span className="font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
+                            {category.name}
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-20 bg-gray-200 rounded-full h-2">
+                            <div
+                              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${Math.min(percentage, 100)}%` }}
+                            ></div>
+                          </div>
+                          <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                        </div>
                       </div>
-                      <div className="w-20 bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-blue-600 h-2 rounded-full"
-                          style={{ width: `${percentage}%` }}
-                        ></div>
-                      </div>
-                    </div>
+                    </Link>
                   );
                 })
               )}
@@ -238,8 +265,10 @@ export function LibraryShowcase() {
             </h3>
             <div className="space-y-4">
               {featuredBooks.length === 0 ? (
-                <div className="text-center py-4">
-                  <p className="text-gray-600">पुस्तकें लोड हो रही हैं...</p>
+                <div className="text-center py-8">
+                  <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">अभी तक कोई पुस्तक नहीं मिली</p>
+                  <p className="text-sm text-gray-500">एडमिन पैनल से पुस्तकें जोड़ें</p>
                 </div>
               ) : (
                 featuredBooks.map((book) => (

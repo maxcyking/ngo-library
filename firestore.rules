@@ -78,6 +78,12 @@ service cloud.firestore {
       allow write, create, delete, list: if isAuthenticated();
     }
     
+    // Book categories collection
+    match /book-categories/{categoryId} {
+      allow read: if true; // Public read access for library browsing
+      allow write, create, delete, list: if isAdmin(); // Only admins can manage categories
+    }
+    
     // Book transactions collection
     match /bookTransactions/{transactionId} {
       allow read, list: if isAdmin(); // Only admins can view book transactions
@@ -92,6 +98,11 @@ service cloud.firestore {
     
     // Event registrations collection
     match /eventRegistrations/{registrationId} {
+      allow read, write, create, delete, list: if isAuthenticated();
+    }
+    
+    // Event registrations collection (alternative naming)
+    match /event-registrations/{registrationId} {
       allow read, write, create, delete, list: if isAuthenticated();
     }
     
@@ -166,6 +177,24 @@ service cloud.firestore {
     match /settings/{settingId} {
       allow read: if isAdmin(); // Only admins can read settings
       allow write, create, delete, list: if isAdmin(); // Only admins can manage settings
+    }
+    
+    // Work areas collection
+    match /work-areas/{areaId} {
+      allow read: if true; // Public read access
+      allow write, create, delete, list: if isAdmin(); // Only admins can manage work areas
+    }
+    
+    // Testimonials collection
+    match /testimonials/{testimonialId} {
+      allow read: if true; // Public read access
+      allow write, create, delete, list: if isAdmin(); // Only admins can manage testimonials
+    }
+    
+    // Statistics collection
+    match /statistics/{statId} {
+      allow read: if true; // Public read access for displaying stats
+      allow write, create, delete, list: if isAdmin(); // Only admins can manage statistics
     }
     
     // Audit logs

@@ -1,28 +1,155 @@
-import { Metadata } from 'next'
+"use client";
 
-export const metadata: Metadata = {
-  title: "निःशुल्क पुस्तकालय सेवा - 2000+ पुस्तकों का संग्रह | एरोग्या पुस्तकालय बाड़मेर",
-  description: "एरोग्या पुस्तकालय में 2000+ धार्मिक, शैक्षणिक, साहित्यिक और तकनीकी पुस्तकों का निःशुल्क संग्रह। बाड़मेर राजस्थान में सभी आयु वर्ग के लिए उपलब्ध। नया आधुनिक भवन निर्माणाधीन।",
-  keywords: [
-    "निःशुल्क पुस्तकालय बाड़मेर",
-    "राजस्थान पुस्तकालय",
-    "धार्मिक पुस्तकें",
-    "शैक्षणिक पुस्तकें",
-    "साहित्यिक पुस्तकें",
-    "तकनीकी पुस्तकें",
-    "Free Library Barmer",
-    "Rajasthan Library",
-    "एरोग्या लाइब्रेरी",
-    "पुस्तक सेवा"
-  ],
-  openGraph: {
-    title: "निःशुल्क पुस्तकालय सेवा - एरोग्या पुस्तकालय बाड़मेर",
-    description: "2000+ धार्मिक, शैक्षणिक, साहित्यिक और तकनीकी पुस्तकों का निःशुल्क संग्रह। सभी आयु वर्ग के लिए उपलब्ध।",
-    images: ['/og-library.jpg'],
-  },
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { BookOpen, Search, Filter, Users, Clock, MapPin, Phone, Mail } from 'lucide-react';
+import { 
+  collection, 
+  query, 
+  orderBy, 
+  onSnapshot, 
+  where,
+  getDocs
+} from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+
+interface BookCategory {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  isActive: boolean;
+  bookCount: number;
+  order: number;
+}
+
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  category: string;
+  availableCopies: number;
+  totalCopies: number;
+  issuedCopies: number;
+  rating?: number;
+  description?: string;
+  coverImage?: string;
+  isbn?: string;
+  publisher?: string;
+  publishedYear?: number;
 }
 
 export default function LibraryPage() {
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get('category');
+  
+  const [categories, setCategories] = useState<BookCategory[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
+  const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>(categoryParam || 'all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCategories();
+    fetchBooks();
+  }, []);
+
+  useEffect(() => {
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+  }, [categoryParam]);
+
+  useEffect(() => {
+    filterBooks();
+  }, [books, selectedCategory, searchTerm]);
+
+  const fetchCategories = async () => {
+    try {
+      const categoriesQuery = query(
+        collection(db, 'book-categories'),
+        where('isActive', '==', true),
+        orderBy('order', 'asc')
+      );
+      
+      const unsubscribe = onSnapshot(categoriesQuery, (snapshot) => {
+        const categoriesData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as BookCategory[];
+        
+        setCategories(categoriesData);
+      });
+
+      return unsubscribe;
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchBooks = async () => {
+    try {
+      const booksQuery = query(
+        collection(db, 'books'),
+        orderBy('title', 'asc')
+      );
+      
+      const unsubscribe = onSnapshot(booksQuery, (snapshot) => {
+        const booksData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Book[];
+        
+        setBooks(booksData);
+        setLoading(false);
+      });
+
+      return unsubscribe;
+    } catch (error) {
+      console.error('Error fetching books:', error);
+      setLoading(false);
+    }
+  };
+
+  const filterBooks = () => {
+    let filtered = books;
+
+    // Filter by category
+    if (selectedCategory !== 'all') {
+      const selectedCategoryData = categories.find(cat => cat.id === selectedCategory);
+      if (selectedCategoryData) {
+        filtered = filtered.filter(book => book.category === selectedCategoryData.name);
+      }
+    }
+
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(book => 
+        book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        book.category.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    setFilteredBooks(filtered);
+  };
+
+  const getColorClass = (color: string) => {
+    switch (color) {
+      case 'orange': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'blue': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'purple': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'green': return 'bg-green-100 text-green-800 border-green-200';
+      case 'red': return 'bg-red-100 text-red-800 border-red-200';
+      case 'yellow': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
   return (
     <div className="min-h-screen bg-gray-50" itemScope itemType="https://schema.org/Library">
       {/* Hero Section */}
@@ -41,6 +168,156 @@ export default function LibraryPage() {
               <span className="bg-white bg-opacity-20 px-4 py-2 rounded-full">✍️ साहित्यिक कृतियां</span>
               <span className="bg-white bg-opacity-20 px-4 py-2 rounded-full">💻 तकनीकी पुस्तकें</span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Search and Filter Section */}
+      <section className="py-8 bg-white border-b">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  type="text"
+                  placeholder="पुस्तक का नाम, लेखक या श्रेणी खोजें..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <div className="flex gap-2">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="all">सभी श्रेणियां</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name} ({category.bookCount})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
+            {/* Category Pills */}
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedCategory('all')}
+              >
+                सभी ({books.length})
+              </Button>
+              {categories.map((category) => (
+                <Button
+                  key={category.id}
+                  variant={selectedCategory === category.id ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={selectedCategory === category.id ? '' : getColorClass(category.color)}
+                >
+                  {category.name} ({category.bookCount})
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Books Grid */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-800">
+                📖 पुस्तक संग्रह
+                {selectedCategory !== 'all' && (
+                  <span className="text-blue-600 ml-2">
+                    - {categories.find(cat => cat.id === selectedCategory)?.name}
+                  </span>
+                )}
+              </h2>
+              <div className="text-sm text-gray-600">
+                {filteredBooks.length} पुस्तकें मिलीं
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">पुस्तकें लोड हो रही हैं...</p>
+              </div>
+            ) : filteredBooks.length === 0 ? (
+              <div className="text-center py-12">
+                <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">कोई पुस्तक नहीं मिली</h3>
+                <p className="text-gray-500">
+                  {searchTerm ? 'अपनी खोज बदलकर दोबारा कोशिश करें' : 'इस श्रेणी में अभी तक कोई पुस्तक नहीं है'}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredBooks.map((book) => (
+                  <Card key={book.id} className="hover:shadow-lg transition-shadow duration-300">
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="font-semibold text-gray-800 line-clamp-2 flex-1">
+                          {book.title}
+                        </h3>
+                        <Badge
+                          variant={book.availableCopies > 0 ? "default" : "destructive"}
+                          className="ml-2 text-xs"
+                        >
+                          {book.availableCopies > 0 ? "उपलब्ध" : "इश्यू में"}
+                        </Badge>
+                      </div>
+                      
+                      <p className="text-sm text-gray-600 mb-2">
+                        <strong>लेखक:</strong> {book.author}
+                      </p>
+                      
+                      <p className="text-sm text-gray-600 mb-3">
+                        <strong>श्रेणी:</strong> {book.category}
+                      </p>
+                      
+                      {book.description && (
+                        <p className="text-xs text-gray-500 mb-3 line-clamp-3">
+                          {book.description}
+                        </p>
+                      )}
+                      
+                      <div className="flex justify-between items-center text-xs text-gray-500 mb-4">
+                        <span>कुल प्रतियां: {book.totalCopies}</span>
+                        <span>उपलब्ध: {book.availableCopies}</span>
+                      </div>
+                      
+                      {book.isbn && (
+                        <p className="text-xs text-gray-400 mb-2">
+                          ISBN: {book.isbn}
+                        </p>
+                      )}
+                      
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          className="flex-1"
+                          disabled={book.availableCopies === 0}
+                        >
+                          {book.availableCopies > 0 ? 'बुक करें' : 'प्रतीक्षा सूची'}
+                        </Button>
+                        <Button size="sm" variant="outline">
+                          विवरण
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>

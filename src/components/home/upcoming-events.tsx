@@ -1,65 +1,161 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Users, Clock, ArrowRight } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, ArrowRight, CalendarX } from "lucide-react";
 import Link from "next/link";
+import { 
+  collection, 
+  query, 
+  where, 
+  orderBy, 
+  limit, 
+  onSnapshot,
+  getDocs,
+  Timestamp
+} from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface Event {
   id: string;
   title: string;
+  description: string;
   date: string;
-  time: string;
+  startTime: string;
+  endTime: string;
   location: string;
   category: string;
-  description: string;
-  registeredCount: number;
   maxParticipants: number;
-  isUrgent?: boolean;
+  registrationDeadline: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  isUrgent: boolean;
+  registrationFee: number;
+  contactPerson: string;
+  contactPhone: string;
+  requirements: string[];
+  benefits: string[];
+  createdAt: Date | Timestamp;
+  updatedAt: Date | Timestamp;
+  registeredCount?: number;
 }
 
-const upcomingEvents: Event[] = [
-  {
-    id: "1",
-    title: "मासिक स्वास्थ्य जांच शिविर",
-    date: "2024-06-15",
-    time: "सुबह 9:00 से दोपहर 2:00",
-    location: "संस्था परिसर, गुडामलानी",
-    category: "स्वास्थ्य सेवा",
-    description: "निःशुल्क स्वास्थ्य जांच, रक्तचाप, मधुमेह और सामान्य चिकित्सा परामर्श",
-    registeredCount: 45,
-    maxParticipants: 100,
-    isUrgent: false
-  },
-  {
-    id: "2",
-    title: "रक्तदान महादान शिविर",
-    date: "2024-06-20",
-    time: "सुबह 8:00 से दोपहर 1:00",
-    location: "सामुदायिक भवन, गुडामलानी",
-    category: "रक्तदान",
-    description: "जीवन बचाने के लिए रक्तदान करें। सभी रक्तदाताओं का स्वागत है।",
-    registeredCount: 28,
-    maxParticipants: 50,
-    isUrgent: true
-  },
-  {
-    id: "3",
-    title: "पुस्तकालय भवन उद्घाटन समारोह",
-    date: "2024-07-01",
-    time: "सुबह 11:00 से दोपहर 1:00",
-    location: "नया पुस्तकालय भवन, गुडामलानी",
-    category: "उद्घाटन समारोह",
-    description: "35 लाख रुपए की लागत से निर्मित नए पुस्तकालय भवन का भव्य उद्घाटन",
-    registeredCount: 85,
-    maxParticipants: 200,
-    isUrgent: false
-  }
-];
-
 export function UpcomingEvents() {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUpcomingEvents = () => {
+      try {
+        // Get current date for filtering upcoming events
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const eventsQuery = query(
+          collection(db, 'events'),
+          where('isActive', '==', true),
+          where('date', '>=', today.toISOString().split('T')[0]),
+          orderBy('date', 'asc'),
+          limit(6)
+        );
+
+        const unsubscribe = onSnapshot(
+          eventsQuery, 
+          async (snapshot) => {
+            const eventsData = await Promise.all(
+              snapshot.docs.map(async (doc) => {
+                const eventData = { id: doc.id, ...doc.data() } as Event;
+                
+                // Fetch registration count for this event
+                try {
+                  const registrationsQuery = query(
+                    collection(db, 'event-registrations'),
+                    where('eventId', '==', doc.id)
+                  );
+                  const registrationsSnapshot = await getDocs(registrationsQuery);
+                  eventData.registeredCount = registrationsSnapshot.size;
+                } catch (error) {
+                  console.error('Error fetching registration count:', error);
+                  eventData.registeredCount = 0;
+                }
+                
+                return eventData;
+              })
+            );
+
+            setEvents(eventsData);
+            setLoading(false);
+          },
+          (error) => {
+            console.error('Error fetching events:', error);
+            // Set fallback sample data for demo purposes when database is not accessible
+            setEvents([
+              {
+                id: 'sample-1',
+                title: 'मासिक स्वास्थ्य जांच शिविर',
+                description: 'निःशुल्क स्वास्थ्य जांच, रक्तचाप, मधुमेह और सामान्य चिकित्सा परामर्श',
+                date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 days from now
+                startTime: '09:00',
+                endTime: '14:00',
+                location: 'संस्था परिसर, गुडामलानी',
+                category: 'स्वास्थ्य सेवा',
+                maxParticipants: 100,
+                registrationDeadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                isActive: true,
+                isFeatured: false,
+                isUrgent: false,
+                registrationFee: 0,
+                contactPerson: 'श्री आत्माराम बोरा',
+                contactPhone: '+91 96600 89144',
+                requirements: [],
+                benefits: [],
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                registeredCount: 45
+              },
+              {
+                id: 'sample-2',
+                title: 'रक्तदान महादान शिविर',
+                description: 'जीवन बचाने के लिए रक्तदान करें। सभी रक्तदाताओं का स्वागत है।',
+                date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 14 days from now
+                startTime: '08:00',
+                endTime: '13:00',
+                location: 'सामुदायिक भवन, गुडामलानी',
+                category: 'रक्तदान',
+                maxParticipants: 50,
+                registrationDeadline: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                isActive: true,
+                isFeatured: true,
+                isUrgent: true,
+                registrationFee: 0,
+                contactPerson: 'श्री बाबूराम शर्मा',
+                contactPhone: '+91 99288 00933',
+                requirements: [],
+                benefits: [],
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                registeredCount: 28
+              }
+            ]);
+            setLoading(false);
+          }
+        );
+
+        return unsubscribe;
+      } catch (error) {
+        console.error('Error setting up events listener:', error);
+        setLoading(false);
+      }
+    };
+
+    const unsubscribe = fetchUpcomingEvents();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('hi-IN', {
@@ -77,6 +173,38 @@ export function UpcomingEvents() {
     return diffDays;
   };
 
+  const formatTime = (timeString: string) => {
+    if (!timeString) return '';
+    try {
+      const [hours, minutes] = timeString.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'दोपहर' : 'सुबह';
+      const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+      return `${displayHour}:${minutes} ${ampm}`;
+    } catch {
+      return timeString;
+    }
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'स्वास्थ्य सेवा':
+      case 'health':
+        return 'bg-green-100 text-green-800';
+      case 'रक्तदान':
+      case 'blood donation':
+        return 'bg-red-100 text-red-800';
+      case 'शिक्षा':
+      case 'education':
+        return 'bg-blue-100 text-blue-800';
+      case 'सामाजिक सेवा':
+      case 'social service':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
     <section className="py-16 bg-gradient-to-br from-purple-50 to-blue-50">
       <div className="container mx-auto px-4">
@@ -89,10 +217,31 @@ export function UpcomingEvents() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {upcomingEvents.map((event, index) => {
-            const daysUntil = getDaysUntilEvent(event.date);
-            const progressPercentage = (event.registeredCount / event.maxParticipants) * 100;
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">कार्यक्रम लोड हो रहे हैं...</p>
+          </div>
+        ) : events.length === 0 ? (
+          <div className="text-center py-12">
+            <CalendarX className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">कोई आगामी कार्यक्रम नहीं</h3>
+            <p className="text-gray-500 mb-6">
+              फिलहाल कोई कार्यक्रम निर्धारित नहीं है। नए कार्यक्रमों की जानकारी के लिए जुड़े रहें।
+            </p>
+            <Link href="/events">
+              <Button variant="outline">
+                सभी कार्यक्रम देखें
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {events.map((event, index) => {
+              const daysUntil = getDaysUntilEvent(event.date);
+              const progressPercentage = event.maxParticipants > 0 
+                ? ((event.registeredCount || 0) / event.maxParticipants) * 100 
+                : 0;
             
             return (
               <Card 
@@ -103,15 +252,17 @@ export function UpcomingEvents() {
               >
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start mb-2">
-                    <Badge 
-                      variant={event.category === "रक्तदान" ? "destructive" : "secondary"}
-                      className="text-xs"
-                    >
+                    <Badge className={`text-xs ${getCategoryColor(event.category)}`}>
                       {event.category}
                     </Badge>
                     {event.isUrgent && (
                       <Badge variant="destructive" className="text-xs animate-pulse">
                         तत्काल आवश्यकता
+                      </Badge>
+                    )}
+                    {event.isFeatured && (
+                      <Badge className="text-xs bg-yellow-100 text-yellow-800">
+                        विशेष
                       </Badge>
                     )}
                   </div>
@@ -134,7 +285,10 @@ export function UpcomingEvents() {
                     
                     <div className="flex items-center text-sm text-gray-600">
                       <Clock className="w-4 h-4 mr-2 text-green-500" />
-                      <span>{event.time}</span>
+                      <span>
+                        {formatTime(event.startTime)}
+                        {event.endTime && ` से ${formatTime(event.endTime)}`}
+                      </span>
                     </div>
                     
                     <div className="flex items-center text-sm text-gray-600">
@@ -144,7 +298,9 @@ export function UpcomingEvents() {
                     
                     <div className="flex items-center text-sm text-gray-600">
                       <Users className="w-4 h-4 mr-2 text-purple-500" />
-                      <span>{event.registeredCount}/{event.maxParticipants} पंजीकृत</span>
+                      <span>
+                        {event.registeredCount || 0}/{event.maxParticipants} पंजीकृत
+                      </span>
                     </div>
                   </div>
 
@@ -164,25 +320,35 @@ export function UpcomingEvents() {
                           progressPercentage > 80 ? 'bg-red-500' : 
                           progressPercentage > 60 ? 'bg-yellow-500' : 'bg-green-500'
                         }`}
-                        style={{ width: `${progressPercentage}%` }}
+                        style={{ width: `${Math.min(progressPercentage, 100)}%` }}
                       ></div>
                     </div>
                   </div>
 
-                  <Button 
-                    className={`w-full ${
-                      event.isUrgent 
-                        ? 'bg-red-600 hover:bg-red-700' 
-                        : 'bg-blue-600 hover:bg-blue-700'
-                    }`}
-                  >
-                    {progressPercentage >= 100 ? 'प्रतीक्षा सूची में जोड़ें' : 'पंजीकरण करें'}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Link href={`/events/${event.id}`} className="flex-1">
+                      <Button 
+                        className={`w-full ${
+                          event.isUrgent 
+                            ? 'bg-red-600 hover:bg-red-700' 
+                            : 'bg-blue-600 hover:bg-blue-700'
+                        }`}
+                      >
+                        {progressPercentage >= 100 ? 'प्रतीक्षा सूची' : 'पंजीकरण करें'}
+                      </Button>
+                    </Link>
+                    <Link href={`/events/${event.id}`}>
+                      <Button variant="outline" size="sm">
+                        विवरण
+                      </Button>
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Quick Registration CTA */}
         <div className="bg-white rounded-2xl p-8 shadow-lg">
