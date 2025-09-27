@@ -1,113 +1,147 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Users, Clock, Phone } from "lucide-react";
-
-// Sample events data - यह बाद में database से आएगा
-const upcomingEvents = [
-  {
-    id: "1",
-    title: "मासिक स्वास्थ्य जांच शिविर",
-    date: "2024-06-15",
-    time: "सुबह 9:00 से दोपहर 2:00 तक",
-    location: "संस्था परिसर, गुडामलानी",
-    description: "निःशुल्क स्वास्थ्य जांच, रक्तचाप, मधुमेह और सामान्य चिकित्सा परामर्श",
-    maxParticipants: 100,
-    registeredParticipants: 45,
-    contactPerson: "श्री आत्माराम बोरा",
-    contactPhone: "+91 96600 89144",
-    image: "/events/health-camp.jpg",
-    category: "स्वास्थ्य सेवा",
-    isRegistrationOpen: true
-  },
-  {
-    id: "2",
-    title: "रक्तदान महादान शिविर",
-    date: "2024-06-20",
-    time: "सुबह 8:00 से दोपहर 1:00 तक",
-    location: "सामुदायिक भवन, गुडामलानी",
-    description: "जीवन बचाने के लिए रक्तदान करें। सभी रक्तदाताओं का स्वागत है।",
-    maxParticipants: 50,
-    registeredParticipants: 28,
-    contactPerson: "श्री बाबूराम शर्मा",
-    contactPhone: "+91 99288 00933",
-    image: "/events/blood-donation.jpg",
-    category: "रक्तदान",
-    isRegistrationOpen: true
-  },
-  {
-    id: "3",
-    title: "महिला सशक्तिकरण कार्यशाला",
-    date: "2024-06-25",
-    time: "सुबह 10:00 से शाम 4:00 तक",
-    location: "संस्था परिसर, गुडामलानी",
-    description: "महिलाओं के लिए कौशल विकास, स्वरोजगार और अधिकारों की जानकारी",
-    maxParticipants: 30,
-    registeredParticipants: 18,
-    contactPerson: "श्रीमती मीना देवी",
-    contactPhone: "+91 99518 00733",
-    image: "/events/women-empowerment.jpg",
-    category: "सामाजिक कार्यक्रम",
-    isRegistrationOpen: true
-  },
-  {
-    id: "4",
-    title: "पुस्तकालय भवन उद्घाटन समारोह",
-    date: "2024-07-01",
-    time: "सुबह 11:00 से दोपहर 1:00 तक",
-    location: "नया पुस्तकालय भवन, गुडामलानी",
-    description: "35 लाख रुपए की लागत से निर्मित नए पुस्तकालय भवन का भव्य उद्घाटन",
-    maxParticipants: 200,
-    registeredParticipants: 85,
-    contactPerson: "श्री आत्माराम बोरा",
-    contactPhone: "+91 96600 89144",
-    image: "/events/library-inauguration.jpg",
-    category: "उद्घाटन समारोह",
-    isRegistrationOpen: true
-  }
-];
-
-const pastEvents = [
-  {
-    id: "5",
-    title: "मान मिलाप समारोह 2022",
-    date: "2022-08-15",
-    location: "संस्था परिसर, गुडामलानी",
-    description: "द्वितीय वार्षिकोत्सव पर सामाजिक कार्यकर्ताओं का सम्मान समारोह",
-    participants: 150,
-    image: "/events/maan-milap-2022.jpg",
-    category: "वार्षिकोत्सव",
-    highlights: [
-      "50+ सामाजिक कार्यकर्ताओं का सम्मान",
-      "सांस्कृतिक कार्यक्रम का आयोजन",
-      "भामाशाहों को प्रशंसा पत्र वितरण"
-    ]
-  },
-  {
-    id: "6",
-    title: "रक्तदान शिविर जुलाई 2022",
-    date: "2022-07-20",
-    location: "सामुदायिक भवन, गुडामलानी",
-    description: "50+ रक्तदाताओं ने रक्तदान कर जीवन दान का पुण्य कार्य किया",
-    participants: 52,
-    image: "/events/blood-camp-july-2022.jpg",
-    category: "रक्तदान",
-    highlights: [
-      "52 यूनिट रक्त संग्रह",
-      "नए रक्तदाताओं का पंजीकरण",
-      "स्वास्थ्य जांच सुविधा"
-    ]
-  }
-];
-
-const categories = ["सभी", "स्वास्थ्य सेवा", "रक्तदान", "सामाजिक कार्यक्रम", "शिक्षा", "उद्घाटन समारोह"];
+import { Calendar, MapPin, Users, Clock, Phone, Star, AlertTriangle, CheckCircle } from "lucide-react";
+import Link from 'next/link';
+import { 
+  collection, 
+  getDocs, 
+  query,
+  orderBy,
+  where 
+} from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { Event, EventRegistration } from '@/lib/types';
 
 export default function EventsPage() {
   const [activeTab, setActiveTab] = useState("upcoming");
   const [selectedCategory, setSelectedCategory] = useState("सभी");
+  const [events, setEvents] = useState<Event[]>([]);
+  const [registrations, setRegistrations] = useState<EventRegistration[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const categories = ["सभी", "स्वास्थ्य सेवा", "रक्तदान", "सामाजिक कार्यक्रम", "शिक्षा", "उद्घाटन समारोह", "महिला सशक्तिकरण"];
+
+  // Fetch events from Firebase
+  const fetchEvents = async () => {
+    try {
+      const q = query(
+        collection(db, 'events'), 
+        where('status', 'in', ['published', 'ongoing', 'completed']),
+        orderBy('eventDate', 'desc')
+      );
+      const querySnapshot = await getDocs(q);
+      const eventsData: Event[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        eventsData.push({ 
+          id: doc.id, 
+          ...data,
+          eventDate: data.eventDate?.toDate() || new Date(),
+          endDate: data.endDate?.toDate() || null,
+          registrationDeadline: data.registrationDeadline?.toDate() || null,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date()
+        } as Event);
+      });
+      setEvents(eventsData);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    }
+  };
+
+  // Fetch registrations to get current participant counts
+  const fetchRegistrations = async () => {
+    try {
+      const q = query(
+        collection(db, 'eventRegistrations'),
+        where('status', 'in', ['registered', 'confirmed', 'attended'])
+      );
+      const querySnapshot = await getDocs(q);
+      const registrationsData: EventRegistration[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        registrationsData.push({ 
+          id: doc.id, 
+          ...data,
+          registrationDate: data.registrationDate?.toDate() || new Date(),
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date()
+        } as EventRegistration);
+      });
+      setRegistrations(registrationsData);
+    } catch (error) {
+      console.error('Error fetching registrations:', error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      await Promise.all([fetchEvents(), fetchRegistrations()]);
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
+
+  const getRegistrationCount = (eventId: string) => {
+    return registrations.filter(reg => reg.eventId === eventId).length;
+  };
+
+  const getEventStatus = (event: Event) => {
+    const now = new Date();
+    const eventStart = new Date(event.eventDate);
+    const eventEnd = event.endDate ? new Date(event.endDate) : eventStart;
+    
+    if (event.status === 'cancelled') return 'रद्द';
+    if (eventStart > now) return 'आगामी';
+    if (eventStart <= now && eventEnd >= now) return 'चल रहा';
+    return 'समाप्त';
+  };
+
+  const getStatusColor = (event: Event) => {
+    const status = getEventStatus(event);
+    switch (status) {
+      case 'आगामी':
+        return 'bg-blue-100 text-blue-800';
+      case 'चल रहा':
+        return 'bg-green-100 text-green-800';
+      case 'समाप्त':
+        return 'bg-gray-100 text-gray-800';
+      case 'रद्द':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const isEventExpired = (event: Event) => {
+    const now = new Date();
+    const eventEnd = event.endDate ? new Date(event.endDate) : new Date(event.eventDate);
+    return eventEnd < now;
+  };
+
+  const isRegistrationOpen = (event: Event) => {
+    if (!event.isRegistrationOpen) return false;
+    if (event.registrationDeadline && new Date() > event.registrationDeadline) return false;
+    if (event.maxParticipants && getRegistrationCount(event.id) >= event.maxParticipants) return false;
+    return !isEventExpired(event);
+  };
+
+  // Separate upcoming and past events
+  const now = new Date();
+  const upcomingEvents = events.filter(event => {
+    const eventEnd = event.endDate ? new Date(event.endDate) : new Date(event.eventDate);
+    return eventEnd >= now && event.status !== 'cancelled';
+  });
+
+  const pastEvents = events.filter(event => {
+    const eventEnd = event.endDate ? new Date(event.endDate) : new Date(event.eventDate);
+    return eventEnd < now || event.status === 'completed';
+  });
 
   const filteredUpcomingEvents = upcomingEvents.filter(event => 
     selectedCategory === "सभी" || event.category === selectedCategory
@@ -173,8 +207,20 @@ export default function EventsPage() {
         </div>
       </section>
 
+      {/* Loading State */}
+      {loading && (
+        <section className="py-12">
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">कार्यक्रम लोड हो रहे हैं...</p>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Upcoming Events */}
-      {activeTab === "upcoming" && (
+      {!loading && activeTab === "upcoming" && (
         <section className="py-12">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
@@ -183,76 +229,116 @@ export default function EventsPage() {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {filteredUpcomingEvents.map((event) => (
-                  <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                    <div className="h-48 bg-gray-200">
-                      <img
-                        src="/api/placeholder/400/200"
-                        alt={event.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <CardHeader>
-                      <div className="flex justify-between items-start mb-2">
-                        <Badge variant="secondary" className="text-xs">
-                          {event.category}
-                        </Badge>
-                        <Badge 
-                          variant={event.isRegistrationOpen ? "success" : "destructive"}
-                          className="text-xs"
-                        >
-                          {event.isRegistrationOpen ? "पंजीकरण खुला" : "पंजीकरण बंद"}
-                        </Badge>
+                {filteredUpcomingEvents.map((event) => {
+                  const registrationCount = getRegistrationCount(event.id);
+                  const registrationOpen = isRegistrationOpen(event);
+                  
+                  return (
+                    <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                      <div className="h-48 bg-gradient-to-r from-blue-100 to-purple-100 relative">
+                        {event.featuredImage ? (
+                          <img
+                            src={event.featuredImage}
+                            alt={event.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Calendar className="w-16 h-16 text-blue-400" />
+                          </div>
+                        )}
+                        {event.isFeatured && (
+                          <div className="absolute top-3 right-3">
+                            <Badge className="bg-yellow-500 text-white">
+                              <Star className="w-3 h-3 mr-1" />
+                              फीचर्ड
+                            </Badge>
+                          </div>
+                        )}
                       </div>
-                      <CardTitle className="text-xl font-semibold text-gray-800">
-                        {event.title}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <p className="text-gray-600 text-sm">
-                          {event.description}
-                        </p>
-                        
-                        <div className="space-y-2 text-sm">
-                          <div className="flex items-center text-gray-600">
-                            <Calendar className="w-4 h-4 mr-2" />
-                            {new Date(event.date).toLocaleDateString('hi-IN')} | {event.time}
-                          </div>
-                          <div className="flex items-center text-gray-600">
-                            <MapPin className="w-4 h-4 mr-2" />
-                            {event.location}
-                          </div>
-                          <div className="flex items-center text-gray-600">
-                            <Users className="w-4 h-4 mr-2" />
-                            {event.registeredParticipants}/{event.maxParticipants} पंजीकृत
-                          </div>
-                          <div className="flex items-center text-gray-600">
-                            <Phone className="w-4 h-4 mr-2" />
-                            {event.contactPerson} - {event.contactPhone}
+                      
+                      <CardHeader>
+                        <div className="flex justify-between items-start mb-2">
+                          <Badge variant="secondary" className="text-xs">
+                            {event.category}
+                          </Badge>
+                          <div className="flex space-x-2">
+                            <Badge className={getStatusColor(event)}>
+                              {getEventStatus(event)}
+                            </Badge>
+                            <Badge 
+                              className={registrationOpen ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}
+                            >
+                              {registrationOpen ? "पंजीकरण खुला" : "पंजीकरण बंद"}
+                            </Badge>
                           </div>
                         </div>
+                        <CardTitle className="text-xl font-semibold text-gray-800">
+                          {event.title}
+                        </CardTitle>
+                      </CardHeader>
+                      
+                      <CardContent>
+                        <div className="space-y-3">
+                          <p className="text-gray-600 text-sm line-clamp-3">
+                            {event.description}
+                          </p>
+                          
+                          <div className="space-y-2 text-sm">
+                            <div className="flex items-center text-gray-600">
+                              <Calendar className="w-4 h-4 mr-2" />
+                              {event.eventDate.toLocaleDateString('hi-IN')} | {event.eventTime}
+                            </div>
+                            <div className="flex items-center text-gray-600">
+                              <MapPin className="w-4 h-4 mr-2" />
+                              {event.location}
+                            </div>
+                            <div className="flex items-center text-gray-600">
+                              <Users className="w-4 h-4 mr-2" />
+                              {registrationCount}/{event.maxParticipants || '∞'} पंजीकृत
+                            </div>
+                            <div className="flex items-center text-gray-600">
+                              <Phone className="w-4 h-4 mr-2" />
+                              {event.contactPerson} - {event.contactPhone}
+                            </div>
+                          </div>
 
-                        {/* Progress Bar */}
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-green-600 h-2 rounded-full" 
-                            style={{ 
-                              width: `${(event.registeredParticipants / event.maxParticipants) * 100}%` 
-                            }}
-                          ></div>
+                          {/* Progress Bar */}
+                          {event.maxParticipants && (
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div 
+                                className="bg-blue-600 h-2 rounded-full" 
+                                style={{ 
+                                  width: `${Math.min((registrationCount / event.maxParticipants) * 100, 100)}%` 
+                                }}
+                              ></div>
+                            </div>
+                          )}
+
+                          <div className="flex space-x-2 pt-2">
+                            <Link href={`/events/${event.id}`} className="flex-1">
+                              <Button variant="outline" className="w-full">
+                                विवरण देखें
+                              </Button>
+                            </Link>
+                            
+                            {registrationOpen ? (
+                              <Link href={`/events/${event.id}/register`} className="flex-1">
+                                <Button className="w-full bg-green-600 hover:bg-green-700">
+                                  पंजीकरण करें
+                                </Button>
+                              </Link>
+                            ) : (
+                              <Button className="flex-1" disabled>
+                                {isEventExpired(event) ? "समाप्त" : "पंजीकरण बंद"}
+                              </Button>
+                            )}
+                          </div>
                         </div>
-
-                        <Button 
-                          className="w-full mt-4" 
-                          disabled={!event.isRegistrationOpen}
-                        >
-                          {event.isRegistrationOpen ? "पंजीकरण करें" : "पंजीकरण बंद"}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
 
               {filteredUpcomingEvents.length === 0 && (
@@ -272,7 +358,7 @@ export default function EventsPage() {
       )}
 
       {/* Past Events */}
-      {activeTab === "past" && (
+      {!loading && activeTab === "past" && (
         <section className="py-12">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
@@ -281,61 +367,99 @@ export default function EventsPage() {
               </h2>
 
               <div className="space-y-8">
-                {filteredPastEvents.map((event) => (
-                  <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="md:col-span-1">
-                        <img
-                          src="/api/placeholder/400/300"
-                          alt={event.title}
-                          className="w-full h-48 md:h-full object-cover"
-                        />
-                      </div>
-                      <div className="md:col-span-2 p-6">
-                        <div className="flex items-center gap-4 mb-3">
-                          <Badge variant="secondary" className="text-xs">
-                            {event.category}
-                          </Badge>
-                          <span className="text-sm text-gray-500 flex items-center">
-                            <Calendar className="w-4 h-4 mr-1" />
-                            {new Date(event.date).toLocaleDateString('hi-IN')}
-                          </span>
+                {filteredPastEvents.map((event) => {
+                  const registrationCount = getRegistrationCount(event.id);
+                  
+                  return (
+                    <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="md:col-span-1">
+                          {event.featuredImage ? (
+                            <img
+                              src={event.featuredImage}
+                              alt={event.title}
+                              className="w-full h-48 md:h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-48 md:h-full bg-gradient-to-r from-gray-100 to-gray-200 flex items-center justify-center">
+                              <Calendar className="w-12 h-12 text-gray-400" />
+                            </div>
+                          )}
                         </div>
-                        <h3 className="text-xl font-semibold text-gray-800 mb-3">
-                          {event.title}
-                        </h3>
-                        <p className="text-gray-600 mb-4">
-                          {event.description}
-                        </p>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                          <div className="flex items-center text-sm text-gray-600">
-                            <MapPin className="w-4 h-4 mr-2" />
-                            {event.location}
+                        <div className="md:col-span-2 p-6">
+                          <div className="flex items-center gap-4 mb-3">
+                            <Badge variant="secondary" className="text-xs">
+                              {event.category}
+                            </Badge>
+                            <Badge className={getStatusColor(event)}>
+                              {getEventStatus(event)}
+                            </Badge>
+                            <span className="text-sm text-gray-500 flex items-center">
+                              <Calendar className="w-4 h-4 mr-1" />
+                              {event.eventDate.toLocaleDateString('hi-IN')}
+                            </span>
+                            {event.isFeatured && (
+                              <Badge className="bg-yellow-100 text-yellow-800">
+                                <Star className="w-3 h-3 mr-1" />
+                                फीचर्ड
+                              </Badge>
+                            )}
                           </div>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Users className="w-4 h-4 mr-2" />
-                            {event.participants} प्रतिभागी
+                          <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                            {event.title}
+                          </h3>
+                          <p className="text-gray-600 mb-4 line-clamp-3">
+                            {event.description}
+                          </p>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div className="flex items-center text-sm text-gray-600">
+                              <MapPin className="w-4 h-4 mr-2" />
+                              {event.location}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Users className="w-4 h-4 mr-2" />
+                              {registrationCount} प्रतिभागी
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Clock className="w-4 h-4 mr-2" />
+                              {event.eventTime}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Phone className="w-4 h-4 mr-2" />
+                              {event.contactPerson}
+                            </div>
                           </div>
-                        </div>
 
-                        {event.highlights && (
-                          <div>
-                            <h4 className="font-semibold text-gray-800 mb-2">मुख्य विशेषताएं:</h4>
-                            <ul className="space-y-1">
-                              {event.highlights.map((highlight, index) => (
-                                <li key={index} className="text-sm text-gray-600 flex items-start">
-                                  <span className="text-green-500 mr-2">✓</span>
-                                  {highlight}
-                                </li>
-                              ))}
-                            </ul>
+                          {/* Event Summary */}
+                          <div className="bg-gray-50 p-4 rounded-lg">
+                            <h4 className="font-semibold text-gray-800 mb-2">कार्यक्रम सारांश:</h4>
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <span className="text-gray-600">प्रतिभागी:</span>
+                                <span className="ml-2 font-medium">{registrationCount}</span>
+                              </div>
+                              <div>
+                                <span className="text-gray-600">स्थिति:</span>
+                                <Badge className={`${getStatusColor(event)} ml-2 text-xs`}>
+                                  सफलतापूर्वक संपन्न
+                                </Badge>
+                              </div>
+                            </div>
                           </div>
-                        )}
+
+                          <div className="flex space-x-3 mt-4">
+                            <Link href={`/events/${event.id}`}>
+                              <Button variant="outline" size="sm">
+                                पूरा विवरण देखें
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  );
+                })}
               </div>
 
               {filteredPastEvents.length === 0 && (

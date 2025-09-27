@@ -1,55 +1,167 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Search, Download, Users, Clock, ArrowRight, Star } from "lucide-react";
 import Link from "next/link";
+import { 
+  collection, 
+  query, 
+  orderBy, 
+  limit, 
+  onSnapshot, 
+  where,
+  getDocs
+} from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+
+interface BookCategory {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  isActive: boolean;
+  bookCount: number;
+  order: number;
+}
+
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  category: string;
+  availableCopies: number;
+  totalCopies: number;
+  issuedCopies: number;
+  rating?: number;
+  description?: string;
+  coverImage?: string;
+  createdAt: Date | { seconds: number; nanoseconds: number };
+}
 
 export function LibraryShowcase() {
-  const libraryStats = [
-    { icon: <BookOpen className="w-6 h-6" />, count: "2000+", label: "पुस्तकें उपलब्ध" },
-    { icon: <Users className="w-6 h-6" />, count: "500+", label: "सक्रिय सदस्य" },
-    { icon: <Download className="w-6 h-6" />, count: "1000+", label: "मासिक इश्यू" },
-    { icon: <Star className="w-6 h-6" />, count: "4.9/5", label: "सदस्य रेटिंग" }
-  ];
+  const [bookCategories, setBookCategories] = useState<BookCategory[]>([]);
+  const [featuredBooks, setFeaturedBooks] = useState<Book[]>([]);
+  const [libraryStats, setLibraryStats] = useState({
+    totalBooks: 0,
+    totalCopies: 0,
+    availableCopies: 0,
+    activeMembers: 500,
+    monthlyIssues: 0,
+    rating: 4.9
+  });
+  const [loading, setLoading] = useState(true);
 
-  const bookCategories = [
-    { name: "धार्मिक साहित्य", count: 450, color: "bg-orange-100 text-orange-800" },
-    { name: "शैक्षणिक पुस्तकें", count: 680, color: "bg-blue-100 text-blue-800" },
-    { name: "उपन्यास", count: 320, color: "bg-purple-100 text-purple-800" },
-    { name: "बाल साहित्य", count: 280, color: "bg-green-100 text-green-800" },
-    { name: "विज्ञान", count: 180, color: "bg-red-100 text-red-800" },
-    { name: "इतिहास", count: 90, color: "bg-yellow-100 text-yellow-800" }
-  ];
+  useEffect(() => {
+    fetchLibraryData();
+  }, []);
 
-  const featuredBooks = [
-    {
-      title: "श्रीमद्भगवद्गीता",
-      author: "महर्षि वेदव्यास",
-      category: "धार्मिक साहित्य",
-      available: true,
-      rating: 5,
-      description: "भगवान श्रीकृष्ण द्वारा अर्जुन को दिया गया अमर उपदेश"
-    },
-    {
-      title: "गणित - कक्षा 10",
-      author: "NCERT",
-      category: "शैक्षणिक पुस्तकें",
-      available: true,
-      rating: 4,
-      description: "कक्षा 10 के लिए गणित की पाठ्यपुस्तक"
-    },
-    {
-      title: "कामायनी",
-      author: "जयशंकर प्रसाद",
-      category: "कविता संग्रह",
-      available: false,
-      rating: 5,
-      description: "हिंदी साहित्य का अमर महाकाव्य"
+  const fetchLibraryData = async () => {
+    try {
+      // Fetch categories
+      const categoriesQuery = query(
+        collection(db, 'book-categories'),
+        where('isActive', '==', true),
+        orderBy('bookCount', 'desc'),
+        limit(6)
+      );
+      
+      const categoriesSnapshot = await getDocs(categoriesQuery);
+      const categoriesData = categoriesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as BookCategory[];
+      
+      setBookCategories(categoriesData);
+
+      // Fetch featured books
+      const booksQuery = query(
+        collection(db, 'books'),
+        orderBy('createdAt', 'desc'),
+        limit(3)
+      );
+      
+      const booksSnapshot = await getDocs(booksQuery);
+      const booksData = booksSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Book[];
+      
+      setFeaturedBooks(booksData);
+
+      // Calculate stats from all books
+      const allBooksQuery = query(collection(db, 'books'));
+      const allBooksSnapshot = await getDocs(allBooksQuery);
+      
+      let totalBooks = 0;
+      let totalCopies = 0;
+      let availableCopies = 0;
+      let issuedCopies = 0;
+
+      allBooksSnapshot.docs.forEach(doc => {
+        const book = doc.data();
+        totalBooks++;
+        totalCopies += book.totalCopies || 0;
+        availableCopies += book.availableCopies || 0;
+        issuedCopies += book.issuedCopies || 0;
+      });
+
+      setLibraryStats({
+        totalBooks,
+        totalCopies,
+        availableCopies,
+        activeMembers: 500, // This could be fetched from members collection
+        monthlyIssues: issuedCopies,
+        rating: 4.9
+      });
+
+    } catch (error) {
+      console.error('Error fetching library data:', error);
+      // Set fallback data
+      setBookCategories([
+        { id: '1', name: "धार्मिक साहित्य", bookCount: 450, color: "orange", description: "", isActive: true, order: 1 },
+        { id: '2', name: "शैक्षणिक पुस्तकें", bookCount: 680, color: "blue", description: "", isActive: true, order: 2 },
+        { id: '3', name: "उपन्यास", bookCount: 320, color: "purple", description: "", isActive: true, order: 3 },
+        { id: '4', name: "बाल साहित्य", bookCount: 280, color: "green", description: "", isActive: true, order: 4 }
+      ]);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const getColorClass = (color: string) => {
+    switch (color) {
+      case 'orange': return 'bg-orange-100 text-orange-800';
+      case 'blue': return 'bg-blue-100 text-blue-800';
+      case 'purple': return 'bg-purple-100 text-purple-800';
+      case 'green': return 'bg-green-100 text-green-800';
+      case 'red': return 'bg-red-100 text-red-800';
+      case 'yellow': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const displayStats = [
+    { icon: <BookOpen className="w-6 h-6" />, count: `${libraryStats.totalBooks}+`, label: "पुस्तकें उपलब्ध" },
+    { icon: <Users className="w-6 h-6" />, count: `${libraryStats.activeMembers}+`, label: "सक्रिय सदस्य" },
+    { icon: <Download className="w-6 h-6" />, count: `${libraryStats.monthlyIssues}+`, label: "कुल इश्यू" },
+    { icon: <Star className="w-6 h-6" />, count: `${libraryStats.rating}/5`, label: "सदस्य रेटिंग" }
   ];
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-2 text-gray-600">पुस्तकालय डेटा लोड हो रहा है...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-16 bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
@@ -65,7 +177,7 @@ export function LibraryShowcase() {
 
         {/* Library Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-          {libraryStats.map((stat, index) => (
+          {displayStats.map((stat, index) => (
             <Card key={index} className="text-center hover:shadow-lg transition-shadow duration-300">
               <CardContent className="p-6">
                 <div className="text-blue-600 mb-3 flex justify-center">
@@ -89,22 +201,33 @@ export function LibraryShowcase() {
               📖 पुस्तक श्रेणियां
             </h3>
             <div className="space-y-4">
-              {bookCategories.map((category, index) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
-                  <div className="flex items-center">
-                    <Badge className={`${category.color} mr-3`}>
-                      {category.count}
-                    </Badge>
-                    <span className="font-medium text-gray-800">{category.name}</span>
-                  </div>
-                  <div className="w-20 bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full"
-                      style={{ width: `${(category.count / 680) * 100}%` }}
-                    ></div>
-                  </div>
+              {bookCategories.length === 0 ? (
+                <div className="text-center py-4">
+                  <p className="text-gray-600">श्रेणियां लोड हो रही हैं...</p>
                 </div>
-              ))}
+              ) : (
+                bookCategories.map((category) => {
+                  const maxCount = Math.max(...bookCategories.map(c => c.bookCount));
+                  const percentage = maxCount > 0 ? (category.bookCount / maxCount) * 100 : 0;
+                  
+                  return (
+                    <div key={category.id} className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+                      <div className="flex items-center">
+                        <Badge className={`${getColorClass(category.color)} mr-3`}>
+                          {category.bookCount}
+                        </Badge>
+                        <span className="font-medium text-gray-800">{category.name}</span>
+                      </div>
+                      <div className="w-20 bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-blue-600 h-2 rounded-full"
+                          style={{ width: `${percentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -114,40 +237,56 @@ export function LibraryShowcase() {
               ⭐ लोकप्रिय पुस्तकें
             </h3>
             <div className="space-y-4">
-              {featuredBooks.map((book, index) => (
-                <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-semibold text-gray-800 line-clamp-1">
-                        {book.title}
-                      </h4>
-                      <Badge
-                        variant={book.available ? "success" : "destructive"}
-                        className="text-xs"
-                      >
-                        {book.available ? "उपलब्ध" : "इश्यू में"}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">
-                      लेखक: {book.author}
-                    </p>
-                    <p className="text-xs text-gray-500 mb-3 line-clamp-2">
-                      {book.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        {[...Array(book.rating)].map((_, i) => (
-                          <Star key={i} className="w-3 h-3 text-yellow-400 fill-current" />
-                        ))}
-                        <span className="text-xs text-gray-500 ml-1">({book.rating}/5)</span>
+              {featuredBooks.length === 0 ? (
+                <div className="text-center py-4">
+                  <p className="text-gray-600">पुस्तकें लोड हो रही हैं...</p>
+                </div>
+              ) : (
+                featuredBooks.map((book) => (
+                  <Card key={book.id} className="hover:shadow-lg transition-shadow duration-300">
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-semibold text-gray-800 line-clamp-1">
+                          {book.title}
+                        </h4>
+                        <Badge
+                          variant={book.availableCopies > 0 ? "default" : "destructive"}
+                          className="text-xs"
+                        >
+                          {book.availableCopies > 0 ? "उपलब्ध" : "इश्यू में"}
+                        </Badge>
                       </div>
-                      <Badge variant="outline" className="text-xs">
-                        {book.category}
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                      <p className="text-sm text-gray-600 mb-2">
+                        लेखक: {book.author}
+                      </p>
+                      {book.description && (
+                        <p className="text-xs text-gray-500 mb-3 line-clamp-2">
+                          {book.description}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          {book.rating ? (
+                            <>
+                              {[...Array(book.rating)].map((_, i) => (
+                                <Star key={i} className="w-3 h-3 text-yellow-400 fill-current" />
+                              ))}
+                              <span className="text-xs text-gray-500 ml-1">({book.rating}/5)</span>
+                            </>
+                          ) : (
+                            <span className="text-xs text-gray-500">
+                              {book.availableCopies}/{book.totalCopies} उपलब्ध
+                            </span>
+                          )}
+                        </div>
+                        <Badge variant="outline" className="text-xs">
+                          {book.category}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </div>
           </div>
         </div>

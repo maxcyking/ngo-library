@@ -64,9 +64,10 @@ const newsItems = [
   },
 ];
 
+
 export default function Home() {
   return (
-    <div>
+    <div itemScope itemType="https://schema.org/NGO">
       {/* Hero Slider */}
       <HeroSlider slides={heroSlides} />
 
@@ -77,23 +78,25 @@ export default function Home() {
       <QuickStats />
 
       {/* Organization Introduction */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white" itemScope itemType="https://schema.org/AboutPage">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
-                संस्था का परिचय
-              </h2>
-              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                एरोग्या पुस्तकालय एवं सेवा संस्था एक सार्वजनिक चैरिटेबल ट्रस्ट है जो 2020 से
-                राजस्थान के बाड़मेर जिले में समाज सेवा के क्षेत्र में निरंतर कार्यरत है। हमारा
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6" itemProp="name">
+                एरोग्या पुस्तकालय एवं सेवा संस्था का परिचय
+              </h1>
+              <p className="text-lg text-gray-600 mb-6 leading-relaxed" itemProp="description">
+                एरोग्या पुस्तकालय एवं सेवा संस्था एक सार्वजनिक चैरिटेबल ट्रस्ट है जो <time itemProp="foundingDate" dateTime="2020">2020</time> से
+                <span itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
+                  <span itemProp="addressRegion">राजस्थान</span> के <span itemProp="addressLocality">बाड़मेर</span> जिले
+                </span> में समाज सेवा के क्षेत्र में निरंतर कार्यरत है। हमारा
                 मुख्य उद्देश्य शिक्षा, स्वास्थ्य, पुस्तकालय सेवा और सामाजिक कल्याण के माध्यम
                 से समाज के उत्थान में योगदान देना है।
               </p>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed">
                 हमारी संस्था में एक समृद्ध पुस्तकालय है जिसमें धार्मिक, शैक्षणिक, साहित्यिक
-                और तकनीकी विषयों की 2000 से अधिक पुस्तकें उपलब्ध हैं। यह पुस्तकालय सभी आयु वर्ग
-                के लोगों के लिए निःशुल्क उपलब्ध है। वर्तमान में 35 लाख रुपए की लागत से नया
+                और तकनीकी विषयों की <strong>2000 से अधिक पुस्तकें</strong> उपलब्ध हैं। यह पुस्तकालय सभी आयु वर्ग
+                के लोगों के लिए <strong>निःशुल्क</strong> उपलब्ध है। वर्तमान में <strong>35 लाख रुपए</strong> की लागत से नया
                 आधुनिक पुस्तकालय भवन निर्माणाधीन है।
               </p>
               <div className="flex flex-col sm:flex-row gap-4">

@@ -1,0 +1,12 @@
+{"users": [
+{
+  "localId": "sT228snM1XQqaOSxoB4GDQcD06q2",
+  "email": "admin@gmail.com",
+  "emailVerified": false,
+  "passwordHash": "bJsn5goZgNg1/b6fcErGQYVRL6tz6rIPJY5W0y/74p3JjZH1+m8hNKQ++x/KZUr8/BsCm4XAEpDVN1JBdcAZOw==",
+  "salt": "KVkH35fn5BZS+Q==",
+  "lastSignedInAt": "1757489029445",
+  "createdAt": "1757488571855",
+  "disabled": false,
+  "providerUserInfo": []
+}]}

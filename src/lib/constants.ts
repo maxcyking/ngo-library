@@ -15,7 +15,7 @@ export const PUBLIC_NAVIGATION = [
   { href: "/events", label: "कार्यक्रम" },
   { href: "/news", label: "समाचार" },
   { href: "/media", label: "मीडिया" },
-  { href: "/register", label: "पंजीकरण" },
+  { href: "/apply", label: "आवेदन करें" },
   { href: "/contact", label: "संपर्क" },
 ];
 
@@ -32,10 +32,16 @@ export const USER_NAVIGATION = [
 export const ADMIN_NAVIGATION = [
   { href: "/admin/dashboard", label: "एडमिन डैशबोर्ड" },
   { href: "/admin/members", label: "सदस्य प्रबंधन" },
+  { href: "/admin/applications", label: "आवेदन प्रबंधन" },
   { href: "/admin/books", label: "पुस्तक प्रबंधन" },
-  { href: "/admin/content", label: "कंटेंट प्रबंधन" },
-  { href: "/admin/media", label: "मीडिया प्रबंधन" },
-  { href: "/admin/forms", label: "फॉर्म प्रबंधन" },
+  { href: "/admin/events", label: "कार्यक्रम प्रबंधन" },
+  { href: "/admin/donations", label: "दान प्रबंधन" },
+  { href: "/admin/news", label: "समाचार प्रबंधन" },
+  { href: "/admin/media", label: "मीडिया/गैलरी प्रबंधन" },
+  { href: "/admin/testimonials", label: "प्रशंसापत्र प्रबंधन" },
+  { href: "/admin/stats", label: "आंकड़े प्रबंधन" },
+  { href: "/admin/work-areas", label: "कार्य क्षेत्र प्रबंधन" },
+  { href: "/admin/ui", label: "UI प्रबंधन" },
 ];
 
 // Colors

@@ -1,105 +1,44 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Heart, Search, Phone, User, Droplets } from "lucide-react";
+import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
-// Sample donation data - यह बाद में database से आएगा
-const bloodDonors = [
-  {
-    id: "1",
-    name: "राजेश कुमार शर्मा",
-    bloodGroup: "O+",
-    phone: "+91 98765 43210",
-    location: "गुडामलानी",
-    lastDonation: "15 दिसंबर 2023",
-    totalDonations: 5
-  },
-  {
-    id: "2",
-    name: "सुनीता देवी",
-    bloodGroup: "A+",
-    phone: "+91 98765 43211",
-    location: "बाड़मेर",
-    lastDonation: "10 नवंबर 2023",
-    totalDonations: 3
-  },
-  {
-    id: "3",
-    name: "मोहन लाल जी",
-    bloodGroup: "B+",
-    phone: "+91 98765 43212",
-    location: "गुडामलानी",
-    lastDonation: "5 अक्टूबर 2023",
-    totalDonations: 8
-  },
-  {
-    id: "4",
-    name: "प्रीति शर्मा",
-    bloodGroup: "AB+",
-    phone: "+91 98765 43213",
-    location: "जोधपुर",
-    lastDonation: "20 सितंबर 2023",
-    totalDonations: 2
-  },
-  {
-    id: "5",
-    name: "अमित कुमार",
-    bloodGroup: "O-",
-    phone: "+91 98765 43214",
-    location: "गुडामलानी",
-    lastDonation: "1 सितंबर 2023",
-    totalDonations: 12
-  }
-];
+interface BloodDonor {
+  id: string;
+  name: string;
+  bloodGroup: string;
+  phone: string;
+  location: string;
+  lastDonation: string;
+  totalDonations: number;
+  isActive: boolean;
+}
 
-const bodyDonors = [
-  {
-    id: "1",
-    name: "श्री रामचंद्र जी",
-    age: 65,
-    location: "गुडामलानी",
-    registrationDate: "जनवरी 2023"
-  },
-  {
-    id: "2",
-    name: "श्रीमती सुशीला देवी",
-    age: 58,
-    location: "बाड़मेर",
-    registrationDate: "मार्च 2023"
-  }
-];
+interface BodyDonor {
+  id: string;
+  name: string;
+  age: number;
+  location: string;
+  registrationDate: string;
+  isActive: boolean;
+}
 
-const financialDonors = [
-  {
-    id: "1",
-    name: "श्री आत्माराम बोरा",
-    amount: "₹50,000",
-    purpose: "पुस्तकालय भवन निर्माण",
-    date: "जून 2023",
-    image: "/donors/atmaram-bora.jpg"
-  },
-  {
-    id: "2",
-    name: "श्रीमती मीना देवी",
-    amount: "₹25,000",
-    purpose: "शिक्षा सहायता कोष",
-    date: "मई 2023",
-    image: "/donors/meena-devi.jpg"
-  },
-  {
-    id: "3",
-    name: "श्री बाबूराम शर्मा",
-    amount: "₹15,000",
-    purpose: "स्वास्थ्य शिविर",
-    date: "अप्रैल 2023",
-    image: "/donors/baburam-sharma.jpg"
-  }
-];
+interface FinancialDonor {
+  id: string;
+  name: string;
+  amount: number;
+  purpose: string;
+  date: string;
+  image?: string;
+  isActive: boolean;
+}
 
 const bloodGroups = ["सभी", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
@@ -107,6 +46,64 @@ export default function DonationsPage() {
   const [activeTab, setActiveTab] = useState("blood");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBloodGroup, setSelectedBloodGroup] = useState("सभी");
+  const [bloodDonors, setBloodDonors] = useState<BloodDonor[]>([]);
+  const [bodyDonors, setBodyDonors] = useState<BodyDonor[]>([]);
+  const [financialDonors, setFinancialDonors] = useState<FinancialDonor[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDonors();
+  }, []);
+
+  const fetchDonors = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch active blood donors
+      const bloodQuery = query(
+        collection(db, "bloodDonors"), 
+        where("isActive", "==", true),
+        orderBy("name")
+      );
+      const bloodSnapshot = await getDocs(bloodQuery);
+      const bloodData = bloodSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as BloodDonor[];
+      setBloodDonors(bloodData);
+
+      // Fetch active body donors
+      const bodyQuery = query(
+        collection(db, "bodyDonors"), 
+        where("isActive", "==", true),
+        orderBy("name")
+      );
+      const bodySnapshot = await getDocs(bodyQuery);
+      const bodyData = bodySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as BodyDonor[];
+      setBodyDonors(bodyData);
+
+      // Fetch active financial donors
+      const financialQuery = query(
+        collection(db, "financialDonors"), 
+        where("isActive", "==", true),
+        orderBy("date", "desc")
+      );
+      const financialSnapshot = await getDocs(financialQuery);
+      const financialData = financialSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as FinancialDonor[];
+      setFinancialDonors(financialData);
+
+    } catch (error) {
+      console.error("Error fetching donors:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredBloodDonors = bloodDonors.filter(donor => {
     const matchesSearch = donor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -129,15 +126,15 @@ export default function DonationsPage() {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
               <div className="bg-white bg-opacity-20 p-4 rounded-lg">
-                <div className="text-2xl font-bold">150+</div>
+                <div className="text-2xl font-bold">{bloodDonors.length}+</div>
                 <div className="text-sm">रक्तदाता</div>
               </div>
               <div className="bg-white bg-opacity-20 p-4 rounded-lg">
-                <div className="text-2xl font-bold">25+</div>
+                <div className="text-2xl font-bold">{bodyDonors.length}+</div>
                 <div className="text-sm">देहदाता</div>
               </div>
               <div className="bg-white bg-opacity-20 p-4 rounded-lg">
-                <div className="text-2xl font-bold">100+</div>
+                <div className="text-2xl font-bold">{financialDonors.length}+</div>
                 <div className="text-sm">भामाशाह</div>
               </div>
             </div>
@@ -179,8 +176,18 @@ export default function DonationsPage() {
         </div>
       </section>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">डेटा लोड हो रहा है...</p>
+          </div>
+        </div>
+      )}
+
       {/* Blood Donation Section */}
-      {activeTab === "blood" && (
+      {!loading && activeTab === "blood" && (
         <section className="py-12">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
@@ -282,7 +289,7 @@ export default function DonationsPage() {
       )}
 
       {/* Body Donation Section */}
-      {activeTab === "body" && (
+      {!loading && activeTab === "body" && (
         <section className="py-12">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
@@ -338,7 +345,7 @@ export default function DonationsPage() {
       )}
 
       {/* Financial Donors Section */}
-      {activeTab === "financial" && (
+      {!loading && activeTab === "financial" && (
         <section className="py-12">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
@@ -357,19 +364,23 @@ export default function DonationsPage() {
                     <CardContent className="p-6">
                       <div className="text-center">
                         <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-4 overflow-hidden">
-                          <Image
-                            src="/api/placeholder/80/80"
-                            alt={donor.name}
-                            width={80}
-                            height={80}
-                            className="w-full h-full object-cover"
-                          />
+                          {donor.image ? (
+                            <Image
+                              src={donor.image}
+                              alt={donor.name}
+                              width={80}
+                              height={80}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-2xl">🏆</span>
+                          )}
                         </div>
                         <h3 className="text-lg font-semibold text-gray-800 mb-2">
                           {donor.name}
                         </h3>
-                        <Badge variant="success" className="mb-2">
-                          {donor.amount}
+                        <Badge variant="secondary" className="mb-2">
+                          ₹{donor.amount.toLocaleString()}
                         </Badge>
                         <p className="text-sm text-gray-600 mb-2">
                           {donor.purpose}

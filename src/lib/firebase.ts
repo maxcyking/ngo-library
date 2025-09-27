@@ -31,7 +31,7 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase services
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+export const db = getFirestore(app, 'arogya-db'); // Use the correct database name
 export const storage = getStorage(app);
 
 // Enable offline persistence for better UX

@@ -1,376 +1,266 @@
-"use client";
+import { Metadata } from 'next'
 
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Search, BookOpen, Filter, Download } from "lucide-react";
-import { BOOK_CATEGORIES, LANGUAGES } from "@/lib/constants";
-
-// Sample book data - यह बाद में database से आएगा
-const sampleBooks = [
-  {
-    id: "1",
-    title: "श्रीमद्भगवद्गीता",
-    author: "महर्षि वेदव्यास",
-    category: "धार्मिक साहित्य",
-    language: "hindi",
-    totalCopies: 5,
-    availableCopies: 3,
-    isbn: "978-81-7224-000-1",
-    description: "भगवान श्रीकृष्ण द्वारा अर्जुन को दिया गया अमर उपदेश",
-    coverImage: "/api/placeholder/200/300"
+export const metadata: Metadata = {
+  title: "निःशुल्क पुस्तकालय सेवा - 2000+ पुस्तकों का संग्रह | एरोग्या पुस्तकालय बाड़मेर",
+  description: "एरोग्या पुस्तकालय में 2000+ धार्मिक, शैक्षणिक, साहित्यिक और तकनीकी पुस्तकों का निःशुल्क संग्रह। बाड़मेर राजस्थान में सभी आयु वर्ग के लिए उपलब्ध। नया आधुनिक भवन निर्माणाधीन।",
+  keywords: [
+    "निःशुल्क पुस्तकालय बाड़मेर",
+    "राजस्थान पुस्तकालय",
+    "धार्मिक पुस्तकें",
+    "शैक्षणिक पुस्तकें",
+    "साहित्यिक पुस्तकें",
+    "तकनीकी पुस्तकें",
+    "Free Library Barmer",
+    "Rajasthan Library",
+    "एरोग्या लाइब्रेरी",
+    "पुस्तक सेवा"
+  ],
+  openGraph: {
+    title: "निःशुल्क पुस्तकालय सेवा - एरोग्या पुस्तकालय बाड़मेर",
+    description: "2000+ धार्मिक, शैक्षणिक, साहित्यिक और तकनीकी पुस्तकों का निःशुल्क संग्रह। सभी आयु वर्ग के लिए उपलब्ध।",
+    images: ['/og-library.jpg'],
   },
-  {
-    id: "2", 
-    title: "रामायण",
-    author: "महर्षि वाल्मीकि",
-    category: "धार्मिक साहित्य",
-    language: "hindi",
-    totalCopies: 4,
-    availableCopies: 2,
-    isbn: "978-81-7224-001-8",
-    description: "भगवान राम के जीवन चरित्र पर आधारित महाकाव्य",
-    coverImage: "/api/placeholder/200/300"
-  },
-  {
-    id: "3",
-    title: "गणित - कक्षा 10",
-    author: "NCERT",
-    category: "शैक्षणिक पुस्तकें",
-    language: "hindi",
-    totalCopies: 10,
-    availableCopies: 7,
-    isbn: "978-93-5007-000-1",
-    description: "कक्षा 10 के लिए गणित की पाठ्यपुस्तक",
-    coverImage: "/api/placeholder/200/300"
-  },
-  {
-    id: "4",
-    title: "विज्ञान - कक्षा 9",
-    author: "NCERT",
-    category: "शैक्षणिक पुस्तकें", 
-    language: "hindi",
-    totalCopies: 8,
-    availableCopies: 5,
-    isbn: "978-93-5007-001-8",
-    description: "कक्षा 9 के लिए विज्ञान की पाठ्यपुस्तक",
-    coverImage: "/api/placeholder/200/300"
-  },
-  {
-    id: "5",
-    title: "हरी घास के ये दिन",
-    author: "फणीश्वरनाथ रेणु",
-    category: "उपन्यास",
-    language: "hindi",
-    totalCopies: 3,
-    availableCopies: 1,
-    isbn: "978-81-267-0000-1",
-    description: "प्रसिद्ध हिंदी उपन्यास",
-    coverImage: "/api/placeholder/200/300"
-  },
-  {
-    id: "6",
-    title: "कामायनी",
-    author: "जयशंकर प्रसाद",
-    category: "कविता संग्रह",
-    language: "hindi",
-    totalCopies: 2,
-    availableCopies: 2,
-    isbn: "978-81-267-0001-8",
-    description: "हिंदी साहित्य का अमर महाकाव्य",
-    coverImage: "/api/placeholder/200/300"
-  }
-];
+}
 
 export default function LibraryPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState("");
-  const [filteredBooks, setFilteredBooks] = useState(sampleBooks);
-
-  // Filter books based on search and filters
-  React.useEffect(() => {
-    let filtered = sampleBooks;
-
-    if (searchQuery) {
-      filtered = filtered.filter(book => 
-        book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        book.author.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    if (selectedCategory) {
-      filtered = filtered.filter(book => book.category === selectedCategory);
-    }
-
-    if (selectedLanguage) {
-      filtered = filtered.filter(book => book.language === selectedLanguage);
-    }
-
-    setFilteredBooks(filtered);
-  }, [searchQuery, selectedCategory, selectedLanguage]);
-
-  const clearFilters = () => {
-    setSearchQuery("");
-    setSelectedCategory("");
-    setSelectedLanguage("");
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" itemScope itemType="https://schema.org/Library">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
+      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              📚 पुस्तकालय सूची
+            <h1 className="text-4xl md:text-5xl font-bold mb-6" itemProp="name">
+              📚 एरोग्या पुस्तकालय
             </h1>
-            <p className="text-xl mb-8">
-              2000+ पुस्तकों का विशाल संग्रह - निःशुल्क उपलब्ध
+            <p className="text-xl md:text-2xl mb-8 opacity-90" itemProp="description">
+              2000+ पुस्तकों का निःशुल्क संग्रह - धार्मिक, शैक्षणिक, साहित्यिक और तकनीकी विषयों की पुस्तकें
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-              <div className="bg-white bg-opacity-20 p-4 rounded-lg">
-                <div className="text-2xl font-bold">2000+</div>
-                <div className="text-sm">कुल पुस्तकें</div>
-              </div>
-              <div className="bg-white bg-opacity-20 p-4 rounded-lg">
-                <div className="text-2xl font-bold">10+</div>
-                <div className="text-sm">विषय श्रेणियां</div>
-              </div>
-              <div className="bg-white bg-opacity-20 p-4 rounded-lg">
-                <div className="text-2xl font-bold">निःशुल्क</div>
-                <div className="text-sm">सदस्यता</div>
-              </div>
+            <div className="flex flex-wrap justify-center gap-4 text-lg">
+              <span className="bg-white bg-opacity-20 px-4 py-2 rounded-full">📖 धार्मिक ग्रंथ</span>
+              <span className="bg-white bg-opacity-20 px-4 py-2 rounded-full">🎓 शैक्षणिक पुस्तकें</span>
+              <span className="bg-white bg-opacity-20 px-4 py-2 rounded-full">✍️ साहित्यिक कृतियां</span>
+              <span className="bg-white bg-opacity-20 px-4 py-2 rounded-full">💻 तकनीकी पुस्तकें</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Search and Filter Section */}
-      <section className="py-8 bg-white shadow-sm">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-              {/* Search */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  पुस्तक खोजें
-                </label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    type="text"
-                    placeholder="पुस्तक का नाम या लेखक का नाम..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-
-              {/* Category Filter */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  श्रेणी
-                </label>
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">सभी श्रेणियां</option>
-                  {BOOK_CATEGORIES.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Language Filter */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  भाषा
-                </label>
-                <select
-                  value={selectedLanguage}
-                  onChange={(e) => setSelectedLanguage(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">सभी भाषाएं</option>
-                  {Object.entries(LANGUAGES).map(([key, value]) => (
-                    <option key={key} value={key}>
-                      {value}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Filter Actions */}
-            <div className="flex justify-between items-center mt-4">
-              <div className="text-sm text-gray-600">
-                {filteredBooks.length} पुस्तकें मिलीं
-              </div>
-              <Button
-                variant="outline"
-                onClick={clearFilters}
-                className="text-sm"
-              >
-                <Filter className="w-4 h-4 mr-2" />
-                फिल्टर साफ़ करें
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Books Grid */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredBooks.map((book) => (
-              <Card key={book.id} className="hover:shadow-lg transition-shadow duration-300">
-                <CardHeader className="p-4">
-                  <div className="aspect-[2/3] bg-gray-200 rounded-lg mb-4 overflow-hidden">
-                    <img
-                      src={book.coverImage}
-                      alt={book.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <CardTitle className="text-lg font-semibold text-gray-800 line-clamp-2">
-                    {book.title}
-                  </CardTitle>
-                  <p className="text-sm text-gray-600">लेखक: {book.author}</p>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="secondary" className="text-xs">
-                        {book.category}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        {LANGUAGES[book.language as keyof typeof LANGUAGES]}
-                      </Badge>
-                    </div>
-                    
-                    <p className="text-sm text-gray-600 line-clamp-2">
-                      {book.description}
-                    </p>
-                    
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">
-                        उपलब्ध: {book.availableCopies}/{book.totalCopies}
-                      </span>
-                      <Badge 
-                        variant={book.availableCopies > 0 ? "success" : "destructive"}
-                        className="text-xs"
-                      >
-                        {book.availableCopies > 0 ? "उपलब्ध" : "अनुपलब्ध"}
-                      </Badge>
-                    </div>
-
-                    {book.isbn && (
-                      <p className="text-xs text-gray-500">
-                        ISBN: {book.isbn}
-                      </p>
-                    )}
-
-                    <Button 
-                      className="w-full mt-4" 
-                      disabled={book.availableCopies === 0}
-                    >
-                      <BookOpen className="w-4 h-4 mr-2" />
-                      {book.availableCopies > 0 ? "इश्यू करें" : "अनुपलब्ध"}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {filteredBooks.length === 0 && (
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">📚</div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                कोई पुस्तक नहीं मिली
-              </h3>
-              <p className="text-gray-600 mb-4">
-                कृपया अपनी खोज या फिल्टर बदलकर पुनः प्रयास करें
-              </p>
-              <Button onClick={clearFilters}>
-                सभी पुस्तकें देखें
-              </Button>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Library Information */}
+      {/* Library Services */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-              पुस्तकालय की जानकारी
-            </h2>
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-gray-800 mb-12 text-center">🏛️ पुस्तकालय सेवाएं</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl text-blue-600">
-                    📖 सदस्यता नियम
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-gray-600">
-                    <li>• सदस्यता पूर्णतः निःशुल्क है</li>
-                    <li>• पहचान पत्र की फोटोकॉपी आवश्यक</li>
-                    <li>• एक समय में अधिकतम 2 पुस्तकें</li>
-                    <li>• वापसी की अवधि 15 दिन</li>
-                    <li>• देर से वापसी पर ₹2 प्रति दिन जुर्माना</li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl text-green-600">
-                    ⏰ समय सारणी
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 text-gray-600">
-                    <div>
-                      <strong>सोमवार - शनिवार:</strong><br />
-                      सुबह 9:00 से शाम 6:00 तक
-                    </div>
-                    <div>
-                      <strong>रविवार:</strong><br />
-                      सुबह 10:00 से शाम 4:00 तक
-                    </div>
-                    <div className="text-sm text-red-600">
-                      * सरकारी छुट्टियों में बंद
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              <div className="bg-blue-50 p-6 rounded-lg text-center">
+                <div className="text-4xl mb-4">📚</div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">निःशुल्क सदस्यता</h3>
+                <p className="text-gray-600">
+                  सभी आयु वर्ग के लिए पूर्णतः निःशुल्क पुस्तकालय सदस्यता और सेवाएं
+                </p>
+              </div>
+              
+              <div className="bg-green-50 p-6 rounded-lg text-center">
+                <div className="text-4xl mb-4">🏠</div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">घर तक पुस्तक सेवा</h3>
+                <p className="text-gray-600">
+                  वरिष्ठ नागरिकों और दिव्यांगजनों के लिए घर तक पुस्तक पहुंचाने की सेवा
+                </p>
+              </div>
+              
+              <div className="bg-purple-50 p-6 rounded-lg text-center">
+                <div className="text-4xl mb-4">💻</div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">डिजिटल सेवा</h3>
+                <p className="text-gray-600">
+                  ऑनलाइन पुस्तक खोज, आरक्षण और नवीनीकरण की सुविधा
+                </p>
+              </div>
+              
+              <div className="bg-yellow-50 p-6 rounded-lg text-center">
+                <div className="text-4xl mb-4">👥</div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">अध्ययन कक्ष</h3>
+                <p className="text-gray-600">
+                  शांत वातावरण में अध्ययन के लिए विशेष कक्ष और बैठक व्यवस्था
+                </p>
+              </div>
+              
+              <div className="bg-red-50 p-6 rounded-lg text-center">
+                <div className="text-4xl mb-4">📰</div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">समाचार पत्र सेवा</h3>
+                <p className="text-gray-600">
+                  दैनिक समाचार पत्र, पत्रिकाएं और जर्नल्स की नियमित उपलब्धता
+                </p>
+              </div>
+              
+              <div className="bg-indigo-50 p-6 rounded-lg text-center">
+                <div className="text-4xl mb-4">🎯</div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">प्रतियोगी परीक्षा सामग्री</h3>
+                <p className="text-gray-600">
+                  UPSC, RAS, SSC और अन्य प्रतियोगी परीक्षाओं की तैयारी सामग्री
+                </p>
+              </div>
             </div>
 
-            <div className="text-center mt-8">
-              <Button size="lg" className="mr-4">
-                <Download className="w-4 h-4 mr-2" />
-                पुस्तक सूची डाउनलोड करें
-              </Button>
-              <Button variant="outline" size="lg">
+            {/* Book Categories */}
+            <div className="mb-12">
+              <h3 className="text-2xl font-semibold text-gray-800 mb-8 text-center">📖 पुस्तक श्रेणियां</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div className="border-l-4 border-orange-500 pl-4">
+                    <h4 className="text-lg font-semibold text-gray-800 mb-2">🕉️ धार्मिक ग्रंथ (500+ पुस्तकें)</h4>
+                    <ul className="text-gray-600 space-y-1">
+                      <li>• गीता, रामायण, महाभारत</li>
+                      <li>• पुराण और उपनिषद</li>
+                      <li>• संत साहित्य और भजन संग्रह</li>
+                      <li>• धार्मिक कथाएं और जीवनी</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="border-l-4 border-blue-500 pl-4">
+                    <h4 className="text-lg font-semibold text-gray-800 mb-2">🎓 शैक्षणिक पुस्तकें (600+ पुस्तकें)</h4>
+                    <ul className="text-gray-600 space-y-1">
+                      <li>• कक्षा 1-12 की पाठ्यपुस्तकें</li>
+                      <li>• प्रतियोगी परीक्षा की तैयारी</li>
+                      <li>• व्याकरण और भाषा विज्ञान</li>
+                      <li>• गणित और विज्ञान</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div className="space-y-6">
+                  <div className="border-l-4 border-green-500 pl-4">
+                    <h4 className="text-lg font-semibold text-gray-800 mb-2">✍️ साहित्यिक कृतियां (500+ पुस्तकें)</h4>
+                    <ul className="text-gray-600 space-y-1">
+                      <li>• हिंदी और राजस्थानी साहित्य</li>
+                      <li>• कविता संग्रह और गजल</li>
+                      <li>• उपन्यास और कहानी संग्रह</li>
+                      <li>• जीवनी और आत्मकथा</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="border-l-4 border-purple-500 pl-4">
+                    <h4 className="text-lg font-semibold text-gray-800 mb-2">💻 तकनीकी पुस्तकें (400+ पुस्तकें)</h4>
+                    <ul className="text-gray-600 space-y-1">
+                      <li>• कंप्यूटर और इंटरनेट</li>
+                      <li>• इंजीनियरिंग और तकनीक</li>
+                      <li>• चिकित्सा और स्वास्थ्य</li>
+                      <li>• कृषि और पशुपालन</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Library Timings */}
+            <div className="bg-gray-50 p-8 rounded-lg mb-12" itemScope itemType="https://schema.org/OpeningHoursSpecification">
+              <h3 className="text-2xl font-semibold text-gray-800 mb-6 text-center">🕒 पुस्तकालय समय</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-4">सामान्य दिन:</h4>
+                  <div className="space-y-2 text-gray-600">
+                    <div className="flex justify-between">
+                      <span>सोमवार - शुक्रवार:</span>
+                      <span className="font-medium" itemProp="opens">9:00 AM - 7:00 PM</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>शनिवार:</span>
+                      <span className="font-medium">9:00 AM - 6:00 PM</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>रविवार:</span>
+                      <span className="font-medium text-red-600">बंद</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-4">विशेष सुविधाएं:</h4>
+                  <ul className="space-y-2 text-gray-600">
+                    <li className="flex items-center">
+                      <span className="text-green-600 mr-2">✓</span>
+                      परीक्षा के दिनों में विस्तारित समय
+                    </li>
+                    <li className="flex items-center">
+                      <span className="text-green-600 mr-2">✓</span>
+                      त्योहारों में विशेष व्यवस्था
+                    </li>
+                    <li className="flex items-center">
+                      <span className="text-green-600 mr-2">✓</span>
+                      आपातकाल में 24/7 संपर्क सुविधा
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* New Building Construction */}
+            <div className="bg-gradient-to-r from-green-100 to-blue-100 p-8 rounded-lg">
+              <h3 className="text-2xl font-semibold text-gray-800 mb-6 text-center">🏗️ नया पुस्तकालय भवन</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4">आधुनिक सुविधाओं के साथ:</h4>
+                  <ul className="space-y-2 text-gray-600">
+                    <li className="flex items-center">
+                      <span className="text-green-600 mr-2">🏢</span>
+                      3 मंजिला आधुनिक भवन
+                    </li>
+                    <li className="flex items-center">
+                      <span className="text-green-600 mr-2">❄️</span>
+                      वातानुकूलित अध्ययन कक्ष
+                    </li>
+                    <li className="flex items-center">
+                      <span className="text-green-600 mr-2">💻</span>
+                      डिजिटल लाइब्रेरी सेक्शन
+                    </li>
+                    <li className="flex items-center">
+                      <span className="text-green-600 mr-2">🚗</span>
+                      पार्किंग की व्यवस्था
+                    </li>
+                    <li className="flex items-center">
+                      <span className="text-green-600 mr-2">♿</span>
+                      दिव्यांगजन अनुकूल सुविधाएं
+                    </li>
+                  </ul>
+                </div>
+                
+                <div className="text-center">
+                  <div className="bg-white p-6 rounded-lg shadow-md">
+                    <div className="text-3xl font-bold text-green-600 mb-2">35 लाख रुपए</div>
+                    <div className="text-gray-700 mb-4">कुल निर्माण लागत</div>
+                    <div className="text-lg font-semibold text-blue-600">जून 2024 तक पूर्ण होने की संभावना</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-6">📚 आज ही सदस्य बनें</h2>
+            <p className="text-xl mb-8 opacity-90">
+              निःशुल्क पुस्तकालय सदस्यता प्राप्त करें और ज्ञान की दुनिया में कदम रखें
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href="/apply"
+                className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300"
+              >
                 सदस्यता के लिए आवेदन करें
-              </Button>
+              </a>
+              <a
+                href="/books"
+                className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors duration-300"
+              >
+                पुस्तक सूची देखें
+              </a>
             </div>
           </div>
         </div>
       </section>
     </div>
-  );
+  )
 }

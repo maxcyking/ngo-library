@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, AlertCircle, Home } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
@@ -15,8 +15,27 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { login } = useAuth();
+  const { login, user, isAdmin, isActiveUser } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Get redirect URL and error from query parameters
+  const redirectUrl = searchParams.get('redirect');
+  const urlError = searchParams.get('error');
+
+  // Set initial error from URL parameter
+  useEffect(() => {
+    if (urlError === 'access_denied') {
+      setError('पहुंच अस्वीकृत: आपके पास एडमिन अधिकार नहीं हैं या आपका खाता निष्क्रिय है।');
+    }
+  }, [urlError]);
+
+  // Redirect if already logged in as admin
+  React.useEffect(() => {
+    if (user && isAdmin && isActiveUser) {
+      router.push('/admin/dashboard');
+    }
+  }, [user, isAdmin, isActiveUser, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +43,9 @@ export default function AdminLoginPage() {
     setError('');
 
     try {
+      console.log('Attempting login...');
       await login(email, password);
+      console.log('Login successful, redirecting to dashboard...');
       router.push('/admin/dashboard');
     } catch (error) {
       let errorMessage = 'कुछ गलत हुआ है';
@@ -66,11 +87,20 @@ export default function AdminLoginPage() {
           <p className="text-gray-600">
             एरोग्या पुस्तकालय एवं सेवा संस्था
           </p>
+          {redirectUrl && (
+            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <div className="flex items-center text-blue-700 text-sm">
+                <AlertCircle className="w-4 h-4 mr-2" />
+                एडमिन एरिया एक्सेस करने के लिए लॉगिन करें
+              </div>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm flex items-start">
+                <AlertCircle className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
                 {error}
               </div>
             )}
@@ -126,9 +156,17 @@ export default function AdminLoginPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 mb-4">
               केवल अधिकृत व्यक्ति ही लॉगिन कर सकते हैं
             </p>
+            <button
+              type="button"
+              onClick={() => router.push('/')}
+              className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              <Home className="w-4 h-4 mr-1" />
+              मुख्य पेज पर वापस जाएं
+            </button>
           </div>
         </CardContent>
       </Card>

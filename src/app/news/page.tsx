@@ -1,141 +1,111 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Calendar, Search, Eye, Share2 } from "lucide-react";
-
-// Sample news data - यह बाद में database से आएगा
-const newsItems = [
-  {
-    id: "1",
-    title: "पुस्तकालय भवन निर्माण कार्य जून 2024 तक पूर्ण होने की संभावना",
-    excerpt: "35 लाख रुपए की लागत से बन रहे नए पुस्तकालय भवन का निर्माण कार्य तेजी से प्रगति पर है। यह आधुनिक सुविधाओं से युक्त भवन जल्द ही तैयार हो जाएगा।",
-    content: `एरोग्या पुस्तकालय एवं सेवा संस्था के नए भवन का निर्माण कार्य तेजी से आगे बढ़ रहा है। 35 लाख रुपए की लागत से बन रहा यह आधुनिक पुस्तकालय भवन जून 2024 तक पूर्ण होने की संभावना है।
-
-    इस नए भवन में निम्नलिखित सुविधाएं होंगी:
-    • 5000+ पुस्तकों की क्षमता वाला मुख्य पुस्तकालय
-    • डिजिटल लाइब्रेरी सेक्शन
-    • रीडिंग हॉल (100 व्यक्तियों की क्षमता)
-    • सेमिनार हॉल
-    • कंप्यूटर लैब
-    • बच्चों के लिए अलग सेक्शन
-
-    संस्था के अध्यक्ष श्री आत्माराम बोरा ने बताया कि यह भवन न केवल पुस्तकालय सेवा के लिए बल्कि विभिन्न सामाजिक गतिविधियों के लिए भी उपयोग किया जाएगा।`,
-    date: "2024-05-15",
-    category: "निर्माण अपडेट",
-    author: "संस्था संवाददाता",
-    image: "/news/library-construction.jpg",
-    featured: true,
-    views: 245,
-    tags: ["पुस्तकालय", "निर्माण", "विकास"]
-  },
-  {
-    id: "2",
-    title: "मासिक रक्तदान शिविर में 45 रक्तदाताओं ने किया रक्तदान",
-    excerpt: "इस महीने आयोजित रक्तदान शिविर में 45 रक्तदाताओं ने भाग लिया। यह संख्या पिछले महीने से 20% अधिक है।",
-    content: `एरोग्या पुस्तकालय एवं सेवा संस्था द्वारा आयोजित मासिक रक्तदान शिविर में 45 रक्तदाताओं ने स्वेच्छा से रक्तदान किया। यह शिविर संस्था परिसर में आयोजित किया गया था।
-
-    शिविर की मुख्य विशेषताएं:
-    • कुल 45 यूनिट रक्त संग्रह
-    • 12 नए रक्तदाताओं का पंजीकरण
-    • निःशुल्क स्वास्थ्य जांच सुविधा
-    • रक्तदाताओं को प्रशंसा पत्र वितरण
-
-    संस्था के उपाध्यक्ष श्री बाबूराम शर्मा ने सभी रक्तदाताओं का आभार व्यक्त किया और कहा कि यह जीवन बचाने का महान कार्य है।`,
-    date: "2024-05-10",
-    category: "स्वास्थ्य सेवा",
-    author: "स्वास्थ्य टीम",
-    image: "/news/blood-donation-may.jpg",
-    featured: false,
-    views: 189,
-    tags: ["रक्तदान", "स्वास्थ्य", "सेवा"]
-  },
-  {
-    id: "3",
-    title: "निःशुल्क स्वास्थ्य जांच शिविर में 150+ लोगों की जांच",
-    excerpt: "गांव में आयोजित स्वास्थ्य जांच शिविर में 150 से अधिक लोगों की निःशुल्क स्वास्थ्य जांच की गई।",
-    content: `एरोग्या पुस्तकालय एवं सेवा संस्था द्वारा आयोजित निःशुल्क स्वास्थ्य जांच शिविर में 150 से अधिक लोगों की व्यापक स्वास्थ्य जांच की गई।
-
-    शिविर में उपलब्ध सेवाएं:
-    • रक्तचाप की जांच
-    • मधुमेह की जांच
-    • वजन और BMI मापना
-    • सामान्य चिकित्सा परामर्श
-    • निःशुल्क दवाएं वितरण
-
-    इस शिविर में स्थानीय डॉक्टरों और नर्सों ने अपनी सेवाएं निःशुल्क प्रदान कीं। कई लोगों को प्रारंभिक स्तर पर बीमारियों का पता चला।`,
-    date: "2024-05-05",
-    category: "स्वास्थ्य सेवा",
-    author: "चिकित्सा टीम",
-    image: "/news/health-camp-may.jpg",
-    featured: false,
-    views: 167,
-    tags: ["स्वास्थ्य", "जांच", "निःशुल्क"]
-  },
-  {
-    id: "4",
-    title: "महिला सशक्तिकरण कार्यक्रम के तहत 30 महिलाओं को प्रशिक्षण",
-    excerpt: "महिला सशक्तिकरण कार्यक्रम के अंतर्गत 30 महिलाओं को कौशल विकास का प्रशिक्षण दिया गया।",
-    content: `संस्था के महिला सशक्तिकरण कार्यक्रम के तहत 30 महिलाओं को विभिन्न कौशल विकास का प्रशिक्षण प्रदान किया गया।
-
-    प्रशिक्षण के विषय:
-    • सिलाई-कढ़ाई
-    • हस्तशिल्प निर्माण
-    • कंप्यूटर बेसिक्स
-    • वित्तीय साक्षरता
-    • स्वरोजगार के अवसर
-
-    श्रीमती मीना देवी ने कहा कि यह कार्यक्रम महिलाओं को आत्मनिर्भर बनाने की दिशा में एक महत्वपूर्ण कदम है।`,
-    date: "2024-04-28",
-    category: "सामाजिक कार्यक्रम",
-    author: "महिला सशक्तिकरण टीम",
-    image: "/news/women-empowerment.jpg",
-    featured: false,
-    views: 134,
-    tags: ["महिला", "सशक्तिकरण", "प्रशिक्षण"]
-  },
-  {
-    id: "5",
-    title: "पुस्तकालय में 200+ नई पुस्तकों का संग्रह जोड़ा गया",
-    excerpt: "पुस्तकालय के संग्रह में विभिन्न विषयों की 200 से अधिक नई पुस्तकें जोड़ी गई हैं।",
-    content: `एरोग्या पुस्तकालय में हाल ही में 200 से अधिक नई पुस्तकों का संग्रह जोड़ा गया है। इन पुस्तकों में विभिन्न विषयों की जानकारी शामिल है।
-
-    नई पुस्तकों की श्रेणियां:
-    • धार्मिक साहित्य - 50 पुस्तकें
-    • शैक्षणिक पुस्तकें - 80 पुस्तकें
-    • उपन्यास और कहानियां - 40 पुस्तकें
-    • बाल साहित्य - 30 पुस्तकें
-
-    यह संग्रह दानदाताओं और भामाशाहों के सहयोग से संभव हुआ है। अब पुस्तकालय में कुल 2200+ पुस्तकें उपलब्ध हैं।`,
-    date: "2024-04-20",
-    category: "पुस्तकालय अपडेट",
-    author: "पुस्तकालय टीम",
-    image: "/news/new-books.jpg",
-    featured: false,
-    views: 98,
-    tags: ["पुस्तकालय", "पुस्तकें", "संग्रह"]
-  }
-];
-
-const categories = ["सभी", "निर्माण अपडेट", "स्वास्थ्य सेवा", "सामाजिक कार्यक्रम", "पुस्तकालय अपडेट"];
+import { 
+  collection, 
+  getDocs, 
+  query, 
+  orderBy, 
+  where 
+} from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { NewsArticle } from '@/lib/types';
 
 export default function NewsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("सभी");
   const [selectedNews, setSelectedNews] = useState<string | null>(null);
+  const [newsItems, setNewsItems] = useState<NewsArticle[]>([]);
+  const [categories, setCategories] = useState<string[]>(["सभी"]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch published news articles from Firebase
+  const fetchNews = async () => {
+    try {
+      const q = query(
+        collection(db, 'newsArticles'),
+        where('status', '==', 'published'),
+        orderBy('publishDate', 'desc')
+      );
+      const querySnapshot = await getDocs(q);
+      const newsData: NewsArticle[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        newsData.push({ 
+          id: doc.id, 
+          ...data,
+          publishDate: data.publishDate?.toDate() || new Date(),
+          scheduledDate: data.scheduledDate?.toDate() || null,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+          publishedAt: data.publishedAt?.toDate() || null
+        } as NewsArticle);
+      });
+      setNewsItems(newsData);
+      
+      // Extract unique categories
+      const uniqueCategories = Array.from(new Set(newsData.map(item => item.category)));
+      const categoryLabels = {
+        'general': 'सामान्य',
+        'health': 'स्वास्थ्य सेवा',
+        'education': 'शिक्षा',
+        'events': 'कार्यक्रम',
+        'library': 'पुस्तकालय अपडेट',
+        'donations': 'दान सेवा',
+        'achievements': 'उपलब्धियां',
+        'announcements': 'घोषणाएं'
+      };
+      const translatedCategories = uniqueCategories.map(cat => categoryLabels[cat as keyof typeof categoryLabels] || cat);
+      setCategories(['सभी', ...translatedCategories]);
+    } catch (error) {
+      console.error('Error fetching news:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNews();
+  }, []);
+
+  const categoryLabels = {
+    'सभी': 'all',
+    'सामान्य': 'general',
+    'स्वास्थ्य सेवा': 'health',
+    'शिक्षा': 'education',
+    'कार्यक्रम': 'events',
+    'पुस्तकालय अपडेट': 'library',
+    'दान सेवा': 'donations',
+    'उपलब्धियां': 'achievements',
+    'घोषणाएं': 'announcements'
+  };
 
   const filteredNews = newsItems.filter(news => {
     const matchesSearch = news.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         news.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === "सभी" || news.category === selectedCategory;
+                         news.shortDescription.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === "सभी" || 
+                           categoryLabels[selectedCategory as keyof typeof categoryLabels] === news.category;
     return matchesSearch && matchesCategory;
   });
 
-  const featuredNews = newsItems.filter(news => news.featured);
-  const regularNews = filteredNews.filter(news => !news.featured);
+  const featuredNews = newsItems.filter(news => news.isFeatured);
+  const regularNews = filteredNews.filter(news => !news.isFeatured);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">समाचार लोड हो रहे हैं...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -208,8 +178,8 @@ export default function NewsPage() {
                   <Card key={news.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <div className="h-48 bg-gray-200">
                       <img
-                        src="/api/placeholder/600/300"
-                        alt={news.title}
+                        src={news.featuredImage || "/api/placeholder/600/300"}
+                        alt={news.featuredImageAlt || news.title}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -220,7 +190,7 @@ export default function NewsPage() {
                         </Badge>
                         <span className="text-xs text-gray-500 flex items-center">
                           <Eye className="w-3 h-3 mr-1" />
-                          {news.views}
+                          {news.viewCount}
                         </span>
                       </div>
                       <CardTitle className="text-xl font-semibold text-gray-800 line-clamp-2">
@@ -229,15 +199,15 @@ export default function NewsPage() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-gray-600 mb-4 line-clamp-3">
-                        {news.excerpt}
+                        {news.shortDescription}
                       </p>
                       <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
                         <span className="flex items-center">
                           <Calendar className="w-4 h-4 mr-1" />
-                          {new Date(news.date).toLocaleDateString('hi-IN')}
+                          {news.publishDate.toLocaleDateString('hi-IN')}
                         </span>
                         <Badge variant="outline" className="text-xs">
-                          {news.category}
+                          {Object.entries(categoryLabels).find(([label, value]) => value === news.category)?.[0] || news.category}
                         </Badge>
                       </div>
                       <Button 
@@ -269,30 +239,30 @@ export default function NewsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div className="md:col-span-1">
                       <img
-                        src="/api/placeholder/300/200"
-                        alt={news.title}
+                        src={news.featuredImage || "/api/placeholder/300/200"}
+                        alt={news.featuredImageAlt || news.title}
                         className="w-full h-48 md:h-full object-cover"
                       />
                     </div>
                     <div className="md:col-span-3 p-6">
                       <div className="flex items-center gap-4 mb-3">
                         <Badge variant="secondary" className="text-xs">
-                          {news.category}
+                          {Object.entries(categoryLabels).find(([label, value]) => value === news.category)?.[0] || news.category}
                         </Badge>
                         <span className="text-sm text-gray-500 flex items-center">
                           <Calendar className="w-4 h-4 mr-1" />
-                          {new Date(news.date).toLocaleDateString('hi-IN')}
+                          {news.publishDate.toLocaleDateString('hi-IN')}
                         </span>
                         <span className="text-sm text-gray-500 flex items-center">
                           <Eye className="w-4 h-4 mr-1" />
-                          {news.views} views
+                          {news.viewCount} views
                         </span>
                       </div>
                       <h3 className="text-xl font-semibold text-gray-800 mb-3">
                         {news.title}
                       </h3>
                       <p className="text-gray-600 mb-4">
-                        {news.excerpt}
+                        {news.shortDescription}
                       </p>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-500">
@@ -343,7 +313,9 @@ export default function NewsPage() {
               return (
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
-                    <Badge variant="secondary">{news.category}</Badge>
+                    <Badge variant="secondary">
+                      {Object.entries(categoryLabels).find(([label, value]) => value === news.category)?.[0] || news.category}
+                    </Badge>
                     <Button
                       variant="outline"
                       size="sm"
@@ -353,11 +325,13 @@ export default function NewsPage() {
                     </Button>
                   </div>
                   
-                  <img
-                    src="/api/placeholder/800/400"
-                    alt={news.title}
-                    className="w-full h-64 object-cover rounded-lg mb-6"
-                  />
+                  {news.featuredImage && (
+                    <img
+                      src={news.featuredImage}
+                      alt={news.featuredImageAlt || news.title}
+                      className="w-full h-64 object-cover rounded-lg mb-6"
+                    />
+                  )}
                   
                   <h1 className="text-2xl font-bold text-gray-800 mb-4">
                     {news.title}
@@ -366,22 +340,31 @@ export default function NewsPage() {
                   <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
                     <span className="flex items-center">
                       <Calendar className="w-4 h-4 mr-1" />
-                      {new Date(news.date).toLocaleDateString('hi-IN')}
+                      {news.publishDate.toLocaleDateString('hi-IN')}
                     </span>
                     <span>लेखक: {news.author}</span>
                     <span className="flex items-center">
                       <Eye className="w-4 h-4 mr-1" />
-                      {news.views} views
+                      {news.viewCount} views
                     </span>
                   </div>
                   
-                  <div className="prose max-w-none">
-                    {news.content.split('\n').map((paragraph, index) => (
-                      <p key={index} className="mb-4 text-gray-700 leading-relaxed">
-                        {paragraph}
-                      </p>
-                    ))}
+                  <div className="prose max-w-none mb-6" dangerouslySetInnerHTML={{ __html: news.content }}>
                   </div>
+                  
+                  {news.videoUrl && (
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold mb-2">संबंधित वीडियो</h3>
+                      <a 
+                        href={news.videoUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        वीडियो देखें
+                      </a>
+                    </div>
+                  )}
                   
                   <div className="flex flex-wrap gap-2 mt-6">
                     {news.tags.map((tag, index) => (

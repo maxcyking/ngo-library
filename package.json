@@ -6,11 +6,22 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy:rules": "node scripts/deploy-rules.js dev",
+    "deploy:rules:prod": "node scripts/deploy-rules.js prod",
+    "setup:admin": "node scripts/setup-admin-user.js",
+    "test:admin": "node scripts/test-admin-features.js",
+    "test:books": "node scripts/test-book-system.js",
+    "test:events": "node scripts/setup-sample-events.js",
+    "setup:sample-books": "node -e \"require('./scripts/test-book-system.js').addSampleBooks()\"",
+    "setup:sample-events": "node -e \"require('./scripts/setup-sample-events.js').addSampleEvents()\"",
+    "setup:news-categories": "node scripts/setup-news-categories.js",
+    "setup:all-samples": "npm run setup:sample-books && npm run setup:sample-events && npm run setup:news-categories"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
     "@next/font": "^14.2.15",
+    "@tinymce/tinymce-react": "^6.3.0",
     "clsx": "^2.1.1",
     "firebase": "^12.2.1",
     "framer-motion": "^12.23.12",
@@ -19,8 +30,10 @@
     "next-themes": "^0.4.6",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.62.0",
     "tailwind-merge": "^3.3.1",
+    "uuid": "^13.0.0",
     "zod": "^4.0.17"
   },
   "devDependencies": {

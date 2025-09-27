@@ -11,66 +11,49 @@ import {
   Heart, 
   Calendar, 
   FileText, 
-  Settings,
-  LogOut,
   BarChart3,
-  Plus
+  Plus,
+  Settings,
+  Palette,
+  Image as ImageIcon
 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
-  const { user, logout } = useAuth();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
+  const { user } = useAuth();
 
   const stats = [
-    { title: 'कुल सदस्य', value: '150+', icon: Users, color: 'bg-blue-500' },
+    { title: 'कुल छात्र', value: '150+', icon: Users, color: 'bg-blue-500' },
     { title: 'पुस्तकें', value: '2000+', icon: BookOpen, color: 'bg-green-500' },
     { title: 'रक्तदाता', value: '75+', icon: Heart, color: 'bg-red-500' },
-    { title: 'कार्यक्रम', value: '25+', icon: Calendar, color: 'bg-purple-500' },
+    { title: 'हीरो इमेज', value: '8', icon: ImageIcon, color: 'bg-purple-500' },
   ];
 
   const quickActions = [
-    { title: 'सदस्य जोड़ें', href: '/admin/members/add', icon: Users },
+    { title: 'छात्र जोड़ें', href: '/admin/members/add', icon: Users },
     { title: 'पुस्तक जोड़ें', href: '/admin/books/add', icon: BookOpen },
-    { title: 'समाचार जोड़ें', href: '/admin/news/add', icon: FileText },
+    { title: 'UI प्रबंधन', href: '/admin/ui', icon: Palette },
     { title: 'कार्यक्रम जोड़ें', href: '/admin/events/add', icon: Calendar },
   ];
 
   return (
     <ProtectedRoute adminOnly={true}>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-4">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  एडमिन डैशबोर्ड
-                </h1>
-                <p className="text-gray-600">
-                  स्वागत है, {user?.email}
-                </p>
-              </div>
-              <Button 
-                onClick={handleLogout}
-                variant="outline"
-                className="flex items-center"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                लॉगआउट
-              </Button>
-            </div>
+      <div className="bg-gray-50 min-h-full">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="py-4">
+            <h1 className="text-2xl font-bold text-gray-900">
+              एडमिन डैशबोर्ड
+            </h1>
+            <p className="text-gray-600">
+              स्वागत है, {user?.email}
+            </p>
           </div>
         </div>
+      </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {stats.map((stat, index) => (
@@ -133,7 +116,13 @@ export default function AdminDashboard() {
                   <Link href="/admin/members">
                     <Button variant="ghost" className="w-full justify-start">
                       <Users className="w-4 h-4 mr-3" />
-                      सदस्य प्रबंधन
+                      छात्र प्रबंधन
+                    </Button>
+                  </Link>
+                  <Link href="/admin/ui">
+                    <Button variant="ghost" className="w-full justify-start">
+                      <Palette className="w-4 h-4 mr-3" />
+                      UI प्रबंधन
                     </Button>
                   </Link>
                   <Link href="/admin/books">
@@ -181,8 +170,15 @@ export default function AdminDashboard() {
                 <div className="flex items-center p-3 bg-blue-50 rounded-lg">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
                   <div>
-                    <p className="text-sm font-medium">नया सदस्य जोड़ा गया</p>
+                    <p className="text-sm font-medium">नया छात्र जोड़ा गया</p>
                     <p className="text-xs text-gray-500">2 घंटे पहले</p>
+                  </div>
+                </div>
+                <div className="flex items-center p-3 bg-orange-50 rounded-lg">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
+                  <div>
+                    <p className="text-sm font-medium">हीरो इमेज अपडेट की गई</p>
+                    <p className="text-xs text-gray-500">3 घंटे पहले</p>
                   </div>
                 </div>
                 <div className="flex items-center p-3 bg-green-50 rounded-lg">

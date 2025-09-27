@@ -3,75 +3,56 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight, Star, Quote } from "lucide-react";
+import { collection, query, orderBy, onSnapshot, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface Testimonial {
   id: string;
   name: string;
-  role: string;
+  designation: string;
   location: string;
   message: string;
   rating: number;
-  image?: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  createdAt: Date | { seconds: number; nanoseconds: number };
 }
-
-const testimonials: Testimonial[] = [
-  {
-    id: "1",
-    name: "राजेश कुमार शर्मा",
-    role: "पुस्तकालय सदस्य",
-    location: "गुडामलानी",
-    message: "एरोग्या पुस्तकालय ने मेरे बच्चों की शिक्षा में बहुत योगदान दिया है। यहाँ की निःशुल्क सेवा वास्तव में सराहनीय है। पुस्तकों का संग्रह बहुत अच्छा है और स्टाफ भी बहुत सहयोगी है।",
-    rating: 5,
-    image: "/testimonials/rajesh-sharma.jpg"
-  },
-  {
-    id: "2",
-    name: "सुनीता देवी",
-    role: "रक्तदाता",
-    location: "बाड़मेर",
-    message: "मैंने यहाँ कई बार रक्तदान किया है। संस्था की टीम बहुत professional है और सभी safety measures का पूरा ध्यान रखती है। रक्तदान के बाद मिलने वाली स्वास्थ्य जांच भी बहुत उपयोगी है।",
-    rating: 5,
-    image: "/testimonials/sunita-devi.jpg"
-  },
-  {
-    id: "3",
-    name: "मोहन लाल जी",
-    role: "स्वास्थ्य शिविर लाभार्थी",
-    location: "गुडामलानी",
-    message: "स्वास्थ्य शिविर में मुझे मधुमेह का पता चला। डॉक्टरों ने बहुत अच्छी सलाह दी और निःशुल्क दवाएं भी मिलीं। इस संस्था का काम वास्तव में जीवन बचाने वाला है।",
-    rating: 5,
-    image: "/testimonials/mohan-lal.jpg"
-  },
-  {
-    id: "4",
-    name: "प्रीति शर्मा",
-    role: "महिला सशक्तिकरण कार्यक्रम",
-    location: "जोधपुर",
-    message: "महिला सशक्तिकरण कार्यक्रम में भाग लेकर मैंने सिलाई-कढ़ाई सीखी। अब मैं घर बैठे अच्छी कमाई कर रही हूँ। यह संस्था महिलाओं के लिए वरदान है।",
-    rating: 5,
-    image: "/testimonials/preeti-sharma.jpg"
-  },
-  {
-    id: "5",
-    name: "अमित कुमार",
-    role: "युवा स्वयंसेवक",
-    location: "गुडामलानी",
-    message: "इस संस्था के साथ जुड़कर मुझे समाज सेवा का अवसर मिला। यहाँ के कार्यक्रमों में भाग लेकर मैंने बहुत कुछ सीखा है। युवाओं के लिए यह एक बेहतरीन platform है।",
-    rating: 5,
-    image: "/testimonials/amit-kumar.jpg"
-  }
-];
 
 export function Testimonials() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
+    const q = query(
+      collection(db, 'testimonials'),
+      where('isActive', '==', true),
+      orderBy('isFeatured', 'desc'),
+      orderBy('createdAt', 'desc')
+    );
 
-    return () => clearInterval(timer);
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const items = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Testimonial[];
+      
+      setTestimonials(items);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (testimonials.length > 0) {
+      const timer = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+      }, 5000);
+
+      return () => clearInterval(timer);
+    }
+  }, [testimonials.length]);
 
   const nextTestimonial = () => {
     setCurrentIndex((prev) => (prev + 1) % testimonials.length);
@@ -84,6 +65,23 @@ export function Testimonials() {
   const goToTestimonial = (index: number) => {
     setCurrentIndex(index);
   };
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-gradient-to-br from-blue-50 to-green-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-2 text-gray-600">प्रशंसापत्र लोड हो रहे हैं...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (testimonials.length === 0) {
+    return null; // Don't show section if no testimonials
+  }
 
   return (
     <section className="py-16 bg-gradient-to-br from-blue-50 to-green-50">
@@ -140,11 +138,18 @@ export function Testimonials() {
                               {testimonial.name}
                             </h4>
                             <p className="text-green-600 font-medium">
-                              {testimonial.role}
+                              {testimonial.designation}
                             </p>
-                            <p className="text-gray-500 text-sm">
-                              📍 {testimonial.location}
-                            </p>
+                            {testimonial.location && (
+                              <p className="text-gray-500 text-sm">
+                                📍 {testimonial.location}
+                              </p>
+                            )}
+                            {testimonial.isFeatured && (
+                              <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full mt-1">
+                                फीचर्ड
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
