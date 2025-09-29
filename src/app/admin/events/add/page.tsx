@@ -9,19 +9,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { 
-  ArrowLeft, 
-  Calendar, 
+import {
+  ArrowLeft,
+  Calendar,
   Save,
   Star,
   Plus,
   Trash2
 } from 'lucide-react';
 import Link from 'next/link';
-import { 
-  collection, 
-  addDoc, 
-  serverTimestamp 
+import {
+  collection,
+  addDoc,
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -51,13 +51,13 @@ export default function AddEventPage() {
     isUrgent: false, // Added for home page cards
     isActive: true // Added for home page filtering
   });
-  
+
   const [requirements, setRequirements] = useState<string[]>(['']);
   const [benefits, setBenefits] = useState<string[]>(['']); // Added for home page cards
   const [agenda, setAgenda] = useState<string[]>(['']);
   const [organizers, setOrganizers] = useState<string[]>(['']);
   const [sponsors, setSponsors] = useState<string[]>(['']);
-  
+
   const router = useRouter();
   const { user } = useAuth();
 
@@ -156,7 +156,7 @@ export default function AddEventPage() {
       };
 
       await addDoc(collection(db, 'events'), newEvent);
-      
+
       router.push('/admin/events');
     } catch (error) {
       console.error('Error adding event:', error);
@@ -195,10 +195,10 @@ export default function AddEventPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              
+
               {/* Main Information */}
               <div className="lg:col-span-2 space-y-6">
-                
+
                 {/* Basic Details */}
                 <Card>
                   <CardHeader>
@@ -527,7 +527,7 @@ export default function AddEventPage() {
 
               {/* Sidebar Information */}
               <div className="space-y-6">
-                
+
                 {/* Registration Settings */}
                 <Card>
                   <CardHeader>
@@ -586,7 +586,7 @@ export default function AddEventPage() {
                           title="पंजीकरण खुला रखें"
                         />
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <Label htmlFor="isFeatured">फीचर्ड कार्यक्रम</Label>
@@ -603,7 +603,7 @@ export default function AddEventPage() {
                           title="फीचर्ड कार्यक्रम के रूप में चिह्नित करें"
                         />
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <Label htmlFor="isUrgent">तत्काल आवश्यकता</Label>

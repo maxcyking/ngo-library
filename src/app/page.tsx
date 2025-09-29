@@ -8,6 +8,7 @@ import { GalleryPreview } from "@/components/home/gallery-preview";
 import { DonationCTA } from "@/components/home/donation-cta";
 import { UpcomingEvents } from "@/components/home/upcoming-events";
 import { LibraryShowcase } from "@/components/home/library-showcase";
+import { LatestNews } from "@/components/home/latest-news";
 
 // Sample data - यह बाद में database से आएगा
 const heroSlides = [
@@ -41,28 +42,7 @@ const heroSlides = [
   },
 ];
 
-const newsItems = [
-  {
-    id: "1",
-    title: "पुस्तकालय भवन निर्माण कार्य जून 2024 तक पूर्ण होने की संभावना",
-    link: "/media/news/library-construction-update",
-  },
-  {
-    id: "2",
-    title: "मासिक रक्तदान शिविर का आयोजन - रक्तदाताओं से अपील",
-    link: "/media/news/monthly-blood-donation-camp",
-  },
-  {
-    id: "3",
-    title: "निःशुल्क स्वास्थ्य जांच शिविर का सफल आयोजन - 200+ लाभार्थी",
-    link: "/media/news/health-camp-success",
-  },
-  {
-    id: "4",
-    title: "महिला सशक्तिकरण कार्यक्रम के तहत कौशल विकास प्रशिक्षण",
-    link: "/media/news/women-empowerment-program",
-  },
-];
+
 
 
 export default function Home() {
@@ -72,7 +52,7 @@ export default function Home() {
       <HeroSlider slides={heroSlides} />
 
       {/* News Ticker */}
-      <NewsTicker news={newsItems} />
+      <NewsTicker />
 
       {/* Quick Stats */}
       <QuickStats />
@@ -197,90 +177,8 @@ export default function Home() {
       <Testimonials />
 
       {/* Recent Updates */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-              📰 हाल की गतिविधियां
-            </h2>
-            <p className="text-lg text-gray-600">
-              हमारे नवीनतम कार्यक्रम और उपलब्धियां
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
-                title: "पुस्तकालय भवन निर्माण कार्य",
-                date: "जून 2024",
-                description: "35 लाख रुपए की लागत से नया पुस्तकालय भवन निर्माण प्रगति पर",
-                link: "/news"
-              },
-              {
-                image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
-                title: "मान मिलाप समारोह 2022",
-                date: "अगस्त 2022",
-                description: "द्वितीय वार्षिकोत्सव पर सामाजिक कार्यकर्ताओं का सम्मान",
-                link: "/media"
-              },
-              {
-                image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
-                title: "रक्तदान शिविर का आयोजन",
-                date: "जुलाई 2022",
-                description: "50+ रक्तदाताओं ने रक्तदान कर जीवन दान का पुण्य कार्य किया",
-                link: "/events"
-              }
-            ].map((update, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 group"
-              >
-                <div className="relative overflow-hidden">
-                  <img
-                    src={update.image}
-                    alt={update.title}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
-                </div>
-                <div className="p-6">
-                  <div className="text-sm text-green-600 font-semibold mb-2">
-                    {update.date}
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-3 group-hover:text-green-600 transition-colors duration-300">
-                    {update.title}
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    {update.description}
-                  </p>
-                  <a
-                    href={update.link}
-                    className="text-green-600 hover:text-green-700 font-medium text-sm inline-flex items-center"
-                  >
-                    विस्तार से पढ़ें
-                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <a
-              href="/news"
-              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-300 inline-flex items-center"
-            >
-              सभी समाचार देखें
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </a>
-          </div>
-        </div>
-      </section>
+      {/* Latest News Section */}
+      <LatestNews />
 
       {/* Final CTA Section */}
       <section className="py-16 bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 text-white">
