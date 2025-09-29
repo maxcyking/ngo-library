@@ -13,12 +13,6 @@ import {
   ArrowLeft, 
   Calendar, 
   Save,
-  Upload,
-  MapPin,
-  Users,
-  Clock,
-  Phone,
-  Mail,
   Star,
   Plus,
   Trash2
@@ -38,9 +32,8 @@ export default function AddEventPage() {
     title: '',
     description: '',
     longDescription: '',
-    eventDate: '',
-    eventTime: '',
-    endDate: '',
+    date: '', // Changed from eventDate to match home page
+    startTime: '', // Changed from eventTime to match home page
     endTime: '',
     location: '',
     category: '',
@@ -54,10 +47,13 @@ export default function AddEventPage() {
     registrationFee: '0',
     featuredImage: '',
     isRegistrationOpen: true,
-    isFeatured: false
+    isFeatured: false,
+    isUrgent: false, // Added for home page cards
+    isActive: true // Added for home page filtering
   });
   
   const [requirements, setRequirements] = useState<string[]>(['']);
+  const [benefits, setBenefits] = useState<string[]>(['']); // Added for home page cards
   const [agenda, setAgenda] = useState<string[]>(['']);
   const [organizers, setOrganizers] = useState<string[]>(['']);
   const [sponsors, setSponsors] = useState<string[]>(['']);
@@ -106,7 +102,7 @@ export default function AddEventPage() {
     }
   };
 
-  const addArrayItem = (arrayName: string, setArray: React.Dispatch<React.SetStateAction<string[]>>) => {
+  const addArrayItem = (setArray: React.Dispatch<React.SetStateAction<string[]>>) => {
     setArray(prev => [...prev, '']);
   };
 
@@ -127,24 +123,25 @@ export default function AddEventPage() {
         title: eventData.title,
         description: eventData.description,
         longDescription: eventData.longDescription || null,
-        eventDate: new Date(eventData.eventDate),
-        eventTime: eventData.eventTime,
-        endDate: eventData.endDate ? new Date(eventData.endDate) : null,
+        date: eventData.date, // Changed to match home page expectation
+        startTime: eventData.startTime, // Changed to match home page expectation
         endTime: eventData.endTime || null,
         location: eventData.location,
         category: eventData.category,
         eventType: eventData.eventType,
-        maxParticipants: eventData.maxParticipants ? parseInt(eventData.maxParticipants) : null,
+        maxParticipants: eventData.maxParticipants ? parseInt(eventData.maxParticipants) : 0,
         currentParticipants: 0,
-        registrationDeadline: eventData.registrationDeadline ? new Date(eventData.registrationDeadline) : null,
+        registrationDeadline: eventData.registrationDeadline || null,
         isRegistrationOpen: eventData.isRegistrationOpen,
-        isActive: true,
+        isActive: eventData.isActive,
         isFeatured: eventData.isFeatured,
+        isUrgent: eventData.isUrgent, // Added for home page cards
         featuredImage: eventData.featuredImage || null,
         contactPerson: eventData.contactPerson,
         contactPhone: eventData.contactPhone,
         contactEmail: eventData.contactEmail || null,
         requirements: requirements.filter(req => req.trim() !== ''),
+        benefits: benefits.filter(benefit => benefit.trim() !== ''), // Added for home page cards
         agenda: agenda.filter(item => item.trim() !== ''),
         targetAudience: eventData.targetAudience || null,
         registrationFee: parseFloat(eventData.registrationFee) || 0,
@@ -295,24 +292,24 @@ export default function AddEventPage() {
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="eventDate">कार्यक्रम की तारीख *</Label>
+                        <Label htmlFor="date">कार्यक्रम की तारीख *</Label>
                         <Input
-                          id="eventDate"
-                          name="eventDate"
+                          id="date"
+                          name="date"
                           type="date"
-                          value={eventData.eventDate}
+                          value={eventData.date}
                           onChange={handleInputChange}
                           required
                         />
                       </div>
                       <div>
-                        <Label htmlFor="eventTime">कार्यक्रम का समय *</Label>
+                        <Label htmlFor="startTime">प्रारंभ समय *</Label>
                         <Input
-                          id="eventTime"
-                          name="eventTime"
-                          value={eventData.eventTime}
+                          id="startTime"
+                          name="startTime"
+                          type="time"
+                          value={eventData.startTime}
                           onChange={handleInputChange}
-                          placeholder="सुबह 9:00 से दोपहर 2:00 तक"
                           required
                         />
                       </div>
@@ -320,12 +317,12 @@ export default function AddEventPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="endDate">समाप्ति तारीख (वैकल्पिक)</Label>
+                        <Label htmlFor="registrationDeadline">पंजीकरण की अंतिम तारीख</Label>
                         <Input
-                          id="endDate"
-                          name="endDate"
+                          id="registrationDeadline"
+                          name="registrationDeadline"
                           type="date"
-                          value={eventData.endDate}
+                          value={eventData.registrationDeadline}
                           onChange={handleInputChange}
                         />
                       </div>
@@ -334,9 +331,9 @@ export default function AddEventPage() {
                         <Input
                           id="endTime"
                           name="endTime"
+                          type="time"
                           value={eventData.endTime}
                           onChange={handleInputChange}
-                          placeholder="शाम 6:00 तक"
                         />
                       </div>
                     </div>
@@ -424,7 +421,7 @@ export default function AddEventPage() {
                           type="button"
                           size="sm"
                           variant="outline"
-                          onClick={() => addArrayItem('requirements', setRequirements)}
+                          onClick={() => addArrayItem(setRequirements)}
                         >
                           <Plus className="w-4 h-4 mr-1" />
                           जोड़ें
@@ -455,12 +452,48 @@ export default function AddEventPage() {
 
                     <div>
                       <div className="flex items-center justify-between mb-3">
+                        <Label>कार्यक्रम के लाभ</Label>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => addArrayItem(setBenefits)}
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          जोड़ें
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        {benefits.map((benefit, index) => (
+                          <div key={index} className="flex space-x-2">
+                            <Input
+                              value={benefit}
+                              onChange={(e) => updateArrayItem(index, e.target.value, setBenefits)}
+                              placeholder="लाभ दर्ज करें..."
+                            />
+                            {benefits.length > 1 && (
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={() => removeArrayItem(index, setBenefits)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
                         <Label>कार्यक्रम एजेंडा</Label>
                         <Button
                           type="button"
                           size="sm"
                           variant="outline"
-                          onClick={() => addArrayItem('agenda', setAgenda)}
+                          onClick={() => addArrayItem(setAgenda)}
                         >
                           <Plus className="w-4 h-4 mr-1" />
                           जोड़ें
@@ -570,6 +603,23 @@ export default function AddEventPage() {
                           title="फीचर्ड कार्यक्रम के रूप में चिह्नित करें"
                         />
                       </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Label htmlFor="isUrgent">तत्काल आवश्यकता</Label>
+                          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                        </div>
+                        <input
+                          id="isUrgent"
+                          name="isUrgent"
+                          type="checkbox"
+                          checked={eventData.isUrgent}
+                          onChange={handleInputChange}
+                          className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                          aria-label="तत्काल आवश्यकता के रूप में चिह्नित करें"
+                          title="तत्काल आवश्यकता के रूप में चिह्नित करें"
+                        />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -607,7 +657,7 @@ export default function AddEventPage() {
                           type="button"
                           size="sm"
                           variant="outline"
-                          onClick={() => addArrayItem('organizers', setOrganizers)}
+                          onClick={() => addArrayItem(setOrganizers)}
                         >
                           <Plus className="w-4 h-4 mr-1" />
                           जोड़ें
@@ -643,7 +693,7 @@ export default function AddEventPage() {
                           type="button"
                           size="sm"
                           variant="outline"
-                          onClick={() => addArrayItem('sponsors', setSponsors)}
+                          onClick={() => addArrayItem(setSponsors)}
                         >
                           <Plus className="w-4 h-4 mr-1" />
                           जोड़ें
