@@ -53,14 +53,8 @@ interface MediaItem {
 }
 
 const categories = [
-  'कार्यक्रम',
-  'निर्माण कार्य',
-  'स्वास्थ्य सेवा',
-  'सामाजिक कार्यक्रम',
-  'पर्यावरण',
-  'शिक्षा',
-  'रक्तदान',
-  'अन्य'
+  'गैलरी (Gallery)',
+  'समाचार (News)'
 ];
 
 export default function MediaManagementPage() {
@@ -73,15 +67,13 @@ export default function MediaManagementPage() {
   const [uploading, setUploading] = useState(false);
   
   const [formData, setFormData] = useState({
-    title: '',
     description: '',
     category: '',
     date: new Date().toISOString().split('T')[0],
-    tags: '',
     isActive: true
   });
   
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -104,73 +96,95 @@ export default function MediaManagementPage() {
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+    if (e.target.files && e.target.files.length > 0) {
+      const filesArray = Array.from(e.target.files);
+      setSelectedFiles(filesArray);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.title || !formData.category) {
-      alert('कृपया सभी आवश्यक फील्ड भरें');
+    if (!formData.category) {
+      alert('कृपया श्रेणी चुनें');
       return;
     }
 
-    if (!editingItem && !selectedFile) {
-      alert('कृपया एक इमेज फाइल चुनें');
+    if (!editingItem && selectedFiles.length === 0) {
+      alert('कृपया कम से कम एक इमेज फाइल चुनें');
       return;
     }
 
     setUploading(true);
 
     try {
-      let imageUrl = editingItem?.imageUrl || '';
-      
-      // Upload new image if selected
-      if (selectedFile) {
-        const timestamp = Date.now();
-        const fileName = `gallery/${timestamp}-${selectedFile.name}`;
-        const storageRef = ref(storage, fileName);
-        
-        await uploadBytes(storageRef, selectedFile);
-        imageUrl = await getDownloadURL(storageRef);
-      }
-
-      const mediaData = {
-        title: formData.title,
-        description: formData.description,
-        category: formData.category,
-        date: formData.date,
-        tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-        isActive: formData.isActive,
-        imageUrl,
-        thumbnailUrl: imageUrl, // For now, same as main image
-        updatedAt: serverTimestamp(),
-        ...(editingItem ? {} : {
-          createdAt: serverTimestamp(),
-          createdBy: user?.uid || 'admin'
-        })
-      };
-
+      // If editing, update single item
       if (editingItem) {
+        let imageUrl = editingItem.imageUrl;
+        
+        // Upload new image if selected
+        if (selectedFiles.length > 0) {
+          const timestamp = Date.now();
+          const fileName = `media/${timestamp}-${selectedFiles[0].name}`;
+          const storageRef = ref(storage, fileName);
+          
+          await uploadBytes(storageRef, selectedFiles[0]);
+          imageUrl = await getDownloadURL(storageRef);
+        }
+
+        const mediaData = {
+          title: `${formData.category} - ${new Date().toLocaleDateString('hi-IN')}`,
+          description: formData.description,
+          category: formData.category,
+          date: formData.category === 'समाचार (News)' ? formData.date : new Date().toISOString().split('T')[0],
+          tags: [],
+          isActive: formData.isActive,
+          imageUrl,
+          thumbnailUrl: imageUrl,
+          updatedAt: serverTimestamp()
+        };
+
         await updateDoc(doc(db, 'media', editingItem.id), mediaData);
         alert('मीडिया आइटम अपडेट हो गया');
       } else {
-        await addDoc(collection(db, 'media'), mediaData);
-        alert('नया मीडिया आइटम जोड़ा गया');
+        // For new items, upload multiple images
+        const uploadPromises = selectedFiles.map(async (file, index) => {
+          const timestamp = Date.now();
+          const fileName = `media/${timestamp}-${index}-${file.name}`;
+          const storageRef = ref(storage, fileName);
+          
+          await uploadBytes(storageRef, file);
+          const imageUrl = await getDownloadURL(storageRef);
+
+          const mediaData = {
+            title: `${formData.category} - ${new Date().toLocaleDateString('hi-IN')} (${index + 1})`,
+            description: formData.description,
+            category: formData.category,
+            date: formData.category === 'समाचार (News)' ? formData.date : new Date().toISOString().split('T')[0],
+            tags: [],
+            isActive: formData.isActive,
+            imageUrl,
+            thumbnailUrl: imageUrl,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+            createdBy: user?.uid || 'admin'
+          };
+
+          return addDoc(collection(db, 'media'), mediaData);
+        });
+
+        await Promise.all(uploadPromises);
+        alert(`${selectedFiles.length} मीडिया आइटम सफलतापूर्वक जोड़े गए`);
       }
 
       // Reset form
       setFormData({
-        title: '',
         description: '',
         category: '',
         date: new Date().toISOString().split('T')[0],
-        tags: '',
         isActive: true
       });
-      setSelectedFile(null);
+      setSelectedFiles([]);
       setShowAddForm(false);
       setEditingItem(null);
       
@@ -185,11 +199,9 @@ export default function MediaManagementPage() {
   const handleEdit = (item: MediaItem) => {
     setEditingItem(item);
     setFormData({
-      title: item.title,
       description: item.description,
       category: item.category,
       date: item.date,
-      tags: item.tags.join(', '),
       isActive: item.isActive
     });
     setShowAddForm(true);
@@ -217,9 +229,10 @@ export default function MediaManagementPage() {
   };
 
   const filteredItems = mediaItems.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesSearch = (item.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (item.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (item.tags && item.tags.length > 0 && item.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())));
     
     const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
     
@@ -247,11 +260,9 @@ export default function MediaManagementPage() {
                   setShowAddForm(true);
                   setEditingItem(null);
                   setFormData({
-                    title: '',
                     description: '',
                     category: '',
                     date: new Date().toISOString().split('T')[0],
-                    tags: '',
                     isActive: true
                   });
                 }}
@@ -275,40 +286,42 @@ export default function MediaManagementPage() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      श्रेणी *
+                    </label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                      title="श्रेणी चुनें"
+                      aria-label="श्रेणी चुनें"
+                    >
+                      <option value="">श्रेणी चुनें</option>
+                      {categories.map(category => (
+                        <option key={category} value={category}>{category}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {formData.category === 'समाचार (News)' && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        शीर्षक *
+                        दिनांक *
                       </label>
                       <Input
-                        type="text"
-                        value={formData.title}
-                        onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                        placeholder="मीडिया आइटम का शीर्षक"
+                        type="date"
+                        value={formData.date}
+                        onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
                         required
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        श्रेणी *
-                      </label>
-                      <select
-                        value={formData.category}
-                        onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        required
-                      >
-                        <option value="">श्रेणी चुनें</option>
-                        {categories.map(category => (
-                          <option key={category} value={category}>{category}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
+                  )}
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      विवरण
+                      विवरण (वैकल्पिक)
                     </label>
                     <textarea
                       value={formData.description}
@@ -319,43 +332,41 @@ export default function MediaManagementPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        दिनांक
-                      </label>
-                      <Input
-                        type="date"
-                        value={formData.date}
-                        onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        टैग्स (कॉमा से अलग करें)
-                      </label>
-                      <Input
-                        type="text"
-                        value={formData.tags}
-                        onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
-                        placeholder="जैसे: रक्तदान, स्वास्थ्य, सेवा"
-                      />
-                    </div>
-                  </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      इमेज अपलोड करें {!editingItem && '*'}
+                      इमेज अपलोड करें {!editingItem && '*'} {!editingItem && '(एक या अधिक)'}
                     </label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
                       <input
                         type="file"
                         accept="image/*"
+                        multiple={!editingItem}
                         onChange={handleFileChange}
                         className="w-full"
                         required={!editingItem}
+                        title="इमेज फाइलें चुनें"
+                        aria-label="इमेज फाइलें अपलोड करें"
                       />
-                      <p className="text-xs text-gray-500 mt-2">JPG, PNG फॉर्मेट में, अधिकतम 5MB</p>
+                      <p className="text-xs text-gray-500 mt-2">
+                        {editingItem 
+                          ? 'JPG, PNG फॉर्मेट में, अधिकतम 5MB' 
+                          : 'एक साथ कई इमेज चुन सकते हैं। JPG, PNG फॉर्मेट में, प्रत्येक अधिकतम 5MB'}
+                      </p>
+                      {selectedFiles.length > 0 && (
+                        <div className="mt-3 p-3 bg-blue-50 rounded-md">
+                          <p className="text-sm font-semibold text-blue-800 mb-2">
+                            {selectedFiles.length} फाइल चुनी गई:
+                          </p>
+                          <ul className="text-xs text-blue-700 space-y-1 max-h-32 overflow-y-auto">
+                            {selectedFiles.map((file, index) => (
+                              <li key={index} className="flex items-center">
+                                <ImageIcon className="w-3 h-3 mr-2" />
+                                {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -366,6 +377,8 @@ export default function MediaManagementPage() {
                       checked={formData.isActive}
                       onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
                       className="rounded"
+                      title="सक्रिय करें"
+                      aria-label="सक्रिय (वेबसाइट पर दिखाएं)"
                     />
                     <label htmlFor="isActive" className="ml-2 text-sm font-medium text-gray-700">
                       सक्रिय (वेबसाइट पर दिखाएं)
@@ -423,6 +436,8 @@ export default function MediaManagementPage() {
                     value={categoryFilter}
                     onChange={(e) => setCategoryFilter(e.target.value)}
                     className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    title="श्रेणी फिल्टर"
+                    aria-label="श्रेणी द्वारा फिल्टर करें"
                   >
                     <option value="all">सभी श्रेणियां</option>
                     {categories.map(category => (
@@ -453,7 +468,7 @@ export default function MediaManagementPage() {
                     <img 
                       src={item.imageUrl} 
                       alt={item.title}
-                      className="w-full h-48 object-cover"
+                      className={`w-full h-48 ${item.category === 'समाचार (News)' ? 'object-contain bg-gray-50' : 'object-cover'}`}
                     />
                     <div className="absolute top-2 right-2">
                       <span className={`px-2 py-1 rounded-full text-xs ${
@@ -495,7 +510,7 @@ export default function MediaManagementPage() {
                         </Button>
                       </div>
                     </div>
-                    {item.tags.length > 0 && (
+                    {item.tags && item.tags.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1">
                         {item.tags.slice(0, 3).map((tag, index) => (
                           <span key={index} className="text-xs bg-gray-100 text-gray-600 px-1 py-0.5 rounded">

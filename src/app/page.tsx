@@ -14,7 +14,7 @@ import { LatestNews } from "@/components/home/latest-news";
 const heroSlides = [
   {
     image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    title: "एरोग्या पुस्तकालय एवं सेवा संस्था में आपका स्वागत है",
+    title: "एरोज्ञा पुस्तकालय एवं सेवा संस्था में आपका स्वागत है",
     description: "2020 से समाज सेवा के क्षेत्र में निरंतर कार्यरत - शिक्षा, स्वास्थ्य और सामाजिक कल्याण के लिए समर्पित",
     ctaText: "हमारे बारे में जानें",
     ctaLink: "/about",
@@ -57,52 +57,219 @@ export default function Home() {
       {/* Quick Stats */}
       <QuickStats />
 
+      {/* Mission Statement Section */}
+      <section className="py-16 bg-gradient-to-r from-orange-600 via-red-600 to-purple-600 text-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto text-center">
+            <div className="mb-6">
+              <div className="inline-block bg-white bg-opacity-20 backdrop-blur-sm px-6 py-3 rounded-full text-lg font-semibold mb-4">
+                एरो (तीर/बाण) + ज्ञा (ज्ञान/शिक्षा) = एरोज्ञा
+              </div>
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+              🏹 मानवता की शिक्षा का तीर
+            </h2>
+            <p className="text-xl md:text-2xl mb-8 leading-relaxed opacity-95">
+              "इंसान को जाति, धर्म, वर्ग, क्षेत्र और राजनीति से ऊपर उठाते हुए मानव बनाकर 
+              मनुष्य जीवन की सत्यता व वास्तविकता का ज्ञान कराना"
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="bg-gradient-to-br from-yellow-400 to-orange-500 p-4 rounded-xl shadow-xl transform hover:scale-105 transition">
+                <div className="text-4xl font-black text-white drop-shadow-2xl">3000+</div>
+                <div className="text-sm text-white font-bold mt-1">सदस्य</div>
+              </div>
+              <div className="bg-gradient-to-br from-pink-400 to-rose-600 p-4 rounded-xl shadow-xl transform hover:scale-105 transition">
+                <div className="text-4xl font-black text-white drop-shadow-2xl">3 लाख+</div>
+                <div className="text-sm text-white font-bold mt-1">निःशुल्क साहित्य</div>
+              </div>
+              <div className="bg-gradient-to-br from-blue-400 to-indigo-600 p-4 rounded-xl shadow-xl transform hover:scale-105 transition">
+                <div className="text-4xl font-black text-white drop-shadow-2xl">700+</div>
+                <div className="text-sm text-white font-bold mt-1">विद्यालय</div>
+              </div>
+              <div className="bg-gradient-to-br from-green-400 to-emerald-600 p-4 rounded-xl shadow-xl transform hover:scale-105 transition">
+                <div className="text-4xl font-black text-white drop-shadow-2xl">12+</div>
+                <div className="text-sm text-white font-bold mt-1">राज्यों में सक्रिय</div>
+              </div>
+            </div>
+            <a
+              href="/about"
+              className="inline-block bg-white text-orange-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors duration-300 shadow-xl"
+            >
+              हमारी कहानी जानें →
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Organization Introduction */}
       <section className="py-16 bg-white" itemScope itemType="https://schema.org/AboutPage">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6" itemProp="name">
-                एरोग्या पुस्तकालय एवं सेवा संस्था का परिचय
+                राजस्थान के मरुस्थल में मानवता का प्रकाश
               </h1>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed" itemProp="description">
-                एरोग्या पुस्तकालय एवं सेवा संस्था एक सार्वजनिक चैरिटेबल ट्रस्ट है जो <time itemProp="foundingDate" dateTime="2020">2020</time> से
+                <time itemProp="foundingDate" dateTime="2020">7 अगस्त 2020</time> को प्रथम देहदानी <strong>श्री अमराराम बोस</strong> ने 
                 <span itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
-                  <span itemProp="addressRegion">राजस्थान</span> के <span itemProp="addressLocality">बाड़मेर</span> जिले
-                </span> में समाज सेवा के क्षेत्र में निरंतर कार्यरत है। हमारा
-                मुख्य उद्देश्य शिक्षा, स्वास्थ्य, पुस्तकालय सेवा और सामाजिक कल्याण के माध्यम
-                से समाज के उत्थान में योगदान देना है।
+                  <span itemProp="addressRegion">राजस्थान</span> के <span itemProp="addressLocality">बाड़मेर जिले</span> के गुडामालानी उपखण्ड क्षेत्र
+                </span> में इस मिशन की शुरुआत की। अध्यक्ष <strong>श्री कालुराम माली</strong> और कोषाध्यक्ष <strong>श्री बाबूलाल नामा</strong> के नेतृत्व में 
+                यह संस्था आज <strong>राजस्थान प्रदेश के मरुस्थल में ग्रामीण क्षेत्र का प्रथम ऐसा संस्थान</strong> बन गया है जो जाति, धर्म, वर्ग और क्षेत्र से ऊपर उठकर 
+                मानवता के लिए समर्पित है।
               </p>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                हमारी संस्था में एक समृद्ध पुस्तकालय है जिसमें धार्मिक, शैक्षणिक, साहित्यिक
-                और तकनीकी विषयों की <strong>2000 से अधिक पुस्तकें</strong> उपलब्ध हैं। यह पुस्तकालय सभी आयु वर्ग
-                के लोगों के लिए <strong>निःशुल्क</strong> उपलब्ध है। वर्तमान में <strong>35 लाख रुपए</strong> की लागत से नया
-                आधुनिक पुस्तकालय भवन निर्माणाधीन है।
-              </p>
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 p-6 rounded-xl mb-6">
+                <h3 className="font-bold text-gray-800 mb-3 flex items-center">
+                  <span className="text-2xl mr-2">🏛️</span>
+                  ₹2 करोड़ का प्रोजेक्ट
+                </h3>
+                <p className="text-gray-700 mb-2">
+                  <strong>7 अगस्त 2022</strong> को मालियों की ढाणी, आरजीटी सर्कल के पास 78 सीटों के साथ 
+                  अत्याधुनिक पुस्तकालय व कोचिंग संस्थान का शिलान्यास हुआ। <strong>₹60 लाख+</strong> का कार्य पूर्ण हो चुका है।
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>अपेक्षित उद्घाटन:</strong> सितंबर 2025
+                </p>
+              </div>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
                   href="/about"
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-300 text-center"
+                  className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 text-center shadow-lg"
                 >
-                  विस्तार से पढ़ें
+                  संपूर्ण कहानी पढ़ें
                 </a>
                 <a
-                  href="/register"
-                  className="border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-300 text-center"
+                  href="/apply"
+                  className="border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-300 text-center"
                 >
-                  सदस्यता लें
+                  सदस्य बनें
                 </a>
               </div>
             </div>
             <div className="relative">
               <img
                 src="https://images.unsplash.com/photo-1497486751825-1233686d5d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
-                alt="संस्था की तस्वीर"
+                alt="एरोज्ञा पुस्तकालय भवन निर्माण"
                 className="rounded-lg shadow-lg w-full h-auto"
               />
-              <div className="absolute -bottom-6 -right-6 bg-green-600 text-white p-6 rounded-lg shadow-lg">
-                <div className="text-2xl font-bold">4+</div>
-                <div className="text-sm">वर्षों का अनुभव</div>
+              <div className="absolute -bottom-6 -right-6 bg-gradient-to-r from-orange-600 to-red-600 text-white p-6 rounded-lg shadow-lg">
+                <div className="text-3xl font-bold mb-1">2020</div>
+                <div className="text-sm">7 अगस्त - स्थापना दिवस</div>
+                <div className="text-xs mt-2 opacity-90">7 सदस्यों से 3000+ सदस्यों तक</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Our Mission Section - Zigzag Layout 1 */}
+      <section className="py-16 bg-gradient-to-r from-orange-50 to-red-50">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left Side - Mission Statement */}
+            <div className="order-2 lg:order-1">
+              <div className="bg-gradient-to-br from-orange-100 to-red-100 border-2 border-orange-300 p-8 rounded-2xl shadow-2xl">
+                <p className="text-2xl md:text-3xl text-gray-800 leading-relaxed italic font-semibold text-center">
+                  "मानवता की शिक्षा/ज्ञान का तीर, इंसान को जाति, धर्म, वर्ग, क्षेत्र और राजनीति से ऊपर उठाते हुए मानव बनाकर मनुष्य जीवन की सत्यता व वास्तविकता का ज्ञान कराना - यही एरोज्ञा मिशन है।"
+                </p>
+              </div>
+            </div>
+
+            {/* Right Side - Title & Visual */}
+            <div className="order-1 lg:order-2">
+              <div className="text-center lg:text-left mb-6">
+                <div className="inline-block bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-2 rounded-full mb-4">
+                  <span className="text-sm font-bold">OUR MISSION</span>
+                </div>
+                <h2 className="text-4xl md:text-5xl font-black text-gray-800 mb-6">
+                  हमारा मिशन
+                </h2>
+                <div className="w-20 h-1 bg-gradient-to-r from-orange-600 to-red-600 mb-6"></div>
+                <p className="text-lg text-gray-700 leading-relaxed">
+                  <strong className="text-orange-600">एरो</strong> = तीर/बाण, <strong className="text-orange-600">ज्ञा</strong> = ज्ञान/शिक्षा
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-8">
+                <div className="bg-gradient-to-br from-blue-500 to-blue-700 p-6 rounded-xl shadow-xl text-center transform hover:scale-105 transition">
+                  <div className="text-5xl mb-2">🎯</div>
+                  <div className="text-white font-bold text-sm">मानवता का तीर</div>
+                </div>
+                <div className="bg-gradient-to-br from-purple-500 to-purple-700 p-6 rounded-xl shadow-xl text-center transform hover:scale-105 transition">
+                  <div className="text-5xl mb-2">📖</div>
+                  <div className="text-white font-bold text-sm">शिक्षा का ज्ञान</div>
+                </div>
+                <div className="bg-gradient-to-br from-green-500 to-green-700 p-6 rounded-xl shadow-xl text-center transform hover:scale-105 transition">
+                  <div className="text-5xl mb-2">🤝</div>
+                  <div className="text-white font-bold text-sm">सामाजिक एकता</div>
+                </div>
+                <div className="bg-gradient-to-br from-pink-500 to-pink-700 p-6 rounded-xl shadow-xl text-center transform hover:scale-105 transition">
+                  <div className="text-5xl mb-2">✨</div>
+                  <div className="text-white font-bold text-sm">सत्यता का बोध</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Inspiration Story Section - Zigzag Layout 2 */}
+      <section className="py-16 bg-gradient-to-br from-purple-50 to-pink-50">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left Side - Title & Visual */}
+            <div className="order-1">
+              <div className="text-center lg:text-left mb-6">
+                <div className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-full mb-4">
+                  <span className="text-sm font-bold">INSPIRATION</span>
+                </div>
+                <h2 className="text-4xl md:text-5xl font-black text-gray-800 mb-6">
+                  💫 प्रेरणा की कहानी
+                </h2>
+                <div className="w-20 h-1 bg-gradient-to-r from-purple-600 to-pink-600 mb-6"></div>
+              </div>
+              <div className="relative">
+                <img
+                  src="https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                  alt="प्रेरणा और सामाजिक कार्य"
+                  className="rounded-2xl shadow-2xl w-full h-auto"
+                />
+                <div className="absolute -bottom-6 -right-6 bg-gradient-to-br from-purple-600 to-pink-600 text-white p-6 rounded-xl shadow-2xl">
+                  <div className="text-3xl font-black mb-1">हजारों</div>
+                  <div className="text-sm font-bold">जीवन बदले</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Side - Story Content */}
+            <div className="order-2">
+              <div className="bg-gradient-to-br from-purple-100 to-pink-100 border-2 border-purple-300 p-8 rounded-2xl shadow-2xl mb-6">
+                <p className="text-xl md:text-2xl text-gray-800 leading-relaxed italic font-semibold text-center mb-6">
+                  "एक छोटी सी जन्मदिन/शादी सालगिरह व अन्य शुभ अवसर पर शिक्षा के क्षेत्र में अंशदान की शुरुआत आज लाखों लोगों के लिए प्रेरणा बन गई है।"
+                </p>
+              </div>
+              <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-purple-200">
+                <h3 className="text-2xl font-bold text-gray-800 mb-4 text-center flex items-center justify-center">
+                  <span className="text-3xl mr-2">🌟</span>
+                  हमारा प्रभाव
+                </h3>
+                <p className="text-gray-700 leading-relaxed text-center">
+                  इस मिशन की बदौलत आज अनेक सैकड़ों परिवारों और हजारों लोगों के जीवन में शिक्षा व मानवता की रोशनी से जीवन रोशन हो चुका है। 
+                  यह एक मानवीय मिशन है जो राजनीति, धार्मिक अंधविश्वास, पाखंड, नशा और सामाजिक कुरीतियों से बाहर निकलकर 
+                  शिक्षा व मानवीय कार्यों में भागीदारी के साथ आगे बढ़ रहा है।
+                </p>
+                <div className="grid grid-cols-3 gap-4 mt-6">
+                  <div className="text-center">
+                    <div className="text-3xl font-black text-purple-600">सैकड़ों</div>
+                    <div className="text-sm text-gray-600 font-semibold">परिवार</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-black text-pink-600">हजारों</div>
+                    <div className="text-sm text-gray-600 font-semibold">लोग</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-black text-indigo-600">लाखों</div>
+                    <div className="text-sm text-gray-600 font-semibold">प्रेरित</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

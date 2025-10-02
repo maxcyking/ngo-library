@@ -25,7 +25,7 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: 'https://aerogyalibrary.org/sitemap.xml',
-    host: 'https://aerogyalibrary.org',
+    sitemap: 'https://arogyango.org/sitemap.xml',
+    host: 'https://arogyango.org',
   }
 }

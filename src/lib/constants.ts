@@ -1,5 +1,5 @@
 // App Constants
-export const APP_NAME = "एरोग्या पुस्तकालय एवं सेवा संस्था";
+export const APP_NAME = "एरोज्ञा पुस्तकालय एवं सेवा संस्था";
 export const APP_TAGLINE = "पुस्तकालय एवं सेवा संस्था, भारत";
 export const APP_SUBTITLE = "सार्वजनिक चैरिटेबल ट्रस्ट";
 export const REGISTRATION_NO = "COOP/2020/BARMER/202370";
@@ -41,6 +41,7 @@ export const ADMIN_NAVIGATION = [
   { href: "/admin/testimonials", label: "प्रशंसापत्र प्रबंधन" },
   { href: "/admin/stats", label: "आंकड़े प्रबंधन" },
   { href: "/admin/work-areas", label: "कार्य क्षेत्र प्रबंधन" },
+  { href: "/admin/settings", label: "वेबसाइट सेटिंग्स" },
   { href: "/admin/ui", label: "UI प्रबंधन" },
 ];
 
@@ -149,12 +150,12 @@ export const SOCIAL_LINKS = {
 
 // Contact Information
 export const CONTACT_INFO = {
-  address: "रजि. ऑफिस - एरोग्या पुस्तकालय एवं सेवा संस्था, खसरा नं. 686/600, मालिया की ढाणी, आर जी टी सर्किल, नगर, गुडामलानी 344031, जिला - बाड़मेर (राजस्थान)",
+  address: "रजि. ऑफिस - एरोज्ञा पुस्तकालय एवं सेवा संस्था, खसरा नं. 686/600, मालिया की ढाणी, आर जी टी सर्किल, नगर, गुडामलानी 344031, जिला - बाड़मेर (राजस्थान)",
   phone: "+91 99518 00733",
   email: "arogyapustkalaya@gmail.com",
   timings: "सुबह 9:00 से शाम 6:00 तक",
   website: "www.arogyabmr.org",
-  facebook: "एरोग्या www.arogyabmr.org",
+  facebook: "एरोज्ञा www.arogyabmr.org",
 };
 // Team Members
 export const TEAM_MEMBERS = {
@@ -208,7 +209,7 @@ export const TEAM_MEMBERS = {
 export const BANK_DETAILS = {
   primary: {
     bankName: "Punjab National Bank, Gudamalani",
-    accountName: "एरोग्या पुस्तकालय एवं सेवा संस्था",
+    accountName: "एरोज्ञा पुस्तकालय एवं सेवा संस्था",
     savingAccount: "9657001000035037",
     currentAccount: "9657002100003780", 
     ifscCode: "PUNB0965700"

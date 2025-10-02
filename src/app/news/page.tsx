@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 import { Calendar, Search, Eye, Share2 } from "lucide-react";
 import { 
   collection, 
@@ -19,7 +20,6 @@ import { NewsArticle } from '@/lib/types';
 export default function NewsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("सभी");
-  const [selectedNews, setSelectedNews] = useState<string | null>(null);
   const [newsItems, setNewsItems] = useState<NewsArticle[]>([]);
   const [categories, setCategories] = useState<string[]>(["सभी"]);
   const [loading, setLoading] = useState(true);
@@ -210,12 +210,11 @@ export default function NewsPage() {
                           {Object.entries(categoryLabels).find(([label, value]) => value === news.category)?.[0] || news.category}
                         </Badge>
                       </div>
-                      <Button 
-                        className="w-full"
-                        onClick={() => setSelectedNews(news.id)}
-                      >
-                        पूरा पढ़ें
-                      </Button>
+                      <Link href={`/news/${news.id}`} className="w-full">
+                        <Button className="w-full">
+                          पूरा पढ़ें
+                        </Button>
+                      </Link>
                     </CardContent>
                   </Card>
                 ))}
@@ -269,14 +268,15 @@ export default function NewsPage() {
                           लेखक: {news.author}
                         </span>
                         <div className="flex gap-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => setSelectedNews(news.id)}
-                          >
-                            पूरा पढ़ें
-                          </Button>
-                          <Button variant="outline" size="sm">
+                          <Link href={`/news/${news.id}`}>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                            >
+                              पूरा पढ़ें
+                            </Button>
+                          </Link>
+                          <Button variant="outline" size="sm" title="शेयर करें" aria-label="समाचार शेयर करें">
                             <Share2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -301,84 +301,6 @@ export default function NewsPage() {
           </div>
         </div>
       </section>
-
-      {/* News Detail Modal */}
-      {selectedNews && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl max-h-[90vh] overflow-y-auto">
-            {(() => {
-              const news = newsItems.find(n => n.id === selectedNews);
-              if (!news) return null;
-              
-              return (
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <Badge variant="secondary">
-                      {Object.entries(categoryLabels).find(([label, value]) => value === news.category)?.[0] || news.category}
-                    </Badge>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedNews(null)}
-                    >
-                      ✕
-                    </Button>
-                  </div>
-                  
-                  {news.featuredImage && (
-                    <img
-                      src={news.featuredImage}
-                      alt={news.featuredImageAlt || news.title}
-                      className="w-full h-64 object-cover rounded-lg mb-6"
-                    />
-                  )}
-                  
-                  <h1 className="text-2xl font-bold text-gray-800 mb-4">
-                    {news.title}
-                  </h1>
-                  
-                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
-                    <span className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      {news.publishDate.toLocaleDateString('hi-IN')}
-                    </span>
-                    <span>लेखक: {news.author}</span>
-                    <span className="flex items-center">
-                      <Eye className="w-4 h-4 mr-1" />
-                      {news.viewCount} views
-                    </span>
-                  </div>
-                  
-                  <div className="prose max-w-none mb-6" dangerouslySetInnerHTML={{ __html: news.content }}>
-                  </div>
-                  
-                  {news.videoUrl && (
-                    <div className="mb-6">
-                      <h3 className="text-lg font-semibold mb-2">संबंधित वीडियो</h3>
-                      <a 
-                        href={news.videoUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        वीडियो देखें
-                      </a>
-                    </div>
-                  )}
-                  
-                  <div className="flex flex-wrap gap-2 mt-6">
-                    {news.tags.map((tag, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        #{tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

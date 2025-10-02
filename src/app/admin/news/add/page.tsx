@@ -494,6 +494,7 @@ export default function AddNewsPage() {
                     </label>
                     <div className="border border-gray-300 rounded-md">
                       <Editor
+                        apiKey="zu1rde693wn0ncr6drry7sgc09kmdb13eh8361n4x4heill9"
                         onInit={(evt, editor) => editorRef.current = editor}
                         value={formData.content}
                         init={{

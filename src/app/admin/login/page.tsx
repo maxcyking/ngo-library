@@ -85,7 +85,7 @@ export default function AdminLoginPage() {
             एडमिन लॉगिन
           </CardTitle>
           <p className="text-gray-600">
-            एरोग्या पुस्तकालय एवं सेवा संस्था
+            एरोज्ञा पुस्तकालय एवं सेवा संस्था
           </p>
           {redirectUrl && (
             <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">

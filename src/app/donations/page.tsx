@@ -125,17 +125,66 @@ export default function DonationsPage() {
               रक्तदान, देहदान और आर्थिक सहायता - जीवन दान का महान कार्य
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-              <div className="bg-white bg-opacity-20 p-4 rounded-lg">
+              <div className="bg-white bg-opacity-20 p-4 rounded-lg text-black">
                 <div className="text-2xl font-bold">{bloodDonors.length}+</div>
                 <div className="text-sm">रक्तदाता</div>
               </div>
-              <div className="bg-white bg-opacity-20 p-4 rounded-lg">
+              <div className="bg-white bg-opacity-20 p-4 rounded-lg text-black">
                 <div className="text-2xl font-bold">{bodyDonors.length}+</div>
                 <div className="text-sm">देहदाता</div>
               </div>
-              <div className="bg-white bg-opacity-20 p-4 rounded-lg">
+              <div className="bg-white bg-opacity-20 p-4 rounded-lg text-black">
                 <div className="text-2xl font-bold">{financialDonors.length}+</div>
                 <div className="text-sm">भामाशाह</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Organization Registration Details & Motivational Message */}
+      <section className="py-8 bg-gradient-to-r from-orange-50 to-yellow-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Left Side - Organization Details */}
+              <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-orange-200">
+                <h3 className="text-2xl font-bold text-orange-600 mb-4 text-center">
+                  संस्था पंजीकरण विवरण
+                </h3>
+                <div className="space-y-3 text-gray-700">
+                  <div className="text-center mb-4">
+                    <h4 className="text-xl font-bold text-gray-800">एरोज्ञा</h4>
+                    <p className="font-semibold text-gray-700">पुस्तकालय एवं सेवा संस्था</p>
+                  </div>
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-3 rounded-lg">
+                    <p className="text-sm"><strong className="text-blue-700">सोसाइटी रजि. नं.:</strong></p>
+                    <p className="font-bold text-blue-900">COOP/2020/BMR/202370</p>
+                  </div>
+                  <div className="bg-gradient-to-r from-green-50 to-green-100 p-3 rounded-lg">
+                    <p className="text-sm"><strong className="text-green-700">सार्वजनिक चैरिटेबल TRUST रजि. नं.:</strong></p>
+                    <p className="font-bold text-green-900">202303092400011</p>
+                  </div>
+                  <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-lg">
+                    <p className="text-sm"><strong className="text-purple-700">CIN NO.:</strong></p>
+                    <p className="font-bold text-purple-900">U88900RJ2025NPL106455</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Side - Motivational Messages */}
+              <div className="bg-gradient-to-br from-red-500 to-orange-600 p-6 rounded-xl shadow-2xl text-white flex flex-col justify-center">
+                <div className="text-center mb-6">
+                  <div className="text-6xl mb-4">✍️</div>
+                  <p className="text-2xl md:text-3xl font-black leading-relaxed italic drop-shadow-lg mb-6">
+                    "कलम की ताकत दुनिया की सबसे बड़ी ताकत है!"
+                  </p>
+                </div>
+                <div className="bg-white bg-opacity-20 backdrop-blur-sm p-6 rounded-xl border-2 border-white border-opacity-40">
+                  <p className="text-xl md:text-2xl font-bold text-center leading-relaxed drop-shadow-lg text-orange-400">
+                    "एक रोटी कम खाओ लेकिन बच्चों को जरूर पढ़ाओ!!"
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -411,7 +460,7 @@ export default function DonationsPage() {
                       </div>
                       <div>
                         <strong>खाता नाम:</strong><br />
-                        एरोग्या पुस्तकालय एवं सेवा संस्था<br />
+                        एरोज्ञा पुस्तकालय एवं सेवा संस्था<br />
                         <strong>शाखा:</strong> गुडामलानी
                       </div>
                     </div>

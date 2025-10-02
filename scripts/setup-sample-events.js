@@ -52,7 +52,7 @@ const sampleEvents = [
     ],
     targetAudience: "सभी आयु वर्ग के लोग, विशेषकर 40+ आयु के व्यक्ति",
     registrationFee: 0,
-    organizers: ["एरोग्या पुस्तकालय एवं सेवा संस्था"],
+    organizers: ["एरोज्ञा पुस्तकालय एवं सेवा संस्था"],
     sponsors: ["स्थानीय व्यापारी संघ", "गुडामलानी पंचायत"],
     status: "published"
   },
@@ -103,7 +103,7 @@ const sampleEvents = [
     ],
     targetAudience: "18-65 आयु के स्वस्थ व्यक्ति",
     registrationFee: 0,
-    organizers: ["एरोग्या पुस्तकालय एवं सेवा संस्था", "जिला अस्पताल"],
+    organizers: ["एरोज्ञा पुस्तकालय एवं सेवा संस्था", "जिला अस्पताल"],
     sponsors: ["रक्त बैंक गुडामलानी"],
     status: "published"
   },
@@ -159,7 +159,7 @@ const sampleEvents = [
     ],
     targetAudience: "18+ आयु की महिलाएं, गृहिणियां, युवा महिलाएं",
     registrationFee: 0,
-    organizers: ["एरोग्या पुस्तकालय एवं सेवा संस्था", "महिला विकास मंडल"],
+    organizers: ["एरोज्ञा पुस्तकालय एवं सेवा संस्था", "महिला विकास मंडल"],
     sponsors: ["जिला कलेक्टर कार्यालय"],
     status: "published"
   },
@@ -167,7 +167,7 @@ const sampleEvents = [
   {
     title: "पुस्तकालय भवन उद्घाटन समारोह",
     description: "35 लाख रुपए की लागत से निर्मित नए पुस्तकालय भवन का भव्य उद्घाटन",
-    longDescription: `एरोग्या पुस्तकालय एवं सेवा संस्था के नए पुस्तकालय भवन का उद्घाटन समारोह।
+    longDescription: `एरोज्ञा पुस्तकालय एवं सेवा संस्था के नए पुस्तकालय भवन का उद्घाटन समारोह।
 
 भवन की विशेषताएं:
 - 2000 वर्ग फुट का विशाल भवन
@@ -214,7 +214,7 @@ const sampleEvents = [
     targetAudience: "सभी आयु वर्ग, स्थानीय निवासी, शिक्षा प्रेमी",
     registrationFee: 0,
     organizers: [
-      "एरोग्या पुस्तकालय एवं सेवा संस्था",
+      "एरोज्ञा पुस्तकालय एवं सेवा संस्था",
       "ग्राम पंचायत गुडामलानी",
       "जिला शिक्षा विभाग"
     ],
@@ -270,7 +270,7 @@ const sampleEvents = [
     ],
     targetAudience: "युवा, मध्यम आयु के व्यक्ति, महिलाएं",
     registrationFee: 0,
-    organizers: ["एरोग्या पुस्तकालय एवं सेवा संस्था"],
+    organizers: ["एरोज्ञा पुस्तकालय एवं सेवा संस्था"],
     sponsors: ["कंप्यूटर शिक्षा केंद्र"],
     status: "published"
   },
@@ -321,7 +321,7 @@ const sampleEvents = [
     ],
     targetAudience: "18-35 आयु के युवा, स्नातक, बेरोजगार युवा",
     registrationFee: 0,
-    organizers: ["एरोग्या पुस्तकालय एवं सेवा संस्था", "युवा विकास केंद्र"],
+    organizers: ["एरोज्ञा पुस्तकालय एवं सेवा संस्था", "युवा विकास केंद्र"],
     sponsors: ["स्थानीय उद्यमी संघ"],
     status: "published"
   }
@@ -345,7 +345,7 @@ const samplePastEvents = [
     isFeatured: true,
     contactPerson: "श्री आत्माराम बोरा",
     contactPhone: "+91 96600 89144",
-    organizers: ["एरोग्या पुस्तकालय एवं सेवा संस्था"],
+    organizers: ["एरोज्ञा पुस्तकालय एवं सेवा संस्था"],
     status: "completed"
   },
 
@@ -365,7 +365,7 @@ const samplePastEvents = [
     isFeatured: false,
     contactPerson: "श्री बाबूराम शर्मा",
     contactPhone: "+91 99288 00933",
-    organizers: ["एरोग्या पुस्तकालय एवं सेवा संस्था"],
+    organizers: ["एरोज्ञा पुस्तकालय एवं सेवा संस्था"],
     status: "completed"
   }
 ];

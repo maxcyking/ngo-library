@@ -1,210 +1,267 @@
-# Firebase Security Rules Documentation
+# Firebase Security Rules for Settings System
 
 ## Overview
-This document explains the Firebase security rules implemented for the एरोग्या पुस्तकालय एवं सेवा संस्था (Arogya Library and Service Organization) application.
+This document outlines the Firebase security rules implemented for the website settings system and related functionality.
 
-## Firestore Database Rules
+## Firestore Security Rules
 
-### Authentication & Authorization
+### Settings Collection Rules
 
-#### Helper Functions
-- `isAuthenticated()`: Checks if user is logged in
-- `isAdmin()`: Verifies user has admin role and is active
-- `isValidApplication()`: Validates application data structure
-- `isValidStudent()`: Validates student data structure
+#### 1. General Settings (`/settings/{settingId}`)
+```javascript
+// Website settings should be readable by all for public display
+allow read: if settingId == 'website' || isAdmin();
+// Only admins can modify settings
+allow write, create, delete: if isAdmin();
+// Only admins can list all settings
+allow list: if isAdmin();
+```
 
-### Collection-Level Security
+#### 2. Website Settings Document (`/settings/website`)
+```javascript
+allow read: if true; // Public read access for website display
+allow write, update: if isAdmin() && isValidWebsiteSettings(request.resource.data);
+allow create: if isAdmin() && isValidWebsiteSettings(request.resource.data);
+allow delete: if false; // Website settings should never be deleted
+```
 
-#### Public Collections (Read Access)
-- **books**: Public can browse library catalog
-- **events**: Public can view events
-- **newsArticles**: Public can read news
-- **newsCategories**: Public can view categories
-- **newsTags**: Public can view tags
-- **media**: Public can view gallery
-- **donations**: Public transparency for donations
-- **bloodDonors**: Public access for emergency situations
-- **financialDonors**: Public transparency
-- **heroImages**: Public website display
-- **uiContent**: Public website content
+#### 3. Website Settings Validation
+```javascript
+function isValidWebsiteSettings(data) {
+  return data.keys().hasAll(['siteName', 'siteTitle', 'phone', 'email']) &&
+         data.siteName is string && data.siteName.size() > 0 &&
+         data.siteTitle is string && data.siteTitle.size() > 0 &&
+         data.phone is string && data.phone.size() > 0 &&
+         data.email is string && data.email.size() > 0 &&
+         data.email.matches('.*@.*\\..*'); // Basic email validation
+}
+```
 
-#### Admin-Only Collections
-- **students**: Complete student records management
-- **members**: Member management
-- **transactions**: Library transaction records
-- **bookTransactions**: Book lending history
-- **settings**: System configuration
-- **auditLogs**: System audit trail (read-only after creation)
+### Contact & Inquiry Rules
 
-#### Mixed Access Collections
-- **library-applications**: 
-  - Public can CREATE (submit applications)
-  - Admins can READ/UPDATE/DELETE (manage applications)
-- **inquiries**: 
-  - Public can CREATE (submit contact forms)
-  - Admins can READ/UPDATE/DELETE (manage inquiries)
-- **users**: Authenticated users can manage their own records
+#### 1. Contact Form Submissions (`/contact-submissions/{submissionId}`)
+```javascript
+allow create: if isValidInquiry(request.resource.data); // Anyone can submit contact forms
+allow read, list: if isAdmin(); // Only admins can view submissions
+allow update: if isAdmin(); // Only admins can update (mark as read, etc.)
+allow delete: if isAdmin(); // Only admins can delete submissions
+```
 
-### Data Validation Rules
+#### 2. Inquiry Validation
+```javascript
+function isValidInquiry(data) {
+  return data.keys().hasAll(['name', 'phone', 'subject', 'message']) &&
+         data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+         data.phone is string && data.phone.size() > 0 && data.phone.size() <= 20 &&
+         data.subject is string && data.subject.size() > 0 && data.subject.size() <= 200 &&
+         data.message is string && data.message.size() > 0 && data.message.size() <= 1000 &&
+         (!data.keys().hasAny(['email']) || (data.email is string && data.email.matches('.*@.*\\..*')));
+}
+```
 
-#### Application Validation
-Applications must include:
-- `name` (non-empty string)
-- `fatherHusbandName` (non-empty string)
-- `phone` (non-empty string)
-- `applicationType` ('library' or 'member')
-- `status` ('pending', 'approved', or 'rejected')
+### Audit Logging Rules
 
-New applications automatically set to 'pending' status.
+#### 1. Settings Change Logs (`/settingsLogs/{logId}`)
+```javascript
+allow read, list: if isAdmin(); // Only admins can read settings logs
+allow create: if isAdmin() && isValidSettingsLog(request.resource.data); // Only admins can create settings logs
+allow update, delete: if false; // Settings logs should not be modified or deleted
+```
 
-#### Student Validation
-Student records must include:
-- `name` (non-empty string)
-- `fatherHusbandName` (non-empty string)
-- `phone` (non-empty string)
-- `status` ('active', 'inactive', or 'suspended')
+#### 2. Settings Log Validation
+```javascript
+function isValidSettingsLog(data) {
+  return data.keys().hasAll(['action', 'settingKey', 'oldValue', 'newValue', 'timestamp', 'userId']) &&
+         data.action in ['create', 'update', 'delete'] &&
+         data.settingKey is string && data.settingKey.size() > 0 &&
+         data.timestamp is timestamp &&
+         data.userId is string && data.userId.size() > 0;
+}
+```
 
 ## Firebase Storage Rules
 
-### File Type & Size Validation
+### Website Assets Rules
 
-#### Image Files
-- **Allowed types**: image/* (JPEG, PNG, GIF, etc.)
-- **Size limit**: 5MB
-- **Used for**: Profile photos, signatures, hero images
+#### 1. Website Assets (`/website-assets/{allPaths=**}`)
+```javascript
+allow read: if true; // Public read access for website display
+allow write: if isAdmin() && isValidImage(); // Only admins can upload website assets
+allow delete: if isAdmin(); // Only admins can delete website assets
+```
 
-#### Document Files
-- **Allowed types**: image/* and application/pdf
-- **Size limit**: 10MB
-- **Used for**: Marksheets, certificates, documents
+#### 2. Branding Assets (`/branding/{allPaths=**}`)
+```javascript
+allow read: if true; // Public read access
+allow write: if isAdmin() && isValidImage(); // Only admins can manage branding
+allow delete: if isAdmin();
+```
 
-### Folder-Level Security
+#### 3. Settings-related Uploads (`/settings/{allPaths=**}`)
+```javascript
+allow read: if true; // Public read access for website display
+allow write: if isAdmin() && isValidImage(); // Only admins can upload settings images
+allow delete: if isAdmin(); // Only admins can delete settings images
+```
 
-#### Public Read Access
-- **hero-images**: Website hero images
-- **news-images**: News article images
-- **event-images**: Event photos
-- **gallery**: Public gallery images
+### File Validation Functions
 
-#### Admin-Only Access
-- **student-profiles**: Student profile photos
-- **student-signatures**: Student signatures
-- **student-marksheets**: Student academic documents
-- **member-photos**: Member photographs
-- **book-images**: Book cover images
-- **documents**: Administrative documents
+#### Image Validation
+```javascript
+function isValidImage() {
+  return request.resource.contentType.matches('image/.*') &&
+         request.resource.size < 5 * 1024 * 1024; // 5MB limit
+}
+```
 
-#### Mixed Access (Application Uploads)
-- **applications/profiles**: Public upload, admin read
-- **applications/signatures**: Public upload, admin read
-- **applications/marksheets**: Public upload, admin read
+#### Admin Check
+```javascript
+function isAdmin() {
+  return isAuthenticated() && 
+         firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+         firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin' &&
+         firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isActive == true;
+}
+```
 
 ## Security Features
 
-### 1. Role-Based Access Control
-- **Public**: Can submit applications and view public content
-- **Authenticated Users**: Can manage their own data
-- **Admins**: Full access to student/member management
+### 1. **Public Access Control**
+- Website settings are publicly readable for display purposes
+- Contact forms can be submitted by anyone (with validation)
+- Media assets are publicly accessible
 
-### 2. Data Integrity
+### 2. **Admin-Only Operations**
+- Only admins can modify website settings
+- Only admins can view contact form submissions
+- Only admins can upload website assets
+
+### 3. **Data Validation**
+- All settings must include required fields
+- Email addresses are validated with regex
+- File uploads are restricted by type and size
+- Input length limits prevent abuse
+
+### 4. **Audit Trail**
+- All settings changes are logged
+- Audit logs cannot be modified or deleted
+- Comprehensive tracking of who changed what and when
+
+### 5. **Rate Limiting & Abuse Prevention**
+- File size limits (5MB for images)
+- String length limits for all text fields
 - Required field validation
-- Data type checking
-- Status value constraints
-- File type and size validation
+- Type checking for all data
 
-### 3. Audit Trail
-- Immutable audit logs
-- Creation timestamps
-- User attribution for changes
+## Deployment Instructions
 
-### 4. File Security
+### 1. Deploy Firestore Rules
+```bash
+# Using Firebase CLI
+firebase deploy --only firestore:rules
+
+# Or using the deployment script
+node scripts/deploy-firestore-rules.js
+```
+
+### 2. Deploy Storage Rules
+```bash
+# Using Firebase CLI
+firebase deploy --only storage
+
+# Or deploy all rules at once
+firebase deploy --only firestore:rules,storage
+```
+
+### 3. Test Rules
+```bash
+# Run Firestore emulator with rules
+firebase emulators:start --only firestore
+
+# Test specific rules
+firebase firestore:rules:test --test-file=tests/firestore-rules.test.js
+```
+
+## Testing Scenarios
+
+### 1. **Settings Access Tests**
+- ✅ Public can read website settings
+- ✅ Admin can update website settings
+- ❌ Non-admin cannot update settings
+- ❌ Invalid data is rejected
+
+### 2. **Contact Form Tests**
+- ✅ Anyone can submit valid contact forms
+- ✅ Admin can read submissions
+- ❌ Invalid contact forms are rejected
+- ❌ Non-admin cannot read submissions
+
+### 3. **File Upload Tests**
+- ✅ Admin can upload valid images
+- ✅ Public can read uploaded assets
+- ❌ Non-admin cannot upload files
+- ❌ Invalid file types are rejected
+
+### 4. **Audit Log Tests**
+- ✅ Settings changes are logged
+- ✅ Admin can read audit logs
+- ❌ Audit logs cannot be modified
+- ❌ Non-admin cannot read logs
+
+## Security Best Practices
+
+### 1. **Principle of Least Privilege**
+- Users only get minimum required permissions
+- Public access only where necessary
+- Admin verification for sensitive operations
+
+### 2. **Data Validation**
+- All inputs are validated at the rule level
+- Type checking and format validation
+- Length limits to prevent abuse
+
+### 3. **Audit Trail**
+- All administrative actions are logged
+- Immutable audit records
+- Comprehensive change tracking
+
+### 4. **File Security**
 - File type restrictions
-- Size limitations
-- Organized folder structure
-- Secure upload paths
+- Size limits to prevent abuse
+- Admin-only upload for sensitive assets
 
-## Production Deployment Checklist
+## Monitoring & Alerts
 
-### Before Going Live:
-1. ✅ Remove development comments
-2. ✅ Test all rule combinations
-3. ✅ Verify admin user creation process
-4. ✅ Test public application submission
-5. ✅ Validate file upload restrictions
-6. ✅ Check audit log functionality
-7. ✅ Verify backup procedures
+### 1. **Firebase Console Monitoring**
+- Monitor rule violations
+- Track usage patterns
+- Set up alerts for suspicious activity
 
-### Security Best Practices:
-1. **Regular Rule Reviews**: Monthly security rule audits
-2. **Admin Account Management**: Limit admin accounts, regular password updates
-3. **File Monitoring**: Monitor storage usage and file types
-4. **Access Logging**: Review audit logs regularly
-5. **Backup Strategy**: Regular database and storage backups
+### 2. **Custom Logging**
+- Log all settings changes
+- Monitor contact form submissions
+- Track file upload patterns
 
-## Common Use Cases
+### 3. **Security Alerts**
+- Failed authentication attempts
+- Rule violation attempts
+- Unusual access patterns
 
-### Public User (Website Visitor)
-```javascript
-// Can submit library application
-await addDoc(collection(db, 'library-applications'), applicationData);
+## Production Considerations
 
-// Can view public content
-const books = await getDocs(collection(db, 'books'));
-const events = await getDocs(collection(db, 'events'));
-```
+### 1. **Environment-Specific Rules**
+- Development rules are more permissive
+- Production rules are stricter
+- Staging environment for testing
 
-### Admin User
-```javascript
-// Can manage applications
-await updateDoc(doc(db, 'library-applications', id), { status: 'approved' });
+### 2. **Performance Optimization**
+- Efficient rule evaluation
+- Minimal database reads in rules
+- Cached admin status checks
 
-// Can manage students
-await addDoc(collection(db, 'students'), studentData);
+### 3. **Backup & Recovery**
+- Regular rule backups
+- Version control for rule changes
+- Rollback procedures
 
-// Can view all data
-const applications = await getDocs(collection(db, 'library-applications'));
-```
-
-### File Uploads
-```javascript
-// Public application upload
-const storageRef = ref(storage, 'applications/profiles/photo.jpg');
-await uploadBytes(storageRef, file);
-
-// Admin student document upload
-const storageRef = ref(storage, 'student-marksheets/document.pdf');
-await uploadBytes(storageRef, file); // Requires admin authentication
-```
-
-## Error Handling
-
-### Common Permission Errors
-- `permission-denied`: User lacks required permissions
-- `invalid-argument`: Data validation failed
-- `unauthenticated`: User not logged in
-
-### Troubleshooting
-1. Check user authentication status
-2. Verify user role in users collection
-3. Validate data structure against rules
-4. Check file type and size for uploads
-
-## Monitoring & Maintenance
-
-### Regular Tasks
-- Monitor failed requests in Firebase Console
-- Review storage usage and costs
-- Update rules as application evolves
-- Backup rule configurations
-
-### Performance Considerations
-- Rules are evaluated on every request
-- Complex rules may impact performance
-- Use indexes for frequently queried fields
-- Monitor read/write operations
-
----
-
-**Last Updated**: December 2024
-**Version**: 1.0
-**Maintained By**: Development Team
+This security configuration ensures that the website settings system is secure, auditable, and follows Firebase security best practices while maintaining the necessary functionality for public website display and administrative management.

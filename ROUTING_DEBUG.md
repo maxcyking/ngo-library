@@ -1,4 +1,4 @@
-# Routing Debug Guide - एरोग्या पुस्तकालय
+# Routing Debug Guide - एरोज्ञा पुस्तकालय
 
 ## Issue Analysis
 You're getting a 404 error when accessing `localhost:3002/login`. Here's how to fix it:

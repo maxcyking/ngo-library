@@ -2,9 +2,10 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Menu, X, User, LogIn } from "lucide-react";
+import { Menu, X, User, LogIn, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { APP_NAME, APP_TAGLINE, PUBLIC_NAVIGATION } from "@/lib/constants";
+import { PUBLIC_NAVIGATION } from "@/lib/constants";
+import { useSettings } from "@/contexts/SettingsContext";
 
 interface HeaderProps {
   userRole?: 'guest' | 'user' | 'admin';
@@ -12,48 +13,80 @@ interface HeaderProps {
 
 export function Header({ userRole = 'guest' }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { settings, loading } = useSettings();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        {/* Top Bar */}
-        <div className="flex items-center justify-between py-2 border-b border-gray-200">
-          <div className="text-sm text-gray-600">
-            📞 +91 98765 43210 | ✉️ info@ganeshseva.org
-          </div>
-          <div className="flex items-center space-x-4">
-            {userRole === 'guest' ? (
-              <Link href="/login">
-                <Button variant="outline" size="sm" className="text-sm">
-                  <LogIn className="w-4 h-4 mr-2" />
-                  लॉगिन
-                </Button>
-              </Link>
-            ) : (
-              <Link href={userRole === 'admin' ? '/admin/dashboard' : '/user/dashboard'}>
-                <Button variant="outline" size="sm" className="text-sm">
-                  <User className="w-4 h-4 mr-2" />
-                  डैशबोर्ड
-                </Button>
-              </Link>
-            )}
+    <>
+      {/* Yellow Top Strip with Donate Button */}
+      <div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 py-2 sticky top-0 z-50 shadow-md">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between">
+            <div className="text-sm md:text-base font-bold text-gray-900 flex items-center">
+              <span className="mr-2">❤️</span>
+              <span className="hidden md:inline">"एक रोटी कम खाओ लेकिन बच्चों को जरूर पढ़ाओ!"</span>
+              <span className="md:hidden">शिक्षा दान करें</span>
+            </div>
+            <Link href="/donations">
+              <Button 
+                size="sm" 
+                className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 animate-pulse"
+              >
+                <Heart className="w-4 h-4 mr-2" />
+                दान करें
+              </Button>
+            </Link>
           </div>
         </div>
+      </div>
+      
+      <header className="bg-white shadow-md sticky top-10 z-40">
+        <div className="container mx-auto px-4">
+          {/* Top Bar */}
+          <div className="flex items-center justify-between py-2 border-b border-gray-200">
+            <div className="text-sm text-gray-600">
+              📞 {settings.phone} | ✉️ {settings.email}
+            </div>
+            <div className="flex items-center space-x-4">
+              {userRole === 'guest' ? (
+                <Link href="/login">
+                  <Button variant="outline" size="sm" className="text-sm">
+                    <LogIn className="w-4 h-4 mr-2" />
+                    लॉगिन
+                  </Button>
+                </Link>
+              ) : (
+                <Link href={userRole === 'admin' ? '/admin/dashboard' : '/user/dashboard'}>
+                  <Button variant="outline" size="sm" className="text-sm">
+                    <User className="w-4 h-4 mr-2" />
+                    डैशबोर्ड
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
 
         {/* Main Navigation */}
         <div className="flex items-center justify-between py-4">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-600 to-green-800 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-xl">🕉️</span>
-            </div>
+            {settings.logo ? (
+              <img 
+                src={settings.logo} 
+                alt={settings.siteName}
+                className="w-12 h-12 object-contain rounded-full"
+              />
+            ) : (
+              <div className="w-12 h-12 bg-gradient-to-br from-green-600 to-green-800 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-xl">🕉️</span>
+              </div>
+            )}
             <div>
-              <h1 className="text-lg font-bold text-green-800">{APP_NAME}</h1>
-              <p className="text-xs text-gray-600">{APP_TAGLINE}</p>
+              <h1 className="text-lg font-bold text-green-800">{settings.siteName}</h1>
+              <p className="text-xs text-gray-600">{settings.tagline}</p>
             </div>
           </Link>
 
@@ -103,5 +136,6 @@ export function Header({ userRole = 'guest' }: HeaderProps) {
         )}
       </div>
     </header>
+    </>
   );
 }

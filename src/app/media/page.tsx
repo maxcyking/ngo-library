@@ -1,13 +1,28 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Image as ImageIcon, Video, Eye } from "lucide-react";
+import { Calendar, Image as ImageIcon, Video, Eye, X } from "lucide-react";
+import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
-// Sample media data - यह बाद में database से आएगा
-const mediaItems = [
+interface MediaItem {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  imageUrl: string;
+  thumbnailUrl?: string;
+  date: string;
+  tags: string[];
+  isActive: boolean;
+  createdAt: Date | { seconds: number; nanoseconds: number };
+}
+
+// Dummy data for fallback
+const dummyMediaItems = [
   {
     id: "1",
     title: "पुस्तकालय भवन निर्माण कार्य",
@@ -93,7 +108,7 @@ const mediaItems = [
   }
 ];
 
-const newsItems = [
+const dummyNewsItems = [
   {
     id: "1",
     title: "पुस्तकालय भवन निर्माण कार्य जून 2024 तक पूर्ण",
@@ -120,16 +135,49 @@ const newsItems = [
   }
 ];
 
-const categories = ["सभी", "निर्माण कार्य", "कार्यक्रम", "स्वास्थ्य सेवा", "सामाजिक कार्यक्रम", "शिक्षा"];
+const categories = [
+  "सभी",
+  "गैलरी (Gallery)",
+  "समाचार (News)"
+];
 
 export default function MediaPage() {
   const [activeTab, setActiveTab] = useState("gallery");
   const [selectedCategory, setSelectedCategory] = useState("सभी");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredMedia = mediaItems.filter(item => 
-    selectedCategory === "सभी" || item.category === selectedCategory
-  );
+  useEffect(() => {
+    fetchMedia();
+  }, []);
+
+  const fetchMedia = async () => {
+    try {
+      setLoading(true);
+      const q = query(
+        collection(db, 'media'),
+        where('isActive', '==', true),
+        where('category', '==', 'गैलरी (Gallery)'), // Only fetch gallery images
+        orderBy('createdAt', 'desc')
+      );
+      
+      const querySnapshot = await getDocs(q);
+      const items = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as MediaItem[];
+      
+      setMediaItems(items);
+    } catch (error) {
+      console.error('Error fetching media:', error);
+      setMediaItems(dummyMediaItems as any);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredMedia = mediaItems; // No category filter needed, only gallery images
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -183,80 +231,53 @@ export default function MediaPage() {
 
       {/* Photo Gallery */}
       {activeTab === "gallery" && (
-        <section className="py-12">
+        <section className="py-12 bg-white">
           <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              {/* Category Filter */}
-              <div className="mb-8">
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {categories.map((category) => (
-                    <Button
-                      key={category}
-                      variant={selectedCategory === category ? "default" : "outline"}
-                      onClick={() => setSelectedCategory(category)}
-                      size="sm"
-                    >
-                      {category}
-                    </Button>
-                  ))}
+            <div className="max-w-7xl mx-auto">
+              {/* Loading State */}
+              {loading && (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                  <p className="text-gray-600">लोड हो रहा है...</p>
                 </div>
-              </div>
+              )}
 
-              {/* Gallery Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredMedia.map((item) => (
-                  <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                    <div className="relative h-48 bg-gray-200">
+              {/* Instagram Style Gallery Grid */}
+              {!loading && filteredMedia.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-2">
+                  {filteredMedia.map((item) => (
+                    <div
+                      key={item.id}
+                      className="relative aspect-square bg-gray-100 overflow-hidden group cursor-pointer"
+                      onClick={() => setSelectedImage(item.imageUrl)}
+                    >
                       <img
-                        src={item.thumbnail}
-                        alt={item.title}
-                        className="w-full h-full object-cover"
+                        src={item.imageUrl || item.thumbnailUrl}
+                        alt={item.title || 'Gallery image'}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                       />
-                      <div className="absolute top-2 right-2">
-                        <Badge variant="secondary" className="text-xs">
-                          {item.images.length} तस्वीरें
-                        </Badge>
-                      </div>
-                      <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          className="opacity-0 hover:opacity-100 transition-opacity duration-300"
-                          onClick={() => setSelectedImage(item.images[0])}
-                        >
-                          <Eye className="w-4 h-4 mr-2" />
-                          देखें
-                        </Button>
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                        <div className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center p-4">
+                          <Eye className="w-8 h-8 mx-auto mb-2" />
+                          {item.description && (
+                            <p className="text-sm font-medium line-clamp-2">{item.description}</p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <CardHeader>
-                      <div className="flex justify-between items-start mb-2">
-                        <Badge variant="outline" className="text-xs">
-                          {item.category}
-                        </Badge>
-                        <span className="text-xs text-gray-500">{item.date}</span>
-                      </div>
-                      <CardTitle className="text-lg font-semibold text-gray-800">
-                        {item.title}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-gray-600 text-sm">
-                        {item.description}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
 
-              {filteredMedia.length === 0 && (
-                <div className="text-center py-12">
+              {!loading && filteredMedia.length === 0 && (
+                <div className="text-center py-20">
                   <div className="text-6xl mb-4">📸</div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                    कोई तस्वीर नहीं मिली
+                  <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                    गैलरी खाली है
                   </h3>
                   <p className="text-gray-600">
-                    इस श्रेणी में अभी तक कोई तस्वीर अपलोड नहीं की गई है
+                    अभी तक कोई तस्वीर अपलोड नहीं की गई है
                   </p>
                 </div>
               )}
@@ -275,7 +296,7 @@ export default function MediaPage() {
               </h2>
 
               <div className="space-y-8">
-                {newsItems.map((news) => (
+                {dummyNewsItems.map((news) => (
                   <Card key={news.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div className="md:col-span-1">

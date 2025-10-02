@@ -157,7 +157,7 @@ export default function LibraryPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6" itemProp="name">
-              📚 एरोग्या पुस्तकालय
+              📚 एरोज्ञा पुस्तकालय
             </h1>
             <p className="text-xl md:text-2xl mb-8 opacity-90" itemProp="description">
               2000+ पुस्तकों का निःशुल्क संग्रह - धार्मिक, शैक्षणिक, साहित्यिक और तकनीकी विषयों की पुस्तकें

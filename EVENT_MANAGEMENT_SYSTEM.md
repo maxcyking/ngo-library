@@ -2,7 +2,7 @@
 
 ## 🎯 Overview
 
-A comprehensive event management system for **एरोग्या पुस्तकालय एवं सेवा संस्था** with complete event lifecycle management, registration handling, and user engagement features.
+A comprehensive event management system for **एरोज्ञा पुस्तकालय एवं सेवा संस्था** with complete event lifecycle management, registration handling, and user engagement features.
 
 ## ✅ Features Implemented
 
@@ -80,7 +80,7 @@ A comprehensive event management system for **एरोग्या पुस्
   agenda: ["पंजीकरण", "जांच", "परामर्श"],
   targetAudience: "सभी आयु वर्ग",
   registrationFee: 0,
-  organizers: ["एरोग्या संस्था"],
+  organizers: ["एरोज्ञा संस्था"],
   sponsors: ["स्थानीय व्यापारी"],
   status: "published",
   createdAt: Date,

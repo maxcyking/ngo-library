@@ -105,7 +105,7 @@ export default function EditNewsPage() {
     id: params.id as string,
     title: 'पुस्तकालय भवन निर्माण कार्य जून 2024 तक पूर्ण होने की संभावना',
     shortDescription: '35 लाख रुपए की लागत से बन रहे नए पुस्तकालय भवन का निर्माण कार्य तेजी से प्रगति पर है।',
-    content: `<p>एरोग्या पुस्तकालय एवं सेवा संस्था के नए भवन का निर्माण कार्य तेजी से आगे बढ़ रहा है। 35 लाख रुपए की लागत से बन रहा यह आधुनिक पुस्तकालय भवन जून 2024 तक पूर्ण होने की संभावना है।</p>
+    content: `<p>एरोज्ञा पुस्तकालय एवं सेवा संस्था के नए भवन का निर्माण कार्य तेजी से आगे बढ़ रहा है। 35 लाख रुपए की लागत से बन रहा यह आधुनिक पुस्तकालय भवन जून 2024 तक पूर्ण होने की संभावना है।</p>
 
 <h3>नए भवन की मुख्य विशेषताएं</h3>
 <p>इस नए भवन में निम्नलिखित सुविधाएं होंगी:</p>
@@ -117,8 +117,8 @@ export default function EditNewsPage() {
 <li>कंप्यूटर लैब</li>
 <li>बच्चों के लिए अलग सेक्शन</li>
 </ul>`,
-    excerpt: 'एरोग्या पुस्तकालय का नया भवन जून 2024 तक तैयार हो जाएगा।',
-    metaTitle: 'पुस्तकालय भवन निर्माण कार्य - एरोग्या पुस्तकालय',
+    excerpt: 'एरोज्ञा पुस्तकालय का नया भवन जून 2024 तक तैयार हो जाएगा।',
+    metaTitle: 'पुस्तकालय भवन निर्माण कार्य - एरोज्ञा पुस्तकालय',
     metaDescription: '35 लाख रुपए की लागत से बन रहे नए पुस्तकालय भवन का निर्माण कार्य तेजी से प्रगति पर है।',
     keywords: ['पुस्तकालय', 'निर्माण', 'विकास'],
     slug: 'library-construction-completion-june-2024',
@@ -139,8 +139,8 @@ export default function EditNewsPage() {
     readingTime: 4,
     author: 'संस्था संवाददाता',
     authorId: 'author1',
-    source: 'एरोग्या पुस्तकालय एवं सेवा संस्था',
-    lastEditedBy: 'admin@aerogya.org',
+    source: 'एरोज्ञा पुस्तकालय एवं सेवा संस्था',
+    lastEditedBy: 'admin@Arogya.org',
     createdAt: new Date('2024-05-15'),
     updatedAt: new Date('2024-05-15'),
     publishedAt: new Date('2024-05-15')
@@ -620,6 +620,7 @@ export default function EditNewsPage() {
                     </label>
                     <div className="border border-gray-300 rounded-md">
                       <Editor
+                        apiKey="zu1rde693wn0ncr6drry7sgc09kmdb13eh8361n4x4heill9"
                         onInit={(evt, editor) => editorRef.current = editor}
                         value={formData.content}
                         init={{

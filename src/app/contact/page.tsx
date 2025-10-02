@@ -4,10 +4,11 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { MapPin, Phone, Mail, Clock, Facebook, Globe } from "lucide-react";
-import { CONTACT_INFO, BANK_DETAILS } from "@/lib/constants";
+import { MapPin, Phone, Mail, Clock, Globe } from "lucide-react";
+import { useSettings } from "@/contexts/SettingsContext";
 
 export default function ContactPage() {
+  const { settings, loading } = useSettings();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -15,6 +16,17 @@ export default function ContactPage() {
     subject: "",
     message: ""
   });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">लोड हो रहा है...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -77,7 +89,7 @@ export default function ContactPage() {
                           पंजीकृत कार्यालय
                         </h3>
                         <p className="text-gray-600 leading-relaxed">
-                          {CONTACT_INFO.address}
+                          {settings.address}
                         </p>
                       </div>
                     </div>
@@ -96,8 +108,13 @@ export default function ContactPage() {
                           फोन नंबर
                         </h3>
                         <p className="text-gray-600">
-                          {CONTACT_INFO.phone}
+                          {settings.phone}
                         </p>
+                        {settings.whatsapp && settings.whatsapp !== settings.phone && (
+                          <p className="text-gray-600 mt-1">
+                            WhatsApp: {settings.whatsapp}
+                          </p>
+                        )}
                         <p className="text-sm text-gray-500 mt-1">
                           24/7 आपातकालीन सेवा उपलब्ध
                         </p>
@@ -118,7 +135,7 @@ export default function ContactPage() {
                           ईमेल पता
                         </h3>
                         <p className="text-gray-600">
-                          {CONTACT_INFO.email}
+                          {settings.email}
                         </p>
                         <p className="text-sm text-gray-500 mt-1">
                           हम 24 घंटे में जवाब देने का प्रयास करते हैं
@@ -140,8 +157,8 @@ export default function ContactPage() {
                           कार्य समय
                         </h3>
                         <div className="text-gray-600 space-y-1">
-                          <p><strong>सोमवार - शनिवार:</strong> सुबह 9:00 से शाम 6:00 तक</p>
-                          <p><strong>रविवार:</strong> सुबह 10:00 से शाम 4:00 तक</p>
+                          <p><strong>कार्यालय समय:</strong> {settings.officeHours}</p>
+                          <p><strong>पुस्तकालय समय:</strong> {settings.libraryHours}</p>
                           <p className="text-sm text-red-600 mt-2">
                             * सरकारी छुट्टियों में बंद
                           </p>
@@ -158,14 +175,38 @@ export default function ContactPage() {
                       सोशल मीडिया
                     </h3>
                     <div className="space-y-3">
-                      <div className="flex items-center space-x-3">
-                        <Facebook className="w-5 h-5 text-blue-600" />
-                        <span className="text-gray-600">{CONTACT_INFO.facebook}</span>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <Globe className="w-5 h-5 text-green-600" />
-                        <span className="text-gray-600">{CONTACT_INFO.website}</span>
-                      </div>
+                      {settings.facebook && (
+                        <div className="flex items-center space-x-3">
+                          <span className="w-5 h-5 text-blue-600">📘</span>
+                          <a href={settings.facebook} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600">
+                            Facebook
+                          </a>
+                        </div>
+                      )}
+                      {settings.instagram && (
+                        <div className="flex items-center space-x-3">
+                          <span className="w-5 h-5 text-pink-600">📷</span>
+                          <a href={settings.instagram} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-pink-600">
+                            Instagram
+                          </a>
+                        </div>
+                      )}
+                      {settings.youtube && (
+                        <div className="flex items-center space-x-3">
+                          <span className="w-5 h-5 text-red-600">📺</span>
+                          <a href={settings.youtube} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-red-600">
+                            YouTube
+                          </a>
+                        </div>
+                      )}
+                      {settings.twitter && (
+                        <div className="flex items-center space-x-3">
+                          <span className="w-5 h-5 text-blue-400">🐦</span>
+                          <a href={settings.twitter} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-400">
+                            Twitter
+                          </a>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -271,63 +312,58 @@ export default function ContactPage() {
               बैंक विवरण
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <Card className="hover:shadow-lg transition-shadow duration-300">
-                <CardHeader>
-                  <CardTitle className="text-xl text-green-600">
-                    🏦 बचत खाता
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 text-gray-600">
-                    <div>
-                      <strong>बैंक का नाम:</strong><br />
-                      {BANK_DETAILS.primary.bankName}
-                    </div>
-                    <div>
-                      <strong>खाता धारक:</strong><br />
-                      {BANK_DETAILS.primary.accountName}
-                    </div>
-                    <div>
-                      <strong>खाता संख्या:</strong><br />
-                      <span className="font-mono text-lg">{BANK_DETAILS.primary.savingAccount}</span>
-                    </div>
-                    <div>
-                      <strong>IFSC कोड:</strong><br />
-                      <span className="font-mono text-lg">{BANK_DETAILS.primary.ifscCode}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            {(settings.bankName || settings.accountNumber || settings.ifscCode || settings.upiId) && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {settings.bankName && settings.accountNumber && (
+                  <Card className="hover:shadow-lg transition-shadow duration-300">
+                    <CardHeader>
+                      <CardTitle className="text-xl text-green-600">
+                        🏦 बैंक विवरण
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3 text-gray-600">
+                        <div>
+                          <strong>बैंक का नाम:</strong><br />
+                          {settings.bankName}
+                        </div>
+                        <div>
+                          <strong>खाता संख्या:</strong><br />
+                          <span className="font-mono text-lg">{settings.accountNumber}</span>
+                        </div>
+                        {settings.ifscCode && (
+                          <div>
+                            <strong>IFSC कोड:</strong><br />
+                            <span className="font-mono text-lg">{settings.ifscCode}</span>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
-              <Card className="hover:shadow-lg transition-shadow duration-300">
-                <CardHeader>
-                  <CardTitle className="text-xl text-blue-600">
-                    🏢 चालू खाता
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 text-gray-600">
-                    <div>
-                      <strong>बैंक का नाम:</strong><br />
-                      {BANK_DETAILS.primary.bankName}
-                    </div>
-                    <div>
-                      <strong>खाता धारक:</strong><br />
-                      {BANK_DETAILS.primary.accountName}
-                    </div>
-                    <div>
-                      <strong>खाता संख्या:</strong><br />
-                      <span className="font-mono text-lg">{BANK_DETAILS.primary.currentAccount}</span>
-                    </div>
-                    <div>
-                      <strong>IFSC कोड:</strong><br />
-                      <span className="font-mono text-lg">{BANK_DETAILS.primary.ifscCode}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                {settings.upiId && (
+                  <Card className="hover:shadow-lg transition-shadow duration-300">
+                    <CardHeader>
+                      <CardTitle className="text-xl text-blue-600">
+                        📱 UPI विवरण
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3 text-gray-600">
+                        <div>
+                          <strong>UPI ID:</strong><br />
+                          <span className="font-mono text-lg">{settings.upiId}</span>
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          UPI के माध्यम से तुरंत दान करें
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
 
             <div className="text-center mt-8">
               <p className="text-gray-600 mb-4">
@@ -350,28 +386,39 @@ export default function ContactPage() {
             </h2>
             
             <Card className="overflow-hidden">
-              <div className="h-96 bg-gray-200 flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <MapPin className="w-12 h-12 mx-auto mb-4" />
-                  <p className="text-lg font-semibold">Google Map</p>
-                  <p className="text-sm">
-                    गुडामलानी, बाड़मेर, राजस्थान - 344031
-                  </p>
-                  <p className="text-xs mt-2">
-                    * वास्तविक मैप integration बाद में जोड़ा जाएगा
-                  </p>
+              {settings.mapIframe ? (
+                <div 
+                  className="h-96 w-full"
+                  dangerouslySetInnerHTML={{ __html: settings.mapIframe }}
+                />
+              ) : (
+                <div className="h-96 bg-gray-200 flex items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <MapPin className="w-12 h-12 mx-auto mb-4" />
+                    <p className="text-lg font-semibold">Google Map</p>
+                    <p className="text-sm">
+                      {settings.address}
+                    </p>
+                    <p className="text-xs mt-2">
+                      * मैप जल्द ही उपलब्ध होगा
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
             </Card>
 
             <div className="text-center mt-8">
               <p className="text-gray-600 mb-4">
                 हमारे कार्यालय पहुंचने के लिए दिशा-निर्देश चाहिए?
               </p>
-              <Button variant="outline">
-                <MapPin className="w-4 h-4 mr-2" />
-                Google Maps में देखें
-              </Button>
+              {settings.mapLink && (
+                <a href={settings.mapLink} target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline">
+                    <MapPin className="w-4 h-4 mr-2" />
+                    Google Maps में देखें
+                  </Button>
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -389,14 +436,14 @@ export default function ContactPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href={`tel:${CONTACT_INFO.phone}`}
+                href={`tel:${settings.emergencyPhone || settings.phone}`}
                 className="bg-white text-red-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300 flex items-center justify-center"
               >
                 <Phone className="w-5 h-5 mr-2" />
-                {CONTACT_INFO.phone}
+                {settings.emergencyPhone || settings.phone}
               </a>
               <a
-                href={`mailto:${CONTACT_INFO.email}`}
+                href={`mailto:${settings.email}`}
                 className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-red-600 transition-colors duration-300 flex items-center justify-center"
               >
                 <Mail className="w-5 h-5 mr-2" />

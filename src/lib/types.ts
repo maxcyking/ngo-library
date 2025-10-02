@@ -204,6 +204,22 @@ export interface NewsArticleFormData {
   source?: string;
 }
 
+// Media/Gallery interface
+export interface MediaItem {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  imageUrl: string;
+  thumbnailUrl?: string;
+  date: string;
+  tags: string[];
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: string;
+}
+
 export interface Donation {
   id: string;
   donorName: string;

@@ -185,7 +185,7 @@ export function DonationCTA() {
                 </div>
                 <div>
                   <strong>IFSC:</strong> PUNB0965700<br />
-                  <strong>नाम:</strong> एरोग्या पुस्तकालय एवं सेवा संस्था
+                  <strong>नाम:</strong> एरोज्ञा पुस्तकालय एवं सेवा संस्था
                 </div>
               </div>
               <Link href="/contact">

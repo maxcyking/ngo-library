@@ -3,9 +3,11 @@
 import React from "react";
 import Link from "next/link";
 import { Facebook, Twitter, Instagram, Youtube, Phone, Mail, MapPin } from "lucide-react";
-import { APP_NAME, CONTACT_INFO, SOCIAL_LINKS, WORK_AREAS } from "@/lib/constants";
+import { WORK_AREAS, APP_NAME } from "@/lib/constants";
+import { useSettings } from "@/contexts/SettingsContext";
 
 export function Footer() {
+  const { settings } = useSettings();
   return (
     <footer className="bg-gray-900 text-white">
       {/* Main Footer Content */}
@@ -14,28 +16,71 @@ export function Footer() {
           {/* Organization Info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-700 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold">🕉️</span>
-              </div>
-              <h3 className="text-xl font-bold">{APP_NAME}</h3>
+              {settings.logo ? (
+                <img 
+                  src={settings.logo} 
+                  alt={settings.siteName}
+                  className="w-10 h-10 object-contain rounded-full"
+                />
+              ) : (
+                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-700 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold">🕉️</span>
+                </div>
+              )}
+              <h3 className="text-xl font-bold">{settings.siteName}</h3>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">
-              हमारी संस्था शिक्षा, स्वास्थ्य और सामाजिक सेवा के क्षेत्र में निरंतर कार्य कर रही है। 
-              हमारा उद्देश्य समाज के कल्याण और विकास में योगदान देना है।
+              {settings.description}
             </p>
             <div className="flex space-x-4">
-              <a href={SOCIAL_LINKS.facebook} className="text-gray-400 hover:text-blue-500 transition-colors">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href={SOCIAL_LINKS.twitter} className="text-gray-400 hover:text-blue-400 transition-colors">
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a href={SOCIAL_LINKS.instagram} className="text-gray-400 hover:text-pink-500 transition-colors">
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a href={SOCIAL_LINKS.youtube} className="text-gray-400 hover:text-red-500 transition-colors">
-                <Youtube className="w-5 h-5" />
-              </a>
+              {settings.facebook && (
+                <a 
+                  href={settings.facebook} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-gray-400 hover:text-blue-500 transition-colors"
+                  title="Facebook पर फॉलो करें"
+                  aria-label="Facebook पर फॉलो करें"
+                >
+                  <Facebook className="w-5 h-5" />
+                </a>
+              )}
+              {settings.twitter && (
+                <a 
+                  href={settings.twitter} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-gray-400 hover:text-blue-400 transition-colors"
+                  title="Twitter पर फॉलो करें"
+                  aria-label="Twitter पर फॉलो करें"
+                >
+                  <Twitter className="w-5 h-5" />
+                </a>
+              )}
+              {settings.instagram && (
+                <a 
+                  href={settings.instagram} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-gray-400 hover:text-pink-500 transition-colors"
+                  title="Instagram पर फॉलो करें"
+                  aria-label="Instagram पर फॉलो करें"
+                >
+                  <Instagram className="w-5 h-5" />
+                </a>
+              )}
+              {settings.youtube && (
+                <a 
+                  href={settings.youtube} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-gray-400 hover:text-red-500 transition-colors"
+                  title="YouTube पर सब्सक्राइब करें"
+                  aria-label="YouTube पर सब्सक्राइब करें"
+                >
+                  <Youtube className="w-5 h-5" />
+                </a>
+              )}
             </div>
           </div>
 
@@ -90,20 +135,24 @@ export function Footer() {
             <div className="space-y-3">
               <div className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
-                <p className="text-gray-300 text-sm">{CONTACT_INFO.address}</p>
+                <p className="text-gray-300 text-sm">{settings.address}</p>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="w-5 h-5 text-green-400 flex-shrink-0" />
-                <p className="text-gray-300 text-sm">{CONTACT_INFO.phone}</p>
+                <p className="text-gray-300 text-sm">{settings.phone}</p>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-green-400 flex-shrink-0" />
-                <p className="text-gray-300 text-sm">{CONTACT_INFO.email}</p>
+                <p className="text-gray-300 text-sm">{settings.email}</p>
               </div>
               <div className="mt-4 p-3 bg-gray-800 rounded-lg">
                 <p className="text-sm text-gray-300">
-                  <strong className="text-green-400">समय:</strong><br />
-                  {CONTACT_INFO.timings}
+                  <strong className="text-green-400">कार्यालय समय:</strong><br />
+                  {settings.officeHours}
+                </p>
+                <p className="text-sm text-gray-300 mt-2">
+                  <strong className="text-green-400">पुस्तकालय समय:</strong><br />
+                  {settings.libraryHours}
                 </p>
               </div>
             </div>

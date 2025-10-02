@@ -2,7 +2,7 @@
 
 ## 🎯 Overview
 
-A comprehensive library management system for **एरोग्या पुस्तकालय एवं सेवा संस्था** with complete book cataloging, issuing, returning, and transaction tracking capabilities.
+A comprehensive library management system for **एरोज्ञा पुस्तकालय एवं सेवा संस्था** with complete book cataloging, issuing, returning, and transaction tracking capabilities.
 
 ## ✅ Features Implemented
 

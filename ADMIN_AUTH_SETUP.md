@@ -1,7 +1,7 @@
 # Admin Authentication & Redirect Setup
 
 ## Overview
-Successfully implemented comprehensive admin authentication with automatic redirects for the एरोग्या पुस्तकालय एवं सेवा संस्था website.
+Successfully implemented comprehensive admin authentication with automatic redirects for the एरोज्ञा पुस्तकालय एवं सेवा संस्था website.
 
 ## How It Works
 

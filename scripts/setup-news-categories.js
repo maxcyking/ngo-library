@@ -144,7 +144,5 @@ async function setupNewsCategories() {
 
 // Check if this script is being run directly
 if (require.main === module) {
-  setupNewsCategories();
+  setupNewsCategories().catch(console.error);
 }
-
-module.exports = { setupNewsCategories };
