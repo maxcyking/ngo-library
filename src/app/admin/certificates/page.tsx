@@ -1,0 +1,396 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Search,
+  Calendar,
+  Award,
+  Save,
+  X
+} from "lucide-react";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  serverTimestamp
+} from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/contexts/AuthContext";
+
+interface Certificate {
+  id: string;
+  title: string;
+  imageUrl: string;
+  createdAt: Date;
+  updatedAt?: Date;
+  createdBy: string;
+}
+
+interface CertificateFormData {
+  title: string;
+  imageUrl: string;
+}
+
+export default function AdminCertificatesPage() {
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [editingCertificate, setEditingCertificate] = useState<Certificate | null>(null);
+  const [formData, setFormData] = useState<CertificateFormData>({
+    title: "",
+    imageUrl: ""
+  });
+  const [saving, setSaving] = useState(false);
+
+  const { user } = useAuth();
+
+
+
+  useEffect(() => {
+    fetchCertificates();
+  }, []);
+
+  const fetchCertificates = async () => {
+    try {
+      setLoading(true);
+      const certificatesRef = collection(db, 'certificates');
+      const q = query(certificatesRef, orderBy('createdAt', 'desc'));
+
+      const querySnapshot = await getDocs(q);
+      const certificatesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate() || new Date(),
+        updatedAt: doc.data().updatedAt?.toDate()
+      })) as Certificate[];
+
+      setCertificates(certificatesData);
+    } catch (error) {
+      console.error('Error fetching certificates:', error);
+      alert('प्रमाणपत्र लोड करने में त्रुटि हुई।');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: keyof CertificateFormData, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.title.trim() || !formData.imageUrl.trim()) {
+      alert('कृपया शीर्षक और छवि URL भरें।');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const certificateData = {
+        ...formData,
+        createdBy: user?.email || 'unknown',
+        updatedAt: serverTimestamp()
+      };
+
+      if (editingCertificate) {
+        // Update existing certificate
+        await updateDoc(doc(db, 'certificates', editingCertificate.id), certificateData);
+        alert('प्रमाणपत्र सफलतापूर्वक अपडेट हो गया!');
+      } else {
+        // Create new certificate
+        await addDoc(collection(db, 'certificates'), {
+          ...certificateData,
+          createdAt: serverTimestamp()
+        });
+        alert('प्रमाणपत्र सफलतापूर्वक जोड़ा गया!');
+      }
+
+      // Reset form and refresh data
+      setFormData({
+        title: "",
+        imageUrl: ""
+      });
+      setShowForm(false);
+      setEditingCertificate(null);
+      fetchCertificates();
+    } catch (error) {
+      console.error('Error saving certificate:', error);
+      alert('प्रमाणपत्र सेव करने में त्रुटि हुई।');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleEdit = (certificate: Certificate) => {
+    setEditingCertificate(certificate);
+    setFormData({
+      title: certificate.title,
+      imageUrl: certificate.imageUrl
+    });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (certificate: Certificate) => {
+    if (!confirm(`क्या आप "${certificate.title}" प्रमाणपत्र को डिलीट करना चाहते हैं?`)) {
+      return;
+    }
+
+    try {
+      await deleteDoc(doc(db, 'certificates', certificate.id));
+      alert('प्रमाणपत्र सफलतापूर्वक डिलीट हो गया!');
+      fetchCertificates();
+    } catch (error) {
+      console.error('Error deleting certificate:', error);
+      alert('प्रमाणपत्र डिलीट करने में त्रुटि हुई।');
+    }
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    setEditingCertificate(null);
+    setFormData({
+      title: "",
+      imageUrl: ""
+    });
+  };
+
+  const filteredCertificates = certificates.filter(cert => {
+    return cert.title.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
+  if (loading) {
+    return (
+      <ProtectedRoute adminOnly={true}>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">प्रमाणपत्र लोड हो रहे हैं...</p>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
+  return (
+    <ProtectedRoute adminOnly={true}>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <div className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between py-4">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 flex items-center">
+                  <Award className="w-6 h-6 mr-2" />
+                  प्रमाणपत्र प्रबंधन
+                </h1>
+                <p className="text-gray-600">
+                  संस्था के प्रमाणपत्रों को जोड़ें, संपादित करें और प्रबंधित करें
+                </p>
+              </div>
+              <Button
+                onClick={() => setShowForm(true)}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                नया प्रमाणपत्र जोड़ें
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+          {/* Search */}
+          <Card className="mb-6">
+            <CardContent className="p-6">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  type="text"
+                  placeholder="प्रमाणपत्र खोजें..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Add/Edit Form */}
+          {showForm && (
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>
+                  {editingCertificate ? 'प्रमाणपत्र संपादित करें' : 'नया प्रमाणपत्र जोड़ें'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div>
+                    <Label htmlFor="title">शीर्षक *</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => handleInputChange('title', e.target.value)}
+                      placeholder="प्रमाणपत्र का शीर्षक"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="imageUrl">छवि URL *</Label>
+                    <Input
+                      id="imageUrl"
+                      value={formData.imageUrl}
+                      onChange={(e) => handleInputChange('imageUrl', e.target.value)}
+                      placeholder="https://example.com/certificate-image.jpg"
+                      required
+                    />
+                    {formData.imageUrl && (
+                      <div className="mt-2">
+                        <img
+                          src={formData.imageUrl}
+                          alt="Preview"
+                          className="w-48 h-32 object-cover border rounded"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-4">
+                    <Button
+                      type="submit"
+                      disabled={saving}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      {saving ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      ) : (
+                        <Save className="w-4 h-4 mr-2" />
+                      )}
+                      {saving ? 'सेव हो रहा है...' : (editingCertificate ? 'अपडेट करें' : 'सेव करें')}
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleCancel}
+                      variant="outline"
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      रद्द करें
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Certificates List */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredCertificates.length === 0 ? (
+              <div className="col-span-full text-center py-16">
+                <Award className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                  कोई प्रमाणपत्र नहीं मिला
+                </h3>
+                <p className="text-gray-500 mb-4">
+                  {searchTerm
+                    ? "खोज मापदंड बदलकर पुनः प्रयास करें"
+                    : "पहला प्रमाणपत्र जोड़ने के लिए ऊपर बटन दबाएं"}
+                </p>
+                {!showForm && (
+                  <Button
+                    onClick={() => setShowForm(true)}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    नया प्रमाणपत्र जोड़ें
+                  </Button>
+                )}
+              </div>
+            ) : (
+              filteredCertificates.map((certificate) => (
+                <Card key={certificate.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  <div className="relative h-48 bg-gray-200">
+                    <img
+                      src={certificate.imageUrl}
+                      alt={certificate.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/api/placeholder/400/300";
+                      }}
+                    />
+
+                  </div>
+
+                  <CardHeader>
+                    <CardTitle className="text-lg font-semibold text-gray-800 line-clamp-2">
+                      {certificate.title}
+                    </CardTitle>
+                  </CardHeader>
+
+                  <CardContent>
+                    <div className="space-y-2 text-sm mb-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-500 flex items-center">
+                          <Calendar className="w-4 h-4 mr-1" />
+                          जोड़ा गया:
+                        </span>
+                        <span className="font-medium">
+                          {certificate.createdAt.toLocaleDateString('hi-IN')}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => handleEdit(certificate)}
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                      >
+                        <Edit className="w-4 h-4 mr-1" />
+                        संपादित
+                      </Button>
+                      <Button
+                        onClick={() => handleDelete(certificate)}
+                        variant="destructive"
+                        size="sm"
+                        className="flex-1"
+                      >
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        डिलीट
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </ProtectedRoute>
+  );
+}

@@ -55,6 +55,7 @@ try {
   console.log('   • settings/website collection (public read, admin write)');
   console.log('   • contact-submissions collection (public create, admin read)');
   console.log('   • settingsLogs collection (admin only, immutable)');
+  console.log('   • certificates collection (public read, admin write)');
   console.log('   • book-categories collection (public read)');
   console.log('   • event-registrations collection (authenticated access)');
   console.log('   • work-areas collection (public read)');
@@ -64,6 +65,8 @@ try {
   console.log('\n🔄 Your website should now be able to:');
   console.log('   • Load dynamic website settings (logo, contact info, etc.)');
   console.log('   • Accept contact form submissions from public');
+  console.log('   • Display certificates in user panel and public pages');
+  console.log('   • Allow admin management of certificates with validation');
   console.log('   • Allow admin management of all settings');
   console.log('   • Track all settings changes with audit logs');
   console.log('   • Display book categories and other dynamic content');

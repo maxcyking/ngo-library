@@ -144,6 +144,20 @@ service firebase.storage {
       allow delete: if isAdmin(); // Only admins can delete settings images
     }
     
+    // Certificate images
+    match /certificates/{allPaths=**} {
+      allow read: if true; // Public read access for certificate display
+      allow write: if isAdmin() && isValidImage(); // Only admins can upload certificate images
+      allow delete: if isAdmin(); // Only admins can delete certificate images
+    }
+    
+    // Certificate documents and related files
+    match /certificate-documents/{allPaths=**} {
+      allow read: if true; // Public read access
+      allow write: if isAdmin() && isValidDocument(); // Only admins can upload certificate documents
+      allow delete: if isAdmin(); // Only admins can delete certificate documents
+    }
+    
     // Documents and files
     match /documents/{allPaths=**} {
       allow read: if isAuthenticated();

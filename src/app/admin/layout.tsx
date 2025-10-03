@@ -19,7 +19,8 @@ import {
   Palette,
   UserPlus,
   ImageIcon,
-  GraduationCap
+  GraduationCap,
+  Award
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -46,6 +47,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: 'सदस्य प्रबंधन', href: '/admin/members', icon: Users },
     { name: 'पुस्तक प्रबंधन', href: '/admin/books', icon: BookOpen },
     { name: 'प्रवेश प्रबंधन', href: '/admin/admissions', icon: GraduationCap },
+    { name: 'प्रमाणपत्र प्रबंधन', href: '/admin/certificates', icon: Award },
     { name: 'UI प्रबंधन', href: '/admin/ui', icon: Palette },
     { name: 'दान प्रबंधन', href: '/admin/donations', icon: Heart },
     { name: 'कार्यक्रम प्रबंधन', href: '/admin/events', icon: Calendar },
