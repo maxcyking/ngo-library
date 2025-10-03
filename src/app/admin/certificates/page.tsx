@@ -14,7 +14,10 @@ import {
   Calendar,
   Award,
   Save,
-  X
+  X,
+  Upload,
+  Link,
+  Image
 } from "lucide-react";
 import {
   collection,
@@ -27,7 +30,13 @@ import {
   orderBy,
   serverTimestamp
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { 
+  ref, 
+  uploadBytes, 
+  getDownloadURL, 
+  deleteObject 
+} from "firebase/storage";
+import { db, storage } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface Certificate {
@@ -44,6 +53,8 @@ interface CertificateFormData {
   imageUrl: string;
 }
 
+type UploadMethod = 'url' | 'file';
+
 export default function AdminCertificatesPage() {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,6 +66,10 @@ export default function AdminCertificatesPage() {
     imageUrl: ""
   });
   const [saving, setSaving] = useState(false);
+  const [uploadMethod, setUploadMethod] = useState<UploadMethod>('url');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
 
   const { user } = useAuth();
 
@@ -92,20 +107,99 @@ export default function AdminCertificatesPage() {
       ...prev,
       [field]: value
     }));
+    
+    // Update preview URL when imageUrl changes
+    if (field === 'imageUrl') {
+      setPreviewUrl(value);
+    }
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('कृपया केवल छवि फाइलें अपलोड करें।');
+        return;
+      }
+      
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('फाइल का साइज़ 5MB से कम होना चाहिए।');
+        return;
+      }
+      
+      setSelectedFile(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviewUrl(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadFileToStorage = async (file: File): Promise<string> => {
+    const timestamp = Date.now();
+    const fileName = `certificates/${timestamp}_${file.name}`;
+    const storageRef = ref(storage, fileName);
+    
+    setUploading(true);
+    try {
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      return downloadURL;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const deleteFileFromStorage = async (imageUrl: string) => {
+    try {
+      // Extract file path from URL
+      const url = new URL(imageUrl);
+      const pathMatch = url.pathname.match(/\/o\/(.+?)\?/);
+      if (pathMatch) {
+        const filePath = decodeURIComponent(pathMatch[1]);
+        const fileRef = ref(storage, filePath);
+        await deleteObject(fileRef);
+      }
+    } catch (error) {
+      console.error('Error deleting file from storage:', error);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title.trim() || !formData.imageUrl.trim()) {
-      alert('कृपया शीर्षक और छवि URL भरें।');
+    if (!formData.title.trim()) {
+      alert('कृपया शीर्षक भरें।');
+      return;
+    }
+
+    if (uploadMethod === 'url' && !formData.imageUrl.trim()) {
+      alert('कृपया छवि URL भरें।');
+      return;
+    }
+
+    if (uploadMethod === 'file' && !selectedFile && !editingCertificate) {
+      alert('कृपया छवि फाइल चुनें।');
       return;
     }
 
     setSaving(true);
     try {
+      let imageUrl = formData.imageUrl;
+      
+      // Upload file if file method is selected and file is chosen
+      if (uploadMethod === 'file' && selectedFile) {
+        imageUrl = await uploadFileToStorage(selectedFile);
+      }
+
       const certificateData = {
-        ...formData,
+        title: formData.title,
+        imageUrl: imageUrl,
         createdBy: user?.email || 'unknown',
         updatedAt: serverTimestamp()
       };
@@ -128,6 +222,9 @@ export default function AdminCertificatesPage() {
         title: "",
         imageUrl: ""
       });
+      setSelectedFile(null);
+      setPreviewUrl("");
+      setUploadMethod('url');
       setShowForm(false);
       setEditingCertificate(null);
       fetchCertificates();
@@ -145,6 +242,9 @@ export default function AdminCertificatesPage() {
       title: certificate.title,
       imageUrl: certificate.imageUrl
     });
+    setPreviewUrl(certificate.imageUrl);
+    setUploadMethod('url');
+    setSelectedFile(null);
     setShowForm(true);
   };
 
@@ -154,7 +254,14 @@ export default function AdminCertificatesPage() {
     }
 
     try {
+      // Delete from Firestore
       await deleteDoc(doc(db, 'certificates', certificate.id));
+      
+      // Delete file from Storage if it's a Firebase Storage URL
+      if (certificate.imageUrl.includes('firebasestorage.googleapis.com')) {
+        await deleteFileFromStorage(certificate.imageUrl);
+      }
+      
       alert('प्रमाणपत्र सफलतापूर्वक डिलीट हो गया!');
       fetchCertificates();
     } catch (error) {
@@ -170,6 +277,9 @@ export default function AdminCertificatesPage() {
       title: "",
       imageUrl: ""
     });
+    setSelectedFile(null);
+    setPreviewUrl("");
+    setUploadMethod('url');
   };
 
   const filteredCertificates = certificates.filter(cert => {
@@ -255,42 +365,108 @@ export default function AdminCertificatesPage() {
                     />
                   </div>
 
+                  {/* Upload Method Selection */}
                   <div>
-                    <Label htmlFor="imageUrl">छवि URL *</Label>
-                    <Input
-                      id="imageUrl"
-                      value={formData.imageUrl}
-                      onChange={(e) => handleInputChange('imageUrl', e.target.value)}
-                      placeholder="https://example.com/certificate-image.jpg"
-                      required
-                    />
-                    {formData.imageUrl && (
+                    <Label>छवि अपलोड विधि *</Label>
+                    <div className="flex gap-4 mt-2">
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="uploadMethod"
+                          value="url"
+                          checked={uploadMethod === 'url'}
+                          onChange={(e) => setUploadMethod(e.target.value as UploadMethod)}
+                          className="text-blue-600"
+                        />
+                        <Link className="w-4 h-4" />
+                        <span>URL से</span>
+                      </label>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="uploadMethod"
+                          value="file"
+                          checked={uploadMethod === 'file'}
+                          onChange={(e) => setUploadMethod(e.target.value as UploadMethod)}
+                          className="text-blue-600"
+                        />
+                        <Upload className="w-4 h-4" />
+                        <span>फाइल अपलोड</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* URL Input */}
+                  {uploadMethod === 'url' && (
+                    <div>
+                      <Label htmlFor="imageUrl">छवि URL *</Label>
+                      <Input
+                        id="imageUrl"
+                        value={formData.imageUrl}
+                        onChange={(e) => handleInputChange('imageUrl', e.target.value)}
+                        placeholder="https://example.com/certificate-image.jpg"
+                        required
+                      />
+                    </div>
+                  )}
+
+                  {/* File Upload */}
+                  {uploadMethod === 'file' && (
+                    <div>
+                      <Label htmlFor="fileUpload">छवि फाइल अपलोड करें *</Label>
                       <div className="mt-2">
+                        <input
+                          id="fileUpload"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileSelect}
+                          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          केवल छवि फाइलें (JPG, PNG, GIF) - अधिकतम 5MB
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Image Preview */}
+                  {previewUrl && (
+                    <div>
+                      <Label>छवि पूर्वावलोकन</Label>
+                      <div className="mt-2 relative">
                         <img
-                          src={formData.imageUrl}
+                          src={previewUrl}
                           alt="Preview"
-                          className="w-48 h-32 object-cover border rounded"
+                          className="w-48 h-32 object-cover border rounded-lg shadow-sm"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             target.style.display = 'none';
                           }}
                         />
+                        {uploading && (
+                          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
+                            <div className="text-white text-sm flex items-center">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              अपलोड हो रहा है...
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
 
                   <div className="flex gap-4">
                     <Button
                       type="submit"
-                      disabled={saving}
+                      disabled={saving || uploading}
                       className="bg-blue-600 hover:bg-blue-700"
                     >
-                      {saving ? (
+                      {(saving || uploading) ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                       ) : (
                         <Save className="w-4 h-4 mr-2" />
                       )}
-                      {saving ? 'सेव हो रहा है...' : (editingCertificate ? 'अपडेट करें' : 'सेव करें')}
+                      {uploading ? 'अपलोड हो रहा है...' : saving ? 'सेव हो रहा है...' : (editingCertificate ? 'अपडेट करें' : 'सेव करें')}
                     </Button>
                     <Button
                       type="button"
