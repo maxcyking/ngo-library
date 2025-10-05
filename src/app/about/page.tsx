@@ -90,10 +90,9 @@ export default function AboutPage() {
                   स्थापना
                 </h3>
                 <div className="space-y-3 text-gray-700">
-                  <p><strong>संस्थापक:</strong> प्रथम देहदानी श्री अमराराम बोस</p>
+                  <p><strong>संस्थापक:</strong> प्रथम देहदानी  अमराराम बोस</p>
                   <p><strong>स्थापना वर्ष:</strong> 7 अगस्त 2020</p>
-                  <p><strong>अध्यक्ष:</strong> श्री कालुराम माली</p>
-                  <p><strong>कोषाध्यक्ष:</strong> श्री बाबूलाल नामा</p>
+                  <p><strong>अध्यक्ष:</strong>  कालुराम माली</p>
                   <p><strong>स्थान:</strong> गुडामालानी उपखण्ड, बाड़मेर जिला, राजस्थान</p>
                   <p><strong>प्रारंभिक सदस्य:</strong> 7 सदस्यों के साथ शुरुआत</p>
                   <p><strong>वर्तमान कार्यकारिणी:</strong> 25 सदस्यीय कमेटी</p>
@@ -108,10 +107,10 @@ export default function AboutPage() {
                 <div className="space-y-3 text-gray-700">
                   <p><strong>7 अगस्त 2022:</strong> ₹2 करोड़ के प्रोजेक्ट का शिलान्यास</p>
                   <p><strong>स्थान:</strong> मालियों की ढाणी, आरजीटी सर्कल के पास, नगर मेगा हाईवे</p>
-                  <p><strong>भूमि दानकर्ता:</strong> श्री निम्बाराम माली</p>
+                  <p><strong>भूमि दानकर्ता:</strong>  निम्बाराम माली</p>
                   <p><strong>निःशुल्क इंजीनियरिंग:</strong> इंजीनियर राज के पटेल, सांचौर</p>
-                  <p><strong>पूर्ण कार्य:</strong> ₹60 लाख+ का कार्य संपन्न</p>
-                  <p><strong>अपेक्षित उद्घाटन:</strong> सितंबर 2025</p>
+                  <p><strong>पूर्ण कार्य:</strong> ₹70 लाख+ का कार्य संपन्न(till Aug 2025) </p>
+                  <p><strong>अपेक्षित उद्घाटन:</strong> 2025</p>
                   <p className="text-sm text-gray-600 italic">* निर्माण कार्य निरंतर जारी है</p>
                 </div>
               </div>

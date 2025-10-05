@@ -107,8 +107,8 @@ export function UpcomingEvents() {
                 isFeatured: false,
                 isUrgent: false,
                 registrationFee: 0,
-                contactPerson: 'श्री आत्माराम बोरा',
-                contactPhone: '+91 96600 89144',
+                contactPerson: ' आत्माराम बोरा',
+                contactPhone: '+91 9024635808',
                 requirements: [],
                 benefits: [],
                 createdAt: new Date(),
@@ -130,7 +130,7 @@ export function UpcomingEvents() {
                 isFeatured: true,
                 isUrgent: true,
                 registrationFee: 0,
-                contactPerson: 'श्री बाबूराम शर्मा',
+                contactPerson: ' बाबूराम शर्मा',
                 contactPhone: '+91 99288 00933',
                 requirements: [],
                 benefits: [],
@@ -384,11 +384,11 @@ export function UpcomingEvents() {
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <strong>श्री आत्माराम बोरा (अध्यक्ष)</strong><br />
-                  📞 +91 96600 89144
+                  <strong> आत्माराम बोरा (अध्यक्ष)</strong><br />
+                  📞 +91 9024635808
                 </div>
                 <div>
-                  <strong>श्री बाबूराम शर्मा (उपाध्यक्ष)</strong><br />
+                  <strong> बाबूराम शर्मा (उपाध्यक्ष)</strong><br />
                   📞 +91 99288 00933
                 </div>
               </div>

@@ -110,10 +110,10 @@ export default function Home() {
                 राजस्थान के मरुस्थल में मानवता का प्रकाश
               </h1>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed" itemProp="description">
-                <time itemProp="foundingDate" dateTime="2020">7 अगस्त 2020</time> को प्रथम देहदानी <strong>श्री अमराराम बोस</strong> ने 
+                <time itemProp="foundingDate" dateTime="2020">7 अगस्त 2020</time> को प्रथम देहदानी <strong> अमराराम बोस</strong> ने 
                 <span itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
                   <span itemProp="addressRegion">राजस्थान</span> के <span itemProp="addressLocality">बाड़मेर जिले</span> के गुडामालानी उपखण्ड क्षेत्र
-                </span> में इस मिशन की शुरुआत की। अध्यक्ष <strong>श्री कालुराम माली</strong> और कोषाध्यक्ष <strong>श्री बाबूलाल नामा</strong> के नेतृत्व में 
+                </span> में इस मिशन की शुरुआत की। अध्यक्ष <strong> कालुराम माली</strong>के नेतृत्व में 
                 यह संस्था आज <strong>राजस्थान प्रदेश के मरुस्थल में ग्रामीण क्षेत्र का प्रथम ऐसा संस्थान</strong> बन गया है जो जाति, धर्म, वर्ग और क्षेत्र से ऊपर उठकर 
                 मानवता के लिए समर्पित है।
               </p>

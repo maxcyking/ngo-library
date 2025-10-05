@@ -5,9 +5,9 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  BarChart3, 
-  Edit, 
+import {
+  BarChart3,
+  Edit,
   Save,
   TrendingUp,
   Users,
@@ -15,11 +15,11 @@ import {
   Heart,
   Calendar
 } from 'lucide-react';
-import { 
+import {
   doc,
   getDoc,
   setDoc,
-  serverTimestamp 
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -96,7 +96,7 @@ export default function StatsManagementPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  
+
   const { user } = useAuth();
 
   useEffect(() => {
@@ -107,7 +107,7 @@ export default function StatsManagementPage() {
     try {
       const docRef = doc(db, 'settings', 'quick-stats');
       const docSnap = await getDoc(docRef);
-      
+
       if (docSnap.exists()) {
         const data = docSnap.data();
         if (data.stats) {
@@ -130,7 +130,7 @@ export default function StatsManagementPage() {
         updatedAt: serverTimestamp(),
         updatedBy: user?.uid || 'admin'
       });
-      
+
       alert('आंकड़े सफलतापूर्वक सेव हो गए');
       setEditingId(null);
     } catch (error) {
@@ -142,7 +142,7 @@ export default function StatsManagementPage() {
   };
 
   const updateStat = (id: string, field: keyof StatItem, value: string | number | boolean) => {
-    setStats(prev => prev.map(stat => 
+    setStats(prev => prev.map(stat =>
       stat.id === id ? { ...stat, [field]: value } : stat
     ));
   };
@@ -199,7 +199,7 @@ export default function StatsManagementPage() {
                   होम पेज पर दिखाए जाने वाले आंकड़ों का प्रबंधन करें
                 </p>
               </div>
-              <Button 
+              <Button
                 onClick={handleSave}
                 disabled={saving}
                 className="bg-green-600 hover:bg-green-700"
@@ -239,11 +239,10 @@ export default function StatsManagementPage() {
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {stats.map((stat) => (
-              <Card 
-                key={stat.id} 
-                className={`cursor-pointer transition-all duration-200 ${
-                  editingId === stat.id ? 'ring-2 ring-blue-500 shadow-lg' : 'hover:shadow-md'
-                } ${!stat.isActive ? 'opacity-50' : ''}`}
+              <Card
+                key={stat.id}
+                className={`cursor-pointer transition-all duration-200 ${editingId === stat.id ? 'ring-2 ring-blue-500 shadow-lg' : 'hover:shadow-md'
+                  } ${!stat.isActive ? 'opacity-50' : ''}`}
                 onClick={() => setEditingId(editingId === stat.id ? null : stat.id)}
               >
                 <CardContent className="p-6">
@@ -263,7 +262,7 @@ export default function StatsManagementPage() {
                           रद्द करें
                         </Button>
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           शीर्षक

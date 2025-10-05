@@ -116,7 +116,7 @@ const sampleBooks = [
     publicationYear: 1915,
     price: 150,
     location: "A-1, शेल्फ-1",
-    description: "श्रीमद्भगवद्गीता पर आधारित दर्शनशास्त्र की महान कृति"
+    description: "मद्भगवद्गीता पर आधारित दर्शनशास्त्र की महान कृति"
   },
   {
     title: "हरी घास के ये दिन",

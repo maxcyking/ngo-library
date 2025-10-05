@@ -377,7 +377,7 @@ export default function AddEventPage() {
                           name="contactPerson"
                           value={eventData.contactPerson}
                           onChange={handleInputChange}
-                          placeholder="श्री आत्माराम बोरा"
+                          placeholder=" आत्माराम बोरा"
                           required
                         />
                       </div>
@@ -388,7 +388,7 @@ export default function AddEventPage() {
                           name="contactPhone"
                           value={eventData.contactPhone}
                           onChange={handleInputChange}
-                          placeholder="+91 96600 89144"
+                          placeholder="+91 9024635808"
                           required
                         />
                       </div>

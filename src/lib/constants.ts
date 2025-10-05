@@ -12,6 +12,7 @@ export const PUBLIC_NAVIGATION = [
   { href: "/library", label: "साहित्य सूची" },
   { href: "/donations", label: "दान सूची" },
   { href: "/user/certificates", label: "प्रमाणपत्र" },
+  { href: "/user/team", label: "हमारी टीम" },
   { href: "/events", label: "कार्यक्रम" },
   { href: "/news", label: "समाचार" },
   { href: "/media", label: "मीडिया" },
@@ -25,6 +26,7 @@ export const USER_NAVIGATION = [
   { href: "/user/profile", label: "प्रोफाइल" },
   { href: "/user/library-history", label: "पुस्तक इतिहास" },
   { href: "/user/certificates", label: "प्रमाणपत्र" },
+  { href: "/user/team", label: "हमारी टीम" },
   { href: "/user/blog", label: "ब्लॉग" },
   { href: "/user/events", label: "कार्यक्रम" },
 ];
@@ -163,7 +165,7 @@ export const CONTACT_INFO = {
 export const TEAM_MEMBERS = {
   founders: [
     {
-      name: "श्रीमती मीना देवी धर्मपत्नी श्री आत्माराम बोरा",
+      name: "मती मीना देवी धर्मपत्नी  आत्माराम बोरा",
       position: "मुख्य संरक्षक",
       phone: "+91 99518 00733",
       image: "/team/meena-devi.jpg"
@@ -171,13 +173,13 @@ export const TEAM_MEMBERS = {
   ],
   executives: [
     {
-      name: "श्री आत्माराम बोरा",
+      name: " आत्माराम बोरा",
       position: "अध्यक्ष",
-      phone: "+91 96600 89144",
+      phone: "+91 9024635808",
       image: "/team/atmaram-bora.jpg"
     },
     {
-      name: "श्री बाबूराम शर्मा",
+      name: " बाबूराम शर्मा",
       position: "उपाध्यक्ष",
       phone: "+91 99288 00933",
       image: "/team/baburam-sharma.jpg"
@@ -200,7 +202,7 @@ export const TEAM_MEMBERS = {
       location: "जैतपुर जयपुर"
     },
     {
-      name: "श्री डॉ. विजयपाल चन्द्र 'गौरव'",
+      name: " डॉ. विजयपाल चन्द्र 'गौरव'",
       position: "संरक्षक",
       location: "बीकानेर, बाड़मेर"
     }

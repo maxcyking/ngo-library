@@ -4,12 +4,12 @@ import React, { useState } from 'react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { 
-  Users, 
-  BookOpen, 
-  Heart, 
-  Calendar, 
-  FileText, 
+import {
+  Users,
+  BookOpen,
+  Heart,
+  Calendar,
+  FileText,
   Settings,
   LogOut,
   BarChart3,
@@ -77,7 +77,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <div className="min-h-screen bg-gray-50 flex">
         {/* Mobile sidebar overlay */}
         {sidebarOpen && (
-          <div 
+          <div
             className="fixed inset-0 z-40 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           >
@@ -148,7 +148,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 </p>
               </div>
             </div>
-            <Button 
+            <Button
               onClick={handleLogout}
               variant="outline"
               size="sm"

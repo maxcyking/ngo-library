@@ -89,10 +89,11 @@ export default function AdminSettingsPage() {
     description: 'बाड़मेर राजस्थान में 2020 से सेवारत एरोग्या पुस्तकालय एवं सेवा संस्था। निःशुल्क पुस्तकालय, रक्तदान शिविर, स्वास्थ्य सेवा।',
     logo: '',
     favicon: '',
-    phone: '+91 96600 89144',
-    whatsapp: '+91 96600 89144',
+    phone: '+91 9024635808',
+    whatsapp: '+91 9024635808',
     email: 'arogyapustkalaya@gmail.com',
-    address: 'गुडामलानी, बाड़मेर, राजस्थान',
+    address: 'मालियों की ढाणी, आरजीटी सर्कल,नगर तहसील - गुडामालानी जिला बाडमेर राजस्थान 344031
+',
     mapLink: '',
     mapIframe: '',
     facebook: '',
@@ -102,8 +103,8 @@ export default function AdminSettingsPage() {
     linkedin: '',
     establishedYear: '2020',
     registrationNumber: '',
-    chairperson: 'श्री आत्माराम बोरा',
-    viceChairperson: 'श्री बाबूराम शर्मा',
+    chairperson: ' आत्माराम बोरा',
+    viceChairperson: ' बाबूराम शर्मा',
     secretary: '',
     officeHours: 'सुबह 9:00 से शाम 6:00 तक',
     libraryHours: 'सुबह 9:00 से शाम 6:00 तक',
@@ -111,8 +112,8 @@ export default function AdminSettingsPage() {
     googleAnalytics: '',
     googleVerification: '',
     bingVerification: '',
-    emergencyContact: 'श्री आत्माराम बोरा',
-    emergencyPhone: '+91 96600 89144',
+    emergencyContact: ' आत्माराम बोरा',
+    emergencyPhone: '+91 9024635808',
     bankName: '',
     accountNumber: '',
     ifscCode: '',
@@ -377,7 +378,7 @@ export default function AdminSettingsPage() {
                           id="phone"
                           value={settings.phone}
                           onChange={(e) => handleInputChange('phone', e.target.value)}
-                          placeholder="+91 96600 89144"
+                          placeholder="+91 9024635808"
                         />
                       </div>
                       <div>
@@ -386,7 +387,7 @@ export default function AdminSettingsPage() {
                           id="whatsapp"
                           value={settings.whatsapp}
                           onChange={(e) => handleInputChange('whatsapp', e.target.value)}
-                          placeholder="+91 96600 89144"
+                          placeholder="+91 9024635808"
                         />
                       </div>
                     </div>
@@ -408,7 +409,8 @@ export default function AdminSettingsPage() {
                         id="address"
                         value={settings.address}
                         onChange={(e) => handleInputChange('address', e.target.value)}
-                        placeholder="गुडामलानी, बाड़मेर, राजस्थान"
+                        placeholder="मालियों की ढाणी, आरजीटी सर्कल,नगर तहसील - गुडामालानी जिला बाडमेर राजस्थान 344031
+"
                         rows={3}
                       />
                     </div>
@@ -567,7 +569,7 @@ export default function AdminSettingsPage() {
                           id="chairperson"
                           value={settings.chairperson}
                           onChange={(e) => handleInputChange('chairperson', e.target.value)}
-                          placeholder="श्री आत्माराम बोरा"
+                          placeholder=" आत्माराम बोरा"
                         />
                       </div>
                       <div>
@@ -576,7 +578,7 @@ export default function AdminSettingsPage() {
                           id="viceChairperson"
                           value={settings.viceChairperson}
                           onChange={(e) => handleInputChange('viceChairperson', e.target.value)}
-                          placeholder="श्री बाबूराम शर्मा"
+                          placeholder=" बाबूराम शर्मा"
                         />
                       </div>
                       <div>
@@ -597,7 +599,7 @@ export default function AdminSettingsPage() {
                           id="emergencyContact"
                           value={settings.emergencyContact}
                           onChange={(e) => handleInputChange('emergencyContact', e.target.value)}
-                          placeholder="श्री आत्माराम बोरा"
+                          placeholder=" आत्माराम बोरा"
                         />
                       </div>
                       <div>
@@ -606,7 +608,7 @@ export default function AdminSettingsPage() {
                           id="emergencyPhone"
                           value={settings.emergencyPhone}
                           onChange={(e) => handleInputChange('emergencyPhone', e.target.value)}
-                          placeholder="+91 96600 89144"
+                          placeholder="+91 9024635808"
                         />
                       </div>
                     </div>
