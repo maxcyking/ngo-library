@@ -581,12 +581,12 @@ export default function AdminSettingsPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="secretary">सचिव</Label>
+                        <Label htmlFor="secretary">संस्थापक</Label>
                         <Input
                           id="secretary"
                           value={settings.secretary}
                           onChange={(e) => handleInputChange('secretary', e.target.value)}
-                          placeholder="सचिव का नाम"
+                          placeholder="संस्थापक का नाम"
                         />
                       </div>
                     </div>

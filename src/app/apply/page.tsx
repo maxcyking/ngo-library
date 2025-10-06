@@ -20,7 +20,9 @@ import {
   Save,
   Download,
   Search,
-  AlertCircle
+  AlertCircle,
+  Plus,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
 import jsPDF from 'jspdf';
@@ -36,12 +38,13 @@ import {
   getDownloadURL
 } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
+import { useSettings } from '@/contexts/SettingsContext';
 
-// Generate unique application ID
+// Generate unique application ID (6 digits)
 const generateApplicationId = () => {
   const timestamp = Date.now().toString();
-  const random = Math.random().toString(36).substring(2, 8).toUpperCase();
-  return `LIB${timestamp.slice(-6)}${random}`;
+  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  return `${timestamp.slice(-3)}${random}`;
 };
 
 // Generate form number
@@ -59,6 +62,7 @@ const generateUsername = (name: string, phone: string) => {
 };
 
 export default function ApplyPage() {
+  const { settings } = useSettings();
   const [selectedOption, setSelectedOption] = useState<'library' | 'member' | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [applicationSubmitted, setApplicationSubmitted] = useState(false);
@@ -95,11 +99,9 @@ export default function ApplyPage() {
     bloodGroup: '',
     email: '',
 
-    // Document Upload Fields (as requested)
+    // Document Upload Fields (simplified)
     profileImage: '',
-    signatureImage: '',
-    class10Marksheet: '',
-    class12Marksheet: '',
+    aadharCardImage: '',
 
     // System Fields
     status: 'pending',
@@ -114,6 +116,17 @@ export default function ApplyPage() {
     username: '',
     applicationType: 'library' as 'library' | 'member',
 
+    // Education Information - Array to support multiple qualifications
+    educationDetails: [
+      {
+        id: 1,
+        educationLevel: '',
+        board: '',
+        status: '',
+        percentage: ''
+      }
+    ],
+    
     // New fields from the form image
     course: '', // For roll number mapping
     rollNumber: ''
@@ -121,10 +134,11 @@ export default function ApplyPage() {
 
   const [selectedFiles, setSelectedFiles] = useState({
     profile: null as File | null,
-    signature: null as File | null,
-    marksheet10: null as File | null,
-    marksheet12: null as File | null
+    aadharCard: null as File | null
   });
+  
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 3;
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -132,30 +146,50 @@ export default function ApplyPage() {
   const generatePDF = () => {
     const doc = new jsPDF();
     
-    // Header
-    doc.setFontSize(20);
-    doc.setFont('helvetica', 'bold');
-    doc.text('एरोज्ञा पुस्तकालय एवं कोचिंग संस्थान', 105, 20, { align: 'center' });
+    // Professional Header with Border
+    // Top border line
+    doc.setLineWidth(2);
+    doc.setDrawColor(34, 197, 94); // Green color
+    doc.line(15, 15, 195, 15);
     
-    doc.setFontSize(12);
+    // Organization Name
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text('AROGYA PUSTKALAYA & COACHING INSTITUTE', 105, 25, { align: 'center' });
+    
+    // Address
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
-    doc.text('मालिया की ढाणी, आरजीटी सर्कल, नगर, गुडामलानी, बाड़मेर', 105, 28, { align: 'center' });
+    doc.setTextColor(60, 60, 60);
+    doc.text('Maliyan Ki Dhani, RGT Circle, Nagar, Gudamalani, Barmer', 105, 32, { align: 'center' });
     
-    // Success Badge
+    // Contact Information
+    doc.setFontSize(9);
+    const contactInfo = `Phone: ${settings.phone || '+91 9024635808'} | Email: ${settings.email || 'arogyapustkalaya@gmail.com'}`;
+    doc.text(contactInfo, 105, 38, { align: 'center' });
+    
+    // Bottom border line for header
+    doc.setLineWidth(1);
+    doc.setDrawColor(200, 200, 200);
+    doc.line(15, 42, 195, 42);
+    
+    // Success Badge with better positioning
     doc.setFillColor(34, 197, 94); // Green
-    doc.rect(70, 35, 70, 15, 'F');
+    doc.rect(60, 48, 90, 16, 'F');
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(14);
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('APPLICATION SUCCESSFUL', 105, 44, { align: 'center' });
+    doc.text('APPLICATION SUCCESSFUL', 105, 58, { align: 'center' });
     
     // Reset text color
     doc.setTextColor(0, 0, 0);
     
     // Application Details Box
-    doc.setFontSize(11);
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('Application Details:', 20, 60);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Application Details:', 20, 75);
     
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
@@ -165,55 +199,78 @@ export default function ApplyPage() {
       ['Username:', applicationData?.username || ''],
       ['Name:', formData.name],
       ['Father/Husband Name:', formData.fatherHusbandName],
-      ['Mobile:', formData.phone],
+      ['Mobile Number:', formData.phone],
       ['Aadhar Number:', formData.aadharNumber],
       ['Email:', formData.email || 'N/A'],
       ['Date of Birth:', formData.dateOfBirth || 'N/A'],
       ['Educational Qualification:', formData.educationalQualification || 'N/A'],
       ['Address:', formData.address || 'N/A'],
       ['Application Date:', new Date().toLocaleDateString('en-IN')],
-      ['Status:', 'Pending Review']
+      ['Status:', 'Under Review']
     ];
     
     autoTable(doc, {
-      startY: 65,
+      startY: 80,
       head: [],
       body: appDetails,
-      theme: 'grid',
-      styles: { fontSize: 10 },
+      theme: 'striped',
+      styles: { 
+        fontSize: 10,
+        cellPadding: 4,
+        lineColor: [200, 200, 200],
+        lineWidth: 0.5
+      },
       columnStyles: {
-        0: { fontStyle: 'bold', cellWidth: 70 },
-        1: { cellWidth: 110 }
+        0: { 
+          fontStyle: 'bold', 
+          cellWidth: 70,
+          fillColor: [248, 250, 252]
+        },
+        1: { 
+          cellWidth: 110,
+          fillColor: [255, 255, 255]
+        }
+      },
+      headStyles: {
+        fillColor: [34, 197, 94],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold'
       }
     });
     
     // Instructions
     const finalY = (doc as any).lastAutoTable.finalY || 200;
-    doc.setFontSize(10);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
     doc.text('Important Instructions:', 20, finalY + 15);
     
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
+    doc.setTextColor(60, 60, 60);
     const instructions = [
       '1. Please keep this receipt safe for future reference',
       '2. Your application is under review and will be processed within 2-3 working days',
       '3. You can track your application status using Application ID or Aadhar Number',
       '4. Visit our website: arogyapustkalaya.com/track-application',
-      '5. For queries, contact: +91 99518 00733 or email: arogyapustkalaya@gmail.com'
+      `5. For queries, contact: ${settings.phone || '+91 9024635808'} or email: ${settings.email || 'arogyapustkalaya@gmail.com'}`
     ];
     
     let yPos = finalY + 22;
     instructions.forEach(instruction => {
       doc.text(instruction, 25, yPos);
-      yPos += 7;
+      yPos += 6;
     });
     
-    // Footer
+    // Footer with border
+    doc.setLineWidth(1);
+    doc.setDrawColor(200, 200, 200);
+    doc.line(15, 275, 195, 275);
+    
     doc.setFontSize(8);
     doc.setTextColor(128, 128, 128);
-    doc.text('Generated on: ' + new Date().toLocaleString('en-IN'), 105, 280, { align: 'center' });
-    doc.text('This is a computer-generated document and does not require a signature', 105, 285, { align: 'center' });
+    doc.text('Generated on: ' + new Date().toLocaleString('en-IN'), 105, 282, { align: 'center' });
+    doc.text('This is a computer-generated document and does not require a signature', 105, 287, { align: 'center' });
     
     // Save PDF
     doc.save(`Application_${applicationData?.applicationId || 'Receipt'}.pdf`);
@@ -232,6 +289,42 @@ export default function ApplyPage() {
       ...prev,
       [name]: checked
     }));
+  };
+
+  // Education management functions
+  const handleEducationChange = (id: number, field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      educationDetails: prev.educationDetails.map(edu => 
+        edu.id === id ? { ...edu, [field]: value } : edu
+      )
+    }));
+  };
+
+  const addEducationEntry = () => {
+    const newId = Math.max(...formData.educationDetails.map(edu => edu.id)) + 1;
+    setFormData(prev => ({
+      ...prev,
+      educationDetails: [
+        ...prev.educationDetails,
+        {
+          id: newId,
+          educationLevel: '',
+          board: '',
+          status: '',
+          percentage: ''
+        }
+      ]
+    }));
+  };
+
+  const removeEducationEntry = (id: number) => {
+    if (formData.educationDetails.length > 1) {
+      setFormData(prev => ({
+        ...prev,
+        educationDetails: prev.educationDetails.filter(edu => edu.id !== id)
+      }));
+    }
   };
 
   const handleFileChange = (fileType: string, file: File | null) => {
@@ -266,14 +359,40 @@ export default function ApplyPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Only allow submission on step 3
+    if (currentStep !== 3) {
+      alert('Please complete all steps / कृपया सभी चरण पूरे करें');
+      return;
+    }
+
+    // Validate required fields
     if (!formData.name || !formData.phone || !formData.fatherHusbandName || !formData.aadharNumber) {
-      alert('कृपया सभी आवश्यक फील्ड भरें (नाम, फोन, पिता/पति का नाम, आधार नंबर)');
+      alert('Please fill all required fields / कृपया सभी आवश्यक फील्ड भरें');
+      return;
+    }
+
+    // Validate education details
+    const incompleteEducation = formData.educationDetails.find(edu => 
+      !edu.educationLevel || !edu.board || !edu.status
+    );
+    if (incompleteEducation) {
+      alert('Please complete all education details / कृपया सभी शैक्षणिक जानकारी पूरी भरें');
+      return;
+    }
+
+    // Validate documents
+    if (!selectedFiles.profile) {
+      alert('Please upload passport size photo / कृपया पासपोर्ट साइज फोटो अपलोड करें');
+      return;
+    }
+    if (!selectedFiles.aadharCard) {
+      alert('Please upload Aadhar card / कृपया आधार कार्ड अपलोड करें');
       return;
     }
 
     // Validate Aadhar number (12 digits)
     if (formData.aadharNumber && !/^\d{12}$/.test(formData.aadharNumber.replace(/\s/g, ''))) {
-      alert('कृपया वैध 12 अंकों का आधार नंबर दर्ज करें');
+      alert('Please enter valid 12-digit Aadhar number / कृपया वैध 12 अंकों का आधार नंबर दर्ज करें');
       return;
     }
 
@@ -289,28 +408,16 @@ export default function ApplyPage() {
 
       // Upload all files
       let finalProfileImage = formData.profileImage;
-      let finalSignatureImage = formData.signatureImage;
-      let finalClass10Marksheet = formData.class10Marksheet;
-      let finalClass12Marksheet = formData.class12Marksheet;
+      let finalAadharCardImage = formData.aadharCardImage;
 
       // Upload profile image
       if (selectedFiles.profile) {
         finalProfileImage = await handleFileUpload(selectedFiles.profile, 'applications/profiles');
       }
 
-      // Upload signature
-      if (selectedFiles.signature) {
-        finalSignatureImage = await handleFileUpload(selectedFiles.signature, 'applications/signatures');
-      }
-
-      // Upload 10th marksheet
-      if (selectedFiles.marksheet10) {
-        finalClass10Marksheet = await handleFileUpload(selectedFiles.marksheet10, 'applications/marksheets');
-      }
-
-      // Upload 12th marksheet
-      if (selectedFiles.marksheet12) {
-        finalClass12Marksheet = await handleFileUpload(selectedFiles.marksheet12, 'applications/marksheets');
+      // Upload Aadhar card
+      if (selectedFiles.aadharCard) {
+        finalAadharCardImage = await handleFileUpload(selectedFiles.aadharCard, 'applications/documents');
       }
 
       const applicationDataToSave = {
@@ -320,9 +427,8 @@ export default function ApplyPage() {
         applicationDate,
         username,
         profileImage: finalProfileImage,
-        signatureImage: finalSignatureImage,
-        class10Marksheet: finalClass10Marksheet,
-        class12Marksheet: finalClass12Marksheet,
+        aadharCardImage: finalAadharCardImage,
+        educationDetails: formData.educationDetails,
         guardianName: formData.fatherHusbandName, // Map father/husband name to guardian name
         guardianPhone: formData.phone, // Use same phone as guardian for now
         createdAt: serverTimestamp(),
@@ -494,47 +600,92 @@ export default function ApplyPage() {
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Card>
-            <CardHeader>
-              <CardTitle className="text-center">
-                एरोज्ञा पुस्तकालय एवं कोचिंग संस्थान
+            <CardHeader className="border-b border-green-200 bg-gradient-to-r from-green-50 to-blue-50">
+              <CardTitle className="text-center text-xl font-bold text-gray-800">
+                {settings.siteName || 'एरोज्ञा पुस्तकालय एवं कोचिंग संस्थान'}
               </CardTitle>
-              <p className="text-center text-sm text-gray-600">
-                मालिया की ढाणी, आरजीटी सर्कल, नगर, गुडामलानी, बाड़मेर
+              <p className="text-center text-sm text-gray-600 mt-1">
+                {settings.address || 'मालिया की ढाणी, आरजीटी सर्कल, नगर, गुडामलानी, बाड़मेर'}
+              </p>
+              <p className="text-center text-xs text-gray-500 mt-1">
+                फोन: {settings.phone || '+91 9024635808'} | ईमेल: {settings.email || 'arogyapustkalaya@gmail.com'}
               </p>
             </CardHeader>
             <CardContent>
+              {/* Progress Steps */}
+              <div className="mb-8">
+                <div className="flex items-center justify-center space-x-2 md:space-x-4">
+                  {[1, 2, 3].map((step) => (
+                    <div key={step} className="flex items-center">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 ${
+                        step < currentStep 
+                          ? 'bg-green-600 text-white border-green-600' 
+                          : step === currentStep
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-gray-200 text-gray-600 border-gray-300'
+                      }`}>
+                        {step < currentStep ? '✓' : step}
+                      </div>
+                      <div className="ml-2 text-xs md:text-sm">
+                        <div className="font-medium">
+                          {step === 1 && 'Personal Info'}
+                          {step === 2 && 'Education'}
+                          {step === 3 && 'Documents'}
+                        </div>
+                        <div className="text-gray-500 text-xs">
+                          {step === 1 && 'व्यक्तिगत जानकारी'}
+                          {step === 2 && 'शैक्षणिक जानकारी'}
+                          {step === 3 && 'दस्तावेज़ अपलोड'}
+                        </div>
+                      </div>
+                      {step < 3 && <div className={`w-6 md:w-8 h-0.5 ml-2 md:ml-4 ${
+                        step < currentStep ? 'bg-green-600' : 'bg-gray-300'
+                      }`}></div>}
+                    </div>
+                  ))}
+                </div>
+                <div className="text-center mt-4">
+                  <p className="text-sm text-gray-600">
+                    Step {currentStep} of {totalSteps} / चरण {currentStep} का {totalSteps}
+                  </p>
+                </div>
+              </div>
+
               <form onSubmit={handleSubmit} className="space-y-6">
 
 
-                {/* Basic Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">व्यक्तिगत जानकारी</h3>
+                {/* Step 1: Personal Information */}
+                {currentStep === 1 && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                      व्यक्तिगत जानकारी / Personal Information
+                    </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         <User className="w-4 h-4 inline mr-1" />
-                        नाम *
+                        नाम / Name *
                       </label>
                       <Input
                         type="text"
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        placeholder="पूरा नाम"
+                        placeholder="Enter full name"
                         required
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        पिता / पति का नाम *
+                        पिता / पति का नाम / Father's/Husband's Name *
                       </label>
                       <Input
                         type="text"
                         name="fatherHusbandName"
                         value={formData.fatherHusbandName}
                         onChange={handleInputChange}
-                        placeholder="पिता या पति का नाम"
+                        placeholder="Enter father's or husband's name"
                         required
                       />
                     </div>
@@ -544,7 +695,7 @@ export default function ApplyPage() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         <Calendar className="w-4 h-4 inline mr-1" />
-                        जन्म तिथि (optional)
+                        जन्म तिथि / Date of Birth (optional)
                       </label>
                       <Input
                         type="date"
@@ -555,14 +706,14 @@ export default function ApplyPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        शैक्षणिक योग्यता (optional)
+                        शैक्षणिक योग्यता / Educational Qualification (optional)
                       </label>
                       <Input
                         type="text"
                         name="educationalQualification"
                         value={formData.educationalQualification}
                         onChange={handleInputChange}
-                        placeholder="जैसे: 12वीं, स्नातक, स्नातकोत्तर"
+                        placeholder="e.g., 12th, Graduate, Post Graduate"
                       />
                     </div>
                   </div>
@@ -571,7 +722,7 @@ export default function ApplyPage() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         <Phone className="w-4 h-4 inline mr-1" />
-                        मोबाइल नंबर *
+                        मोबाइल नंबर / Mobile Number *
                       </label>
                       <Input
                         type="tel"
@@ -585,7 +736,7 @@ export default function ApplyPage() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         <FileText className="w-4 h-4 inline mr-1" />
-                        आधार नंबर *
+                        आधार नंबर / Aadhar Number *
                       </label>
                       <Input
                         type="text"
@@ -596,52 +747,52 @@ export default function ApplyPage() {
                         maxLength={14}
                         required
                       />
-                      <p className="text-xs text-gray-500 mt-1">12 अंकों का आधार नंबर दर्ज करें</p>
+                      <p className="text-xs text-gray-500 mt-1">Enter 12-digit Aadhar number</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        कार्यक्षेत्र (optional)
+                        कार्यक्षेत्र / Work Area (optional)
                       </label>
                       <Input
                         type="text"
                         name="workArea"
                         value={formData.workArea}
                         onChange={handleInputChange}
-                        placeholder="कार्य का क्षेत्र"
+                        placeholder="Enter work area"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        वर्ग (optional)
+                        लिंग / Gender (optional)
                       </label>
                       <select
                         name="gender"
                         value={formData.gender}
                         onChange={handleInputChange}
                         className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        title="वर्ग चुनें"
+                        title="Select gender"
                       >
-                        <option value="">चुनें</option>
-                        <option value="male">पुरुष</option>
-                        <option value="female">महिला</option>
-                        <option value="other">अन्य</option>
+                        <option value="">Select</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
                       </select>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        ब्लड ग्रुप (optional)
+                        ब्लड ग्रुप / Blood Group (optional)
                       </label>
                       <select
                         name="bloodGroup"
                         value={formData.bloodGroup}
                         onChange={handleInputChange}
                         className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        title="ब्लड ग्रुप चुनें"
+                        title="Select blood group"
                       >
-                        <option value="">चुनें</option>
+                        <option value="">Select</option>
                         <option value="A+">A+</option>
                         <option value="A-">A-</option>
                         <option value="B+">B+</option>
@@ -657,26 +808,26 @@ export default function ApplyPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        पिता / पति का व्यवसाय (optional)
+                        पिता / पति का व्यवसाय / Father's/Husband's Occupation (optional)
                       </label>
                       <Input
                         type="text"
                         name="fatherHusbandOccupation"
                         value={formData.fatherHusbandOccupation}
                         onChange={handleInputChange}
-                        placeholder="व्यवसाय"
+                        placeholder="Enter occupation"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        वार्षिक आय (optional)
+                        वार्षिक आय / Annual Income (optional)
                       </label>
                       <Input
                         type="text"
                         name="annualIncome"
                         value={formData.annualIncome}
                         onChange={handleInputChange}
-                        placeholder="वार्षिक आय"
+                        placeholder="Enter annual income"
                       />
                     </div>
                   </div>
@@ -711,7 +862,7 @@ export default function ApplyPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <MapPin className="w-4 h-4 inline mr-1" />
-                      पता (optional)
+                      पता / Address (optional)
                     </label>
                     <textarea
                       name="address"
@@ -719,7 +870,7 @@ export default function ApplyPage() {
                       onChange={handleInputChange}
                       rows={3}
                       className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="पूरा पता"
+                      placeholder="Enter complete address"
                     />
                   </div>
 
@@ -771,7 +922,7 @@ export default function ApplyPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <Mail className="w-4 h-4 inline mr-1" />
-                      ईमेल पता (optional)
+                      ईमेल पता / Email Address (optional)
                     </label>
                     <Input
                       type="email"
@@ -807,110 +958,270 @@ export default function ApplyPage() {
                     </div>
                   </div>
                 </div>
+                )}
 
+                {/* Step 2: Education Information */}
+                {currentStep === 2 && (
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                      <GraduationCap className="w-5 h-5 inline mr-2" />
+                      शैक्षणिक जानकारी / Educational Information
+                    </h3>
 
+                    {formData.educationDetails.map((education, index) => (
+                      <div key={education.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                        <div className="flex justify-between items-center mb-4">
+                          <h4 className="font-medium text-gray-800">
+                            शिक्षा विवरण / Education Details {index + 1}
+                          </h4>
+                          {formData.educationDetails.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeEducationEntry(education.id)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
 
-                {/* Document Upload Section */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
-                    <FileImage className="w-5 h-5 inline mr-2" />
-                    दस्तावेज अपलोड करें
-                  </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          {/* Education Level */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              शिक्षा / Education *
+                            </label>
+                            <select
+                              value={education.educationLevel}
+                              onChange={(e) => handleEducationChange(education.id, 'educationLevel', e.target.value)}
+                              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              required
+                            >
+                              <option value="">Select</option>
+                              <option value="5th">5th Class</option>
+                              <option value="8th">8th Class</option>
+                              <option value="10th">10th Class</option>
+                              <option value="12th">12th Class</option>
+                              <option value="diploma">Diploma</option>
+                              <option value="iti">ITI</option>
+                              <option value="graduate">Graduate</option>
+                              <option value="post_graduate">Post Graduate</option>
+                              <option value="phd">PhD</option>
+                              <option value="other">Other</option>
+                            </select>
+                          </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Profile Photo */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        पासपोर्ट साइज फोटो *
-                      </label>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleFileChange('profile', e.target.files?.[0] || null)}
-                          className="w-full"
-                        />
-                        <p className="text-xs text-gray-500 mt-2">JPG, PNG फॉर्मेट में</p>
+                          {/* Board/University */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              बोर्ड / Board *
+                            </label>
+                            <Input
+                              type="text"
+                              value={education.board}
+                              onChange={(e) => handleEducationChange(education.id, 'board', e.target.value)}
+                              placeholder="Enter board/university name"
+                              required
+                            />
+                          </div>
+
+                          {/* Status */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              स्थिति / Status *
+                            </label>
+                            <select
+                              value={education.status}
+                              onChange={(e) => handleEducationChange(education.id, 'status', e.target.value)}
+                              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              required
+                            >
+                              <option value="">Select</option>
+                              <option value="passed">Passed</option>
+                              <option value="failed">Failed</option>
+                              <option value="appearing">Appearing</option>
+                            </select>
+                          </div>
+
+                          {/* Percentage */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              प्रतिशत / Percentage
+                            </label>
+                            <Input
+                              type="number"
+                              value={education.percentage}
+                              onChange={(e) => handleEducationChange(education.id, 'percentage', e.target.value)}
+                              placeholder="Enter percentage"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                              disabled={education.status !== 'passed'}
+                            />
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    ))}
 
-                    {/* Signature */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        हस्ताक्षर *
-                      </label>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleFileChange('signature', e.target.files?.[0] || null)}
-                          className="w-full"
-                        />
-                        <p className="text-xs text-gray-500 mt-2">JPG, PNG फॉर्मेट में</p>
+                    {/* Add More Button */}
+                    <div className="text-center">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={addEducationEntry}
+                        className="px-6 py-2"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add More +
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3: Document Upload */}
+                {currentStep === 3 && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                      <FileImage className="w-5 h-5 inline mr-2" />
+                      दस्तावेज़ अपलोड करें / Document Upload
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Profile Photo */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          पासपोर्ट साइज फोटो / Passport Size Photo *
+                        </label>
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleFileChange('profile', e.target.files?.[0] || null)}
+                            className="w-full"
+                          />
+                          <p className="text-xs text-gray-500 mt-2">JPG, PNG format only</p>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* 10th Marksheet */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        10वीं की मार्कशीट (optional)
-                      </label>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                        <input
-                          type="file"
-                          accept="image/*,.pdf"
-                          onChange={(e) => handleFileChange('marksheet10', e.target.files?.[0] || null)}
-                          className="w-full"
-                        />
-                        <p className="text-xs text-gray-500 mt-2">JPG, PNG, PDF फॉर्मेट में</p>
-                      </div>
-                    </div>
-
-                    {/* 12th Marksheet */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        12वीं की मार्कशीट (optional)
-                      </label>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                        <input
-                          type="file"
-                          accept="image/*,.pdf"
-                          onChange={(e) => handleFileChange('marksheet12', e.target.files?.[0] || null)}
-                          className="w-full"
-                        />
-                        <p className="text-xs text-gray-500 mt-2">JPG, PNG, PDF फॉर्मेट में</p>
+                      {/* Aadhar Card */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          आधार कार्ड / Aadhar Card *
+                        </label>
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                          <input
+                            type="file"
+                            accept="image/*,.pdf"
+                            onChange={(e) => handleFileChange('aadharCard', e.target.files?.[0] || null)}
+                            className="w-full"
+                          />
+                          <p className="text-xs text-gray-500 mt-2">JPG, PNG, PDF format only</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
 
-                {/* Declaration */}
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-yellow-800 mb-2">घोषणा:</h4>
-                  <p className="text-sm text-yellow-700">
-                    मैं घोषणा करता/करती हूं कि एरोज्ञा संस्था में किसी प्रकार का नशा, गलत व्यवहार एवं किसी भी नियमों के विरुद्ध कार्य नहीं करूंगा/करूंगी। मैं किसी भी तरह से अनुशासनहीनता पाई जाती है, तो संस्था मेरे विरुद्ध कानूनी कार्यवाही करते हुए मुझे पुस्तकालय से निकाल सकते हैं। जिसकी सम्पूर्ण जिम्मेदारी मेरी स्वयं की होगी। और मैं भविष्य में कभी भी संस्था के प्रति अपनी द्वेष भावना नहीं रखूंगा/रखूंगी।
-                  </p>
-                </div>
+                {/* Declaration - Only show on step 3 */}
+                {currentStep === 3 && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-yellow-800 mb-2">घोषणा:</h4>
+                    <p className="text-sm text-yellow-700">
+                      मैं घोषणा करता/करती हूं कि एरोज्ञा संस्था में किसी प्रकार का नशा, गलत व्यवहार एवं किसी भी नियमों के विरुद्ध कार्य नहीं करूंगा/करूंगी। मैं किसी भी तरह से अनुशासनहीनता पाई जाती है, तो संस्था मेरे विरुद्ध कानूनी कार्यवाही करते हुए मुझे पुस्तकालय से निकाल सकते हैं। जिसकी सम्पूर्ण जिम्मेदारी मेरी स्वयं की होगी। और मैं भविष्य में कभी भी संस्था के प्रति अपनी द्वेष भावना नहीं रखूंगा/रखूंगी।
+                    </p>
+                  </div>
+                )}
 
-                {/* Submit Button */}
-                <div className="flex justify-center pt-6">
-                  <Button
-                    type="submit"
-                    disabled={loading || uploading}
-                    className="px-8 py-3 text-lg"
-                  >
-                    {loading ? (
-                      <>
-                        <Upload className="w-5 h-5 mr-2 animate-spin" />
-                        {uploading ? 'फाइलें अपलोड हो रही हैं...' : 'आवेदन जमा हो रहा है...'}
-                      </>
-                    ) : (
-                      <>
-                        <Save className="w-5 h-5 mr-2" />
-                        आवेदन जमा करें
-                      </>
-                    )}
-                  </Button>
+                {/* Navigation Buttons */}
+                <div className="flex justify-between pt-6">
+                  {currentStep > 1 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setCurrentStep(currentStep - 1)}
+                      className="px-6 py-2"
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-2" />
+                      पिछला
+                    </Button>
+                  )}
+                  
+                  <div className="flex-1"></div>
+                  
+                  {currentStep < totalSteps ? (
+                    <Button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Validation for each step
+                        if (currentStep === 1) {
+                          if (!formData.name || !formData.phone || !formData.fatherHusbandName || !formData.aadharNumber) {
+                            alert('Please fill all required fields / कृपया सभी आवश्यक फील्ड भरें');
+                            return;
+                          }
+                        }
+                        if (currentStep === 2) {
+                          const incompleteEducation = formData.educationDetails.find(edu => 
+                            !edu.educationLevel || !edu.board || !edu.status
+                          );
+                          if (incompleteEducation) {
+                            alert('Please complete all education details / कृपया सभी शैक्षणिक जानकारी पूरी भरें');
+                            return;
+                          }
+                          
+                          const missingPercentage = formData.educationDetails.find(edu => 
+                            edu.status === 'passed' && !edu.percentage
+                          );
+                          if (missingPercentage) {
+                            alert('Please enter percentage for passed qualifications / कृपया उत्तीर्ण योग्यताओं के लिए प्रतिशत दर्ज करें');
+                            return;
+                          }
+                        }
+                        
+                        console.log('Moving from step', currentStep, 'to step', currentStep + 1);
+                        setCurrentStep(currentStep + 1);
+                      }}
+                      className="px-6 py-2"
+                    >
+                      Next / अगला
+                      <ArrowLeft className="w-4 h-4 ml-2 rotate-180" />
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      disabled={loading || uploading}
+                      className="px-8 py-3 text-lg"
+                      onClick={(e) => {
+                        // Validation for step 3 (documents)
+                        if (!selectedFiles.profile) {
+                          e.preventDefault();
+                          alert('Please upload passport size photo / कृपया पासपोर्ट साइज फोटो अपलोड करें');
+                          return;
+                        }
+                        if (!selectedFiles.aadharCard) {
+                          e.preventDefault();
+                          alert('Please upload Aadhar card / कृपया आधार कार्ड अपलोड करें');
+                          return;
+                        }
+                      }}
+                    >
+                      {loading ? (
+                        <>
+                          <Upload className="w-5 h-5 mr-2 animate-spin" />
+                          {uploading ? 'Uploading files... / फाइलें अपलोड हो रही हैं...' : 'Submitting application... / आवेदन जमा हो रहा है...'}
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-5 h-5 mr-2" />
+                          Submit Application / आवेदन जमा करें
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
               </form>
             </CardContent>

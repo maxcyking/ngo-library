@@ -44,10 +44,12 @@ interface Application {
   educationalQualification: string;
   address: string;
   profileImage: string;
-  signatureImage: string;
-  class10Marksheet: string;
-  class12Marksheet: string;
+  aadharCardImage: string;
+  // Education Information
+  educationLevel: string;
+  board: string;
   status: 'pending' | 'under-review' | 'accepted' | 'rejected';
+  percentage: string;
   applicationDate: string;
   remarks?: string;
   reviewedBy?: string;
@@ -415,9 +417,46 @@ export default function AdminAdmissionsPage() {
                 </div>
 
                 {/* Documents */}
+                {/* Education Information */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">शैक्षणिक जानकारी</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm text-gray-600">शिक्षा स्तर</label>
+                      <p className="font-medium text-gray-900">
+                        {selectedApplication.educationLevel === '10th' && '10वीं कक्षा'}
+                        {selectedApplication.educationLevel === '12th' && '12वीं कक्षा'}
+                        {selectedApplication.educationLevel === 'ug_pg' && 'स्नातक/स्नातकोत्तर'}
+                        {!selectedApplication.educationLevel && 'N/A'}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-600">बोर्ड/विश्वविद्यालय</label>
+                      <p className="font-medium text-gray-900">{selectedApplication.board || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-600">स्थिति</label>
+                      <p className="font-medium text-gray-900">
+                        {selectedApplication.status === 'accepted' && 'स्वीकृत'}
+                        {selectedApplication.status === 'rejected' && 'अस्वीकृत'}
+                        {selectedApplication.status === 'under-review' && 'समीक्षाधीन'}
+                        {selectedApplication.status === 'pending' && 'लंबित'}
+                        {!selectedApplication.status && 'N/A'}
+                      </p>
+                    </div>
+                    {selectedApplication.percentage && (
+                      <div>
+                        <label className="text-sm text-gray-600">प्रतिशत</label>
+                        <p className="font-medium text-gray-900">{selectedApplication.percentage}%</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Documents */}
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">दस्तावेज़</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {selectedApplication.profileImage && (
                       <div className="text-center">
                         <button
@@ -438,63 +477,23 @@ export default function AdminAdmissionsPage() {
                         </button>
                       </div>
                     )}
-                    {selectedApplication.signatureImage && (
+                    {selectedApplication.aadharCardImage && (
                       <div className="text-center">
                         <button
                           onClick={() => {
-                            setSelectedImage({ url: selectedApplication.signatureImage, title: 'हस्ताक्षर' });
+                            setSelectedImage({ url: selectedApplication.aadharCardImage, title: 'आधार कार्ड' });
                             setShowImageModal(true);
                           }}
                           className="block w-full"
-                          title="हस्ताक्षर देखें"
-                          aria-label="हस्ताक्षर देखें"
+                          title="आधार कार्ड देखें"
+                          aria-label="आधार कार्ड देखें"
                         >
                           <img
-                            src={selectedApplication.signatureImage}
-                            alt="Signature"
+                            src={selectedApplication.aadharCardImage}
+                            alt="Aadhar Card"
                             className="w-full h-32 object-cover rounded-lg border-2 border-gray-200 hover:border-blue-500 transition"
                           />
-                          <p className="text-sm text-gray-600 mt-2">हस्ताक्षर</p>
-                        </button>
-                      </div>
-                    )}
-                    {selectedApplication.class10Marksheet && (
-                      <div className="text-center">
-                        <button
-                          onClick={() => {
-                            setSelectedImage({ url: selectedApplication.class10Marksheet, title: '10वीं मार्कशीट' });
-                            setShowImageModal(true);
-                          }}
-                          className="block w-full"
-                          title="10वीं मार्कशीट देखें"
-                          aria-label="10वीं मार्कशीट देखें"
-                        >
-                          <img
-                            src={selectedApplication.class10Marksheet}
-                            alt="10th Marksheet"
-                            className="w-full h-32 object-cover rounded-lg border-2 border-gray-200 hover:border-blue-500 transition"
-                          />
-                          <p className="text-sm text-gray-600 mt-2">10वीं मार्कशीट</p>
-                        </button>
-                      </div>
-                    )}
-                    {selectedApplication.class12Marksheet && (
-                      <div className="text-center">
-                        <button
-                          onClick={() => {
-                            setSelectedImage({ url: selectedApplication.class12Marksheet, title: '12वीं मार्कशीट' });
-                            setShowImageModal(true);
-                          }}
-                          className="block w-full"
-                          title="12वीं मार्कशीट देखें"
-                          aria-label="12वीं मार्कशीट देखें"
-                        >
-                          <img
-                            src={selectedApplication.class12Marksheet}
-                            alt="12th Marksheet"
-                            className="w-full h-32 object-cover rounded-lg border-2 border-gray-200 hover:border-blue-500 transition"
-                          />
-                          <p className="text-sm text-gray-600 mt-2">12वीं मार्कशीट</p>
+                          <p className="text-sm text-gray-600 mt-2">आधार कार्ड</p>
                         </button>
                       </div>
                     )}

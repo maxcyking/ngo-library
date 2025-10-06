@@ -4,13 +4,13 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  Users, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Calendar, 
-  GraduationCap, 
+import {
+  Users,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  GraduationCap,
   Briefcase,
   X,
   User,
@@ -214,7 +214,7 @@ export default function TeamPage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-              संस्था के पदाधिकारी एवं सदस्य
+              मैनेजमेंट टीम
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               हमारी टीम अनुभवी और समर्पित व्यक्तियों से मिलकर बनी है जो समाज सेवा के लिए प्रतिबद्ध हैं
@@ -223,8 +223,8 @@ export default function TeamPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {teamMembers.map((member) => (
-              <Card 
-                key={member.id} 
+              <Card
+                key={member.id}
                 className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
                 onClick={() => handleMemberClick(member)}
               >
@@ -250,7 +250,7 @@ export default function TeamPage() {
                     </Badge>
                   </div>
                 </div>
-                
+
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg font-semibold text-gray-800 text-center">
                     {member.name}
@@ -259,7 +259,7 @@ export default function TeamPage() {
                     {member.position}
                   </p>
                 </CardHeader>
-                
+
                 <CardContent className="pt-0">
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center text-gray-600">
@@ -275,10 +275,10 @@ export default function TeamPage() {
                       <span className="truncate">{member.qualification}</span>
                     </div>
                   </div>
-                  
+
                   <div className="mt-4 text-center">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       className="w-full"
                       onClick={(e) => {
@@ -380,14 +380,14 @@ export default function TeamPage() {
                   <div className="space-y-3 text-sm">
                     <div className="flex items-center">
                       <Phone className="w-4 h-4 mr-2" />
-                      <strong>फोन:</strong> 
+                      <strong>फोन:</strong>
                       <a href={`tel:${selectedMember.phone}`} className="ml-2 text-blue-600 hover:underline">
                         {selectedMember.phone}
                       </a>
                     </div>
                     <div className="flex items-center">
                       <Mail className="w-4 h-4 mr-2" />
-                      <strong>ईमेल:</strong> 
+                      <strong>ईमेल:</strong>
                       <a href={`mailto:${selectedMember.email}`} className="ml-2 text-blue-600 hover:underline break-all">
                         {selectedMember.email}
                       </a>
