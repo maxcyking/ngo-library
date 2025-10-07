@@ -93,6 +93,13 @@ service firebase.storage {
       allow write, delete: if isAuthenticated();
     }
     
+    // Book covers uploaded by admins
+    match /book-covers/{allPaths=**} {
+      allow read: if true; // Public read access for book display
+      allow write: if isAdmin() && isValidImage(); // Only admins can upload book covers
+      allow delete: if isAdmin(); // Only admins can delete book covers
+    }
+    
     // Member photos
     match /member-photos/{allPaths=**} {
       allow read: if isAuthenticated();
@@ -128,6 +135,13 @@ service firebase.storage {
       allow read: if true; // Public read access for website display
       allow write: if isAdmin() && isValidImage(); // Only admins can upload website assets
       allow delete: if isAdmin(); // Only admins can delete website assets
+    }
+    
+    // Website folder for logos and favicons
+    match /website/{allPaths=**} {
+      allow read: if true; // Public read access for website display
+      allow write: if isAdmin() && isValidImage(); // Only admins can upload website images
+      allow delete: if isAdmin(); // Only admins can delete website images
     }
     
     // Organization logos and branding

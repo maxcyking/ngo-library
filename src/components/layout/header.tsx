@@ -6,6 +6,7 @@ import { Menu, X, User, LogIn, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PUBLIC_NAVIGATION } from "@/lib/constants";
 import { useSettings } from "@/contexts/SettingsContext";
+import { ApplicationStrip } from "@/components/layout/application-strip";
 
 interface HeaderProps {
   userRole?: 'guest' | 'user' | 'admin';
@@ -136,6 +137,9 @@ export function Header({ userRole = 'guest' }: HeaderProps) {
         )}
       </div>
     </header>
+    
+    {/* Application Strip */}
+    <ApplicationStrip />
     </>
   );
 }

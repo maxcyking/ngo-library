@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { CertificatesSection } from '@/components/certificates/certificates-section'
 
 export const metadata: Metadata = {
   title: "हमारे बारे में - एरोज्ञा पुस्तकालय एवं सेवा संस्था | मानवता का मिशन",
@@ -24,36 +25,163 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-orange-600 via-red-600 to-purple-600 text-white py-20">
+      {/* Enhanced Hero Section with Key Points */}
+      <section className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              🏹 एरोज्ञा मिशन - मानवता की शिक्षा का तीर
-            </h1>
-            <div className="text-xl md:text-2xl mb-4 opacity-95 font-semibold">
-              एरो (तीर/बाण) + ज्ञा (ज्ञान/शिक्षा) = एरोज्ञा
+          <div className="max-w-7xl mx-auto">
+            {/* Main Title */}
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mb-6 shadow-lg">
+                <span className="text-4xl">🏹</span>
+              </div>
+              <h1 className="text-4xl md:text-6xl font-bold text-gray-800 mb-4">
+                एरोज्ञा मिशन
+              </h1>
+              <div className="text-xl md:text-2xl text-gray-600 mb-4 font-semibold">
+                एरो (तीर/बाण) + ज्ञा (ज्ञान/शिक्षा) = एरोज्ञा
+              </div>
+              <p className="text-lg md:text-xl text-gray-700 leading-relaxed max-w-4xl mx-auto">
+                जाति, धर्म, वर्ग, क्षेत्र और राजनीति से ऊपर उठकर मानवता के लिए समर्पित<br />
+                <span className="font-bold text-indigo-600">राजस्थान के मरुस्थल में ग्रामीण क्षेत्र का प्रथम ऐसा संस्थान</span>
+              </p>
             </div>
-            <p className="text-lg md:text-xl mb-8 opacity-90 leading-relaxed max-w-4xl mx-auto">
-              जाति, धर्म, वर्ग, क्षेत्र और राजनीति से ऊपर उठकर मानवता के लिए समर्पित<br />
-              <strong>राजस्थान के मरुस्थल में ग्रामीण क्षेत्र का प्रथम ऐसा संस्थान</strong>
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-              <div className="bg-gradient-to-br from-yellow-400 to-orange-500 px-4 py-4 rounded-xl shadow-xl transform hover:scale-105 transition">
-                <div className="text-4xl font-black text-white drop-shadow-2xl">3000+</div>
-                <div className="text-sm text-white font-bold mt-1">सदस्य</div>
+
+            {/* Four Key Points Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-8 mb-16">
+              {/* परिचय */}
+              <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-6 border-l-4 border-blue-500">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold mr-4">
+                    🏹
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">परिचय</h3>
+                </div>
+                <div className="space-y-3">
+                  <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                    <p className="text-sm font-semibold text-blue-800 mb-1">एरोज्ञा शब्द की उत्पत्ति:</p>
+                    <p className="text-sm text-gray-700">
+                      <span className="font-bold text-blue-600">एरो:</span> तीर/बाण<br/>
+                      <span className="font-bold text-blue-600">ज्ञा:</span> ज्ञान/शिक्षा
+                    </p>
+                  </div>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    यह अंग्रेजी व हिन्दी शब्दों को जोड़कर एक यूनिक नाम रखा गया, जो जाति, धर्म, वर्ग, समुदाय से ऊपर उठकर एक शिक्षा जागरूकता का मानवीय कार्य का मंच है।
+                  </p>
+                </div>
               </div>
-              <div className="bg-gradient-to-br from-green-400 to-emerald-600 px-4 py-4 rounded-xl shadow-xl transform hover:scale-105 transition">
-                <div className="text-4xl font-black text-white drop-shadow-2xl">₹2 करोड़</div>
-                <div className="text-sm text-white font-bold mt-1">प्रोजेक्ट</div>
+
+              {/* उद्देश्य */}
+              <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-6 border-l-4 border-green-500">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white text-xl font-bold mr-4">
+                    🎯
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">उद्देश्य</h3>
+                </div>
+                <div className="space-y-3">
+                  <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                    <p className="text-sm font-semibold text-green-800 mb-1">पंजीकृत संस्था:</p>
+                    <p className="text-sm text-gray-700">सरकार द्वारा रजिस्ट्रर्ड सार्वजनिक चैरिटेबल ट्रस्ट</p>
+                  </div>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    "एरोज्ञा" शिक्षाविदों, विद्वानों, समाज सुधारकों, पर्यावरण प्रेमियों, वैज्ञानिक व दार्शनिक विचारकों की एक पहल है, जिसका कार्यक्षेत्र देश भर में है।
+                  </p>
+                </div>
               </div>
-              <div className="bg-gradient-to-br from-blue-400 to-indigo-600 px-4 py-4 rounded-xl shadow-xl transform hover:scale-105 transition">
-                <div className="text-4xl font-black text-white drop-shadow-2xl">700+</div>
-                <div className="text-sm text-white font-bold mt-1">विद्यालय</div>
+
+              {/* मुख्य उद्देश्य */}
+              <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-6 border-l-4 border-orange-500">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white text-xl font-bold mr-4">
+                    📚
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">मुख्य उद्देश्य</h3>
+                </div>
+                <div className="space-y-2">
+                  <div className="bg-orange-50 p-2 rounded border border-orange-200 text-xs text-gray-700">
+                    ✓ प्रतियोगिता पूर्ण व बदलते परिपेक्ष में युवाओं का मार्गदर्शन
+                  </div>
+                  <div className="bg-orange-50 p-2 rounded border border-orange-200 text-xs text-gray-700">
+                    ✓ मोटिवेशन देना, साहित्य उपलब्ध करवाना
+                  </div>
+                  <div className="bg-orange-50 p-2 rounded border border-orange-200 text-xs text-gray-700">
+                    ✓ गरीब तबके के बच्चों को विद्यालय से जोड़ना
+                  </div>
+                  <div className="bg-orange-50 p-2 rounded border border-orange-200 text-xs text-gray-700">
+                    ✓ वैज्ञानिक व तकनीकी विचार विकसित करना
+                  </div>
+                  <div className="bg-orange-50 p-2 rounded border border-orange-200 text-xs text-gray-700">
+                    ✓ जरूरतमंदों की आर्थिक सहायता करना
+                  </div>
+                </div>
               </div>
-              <div className="bg-gradient-to-br from-pink-400 to-rose-600 px-4 py-4 rounded-xl shadow-xl transform hover:scale-105 transition">
-                <div className="text-4xl font-black text-white drop-shadow-2xl">3 लाख+</div>
-                <div className="text-sm text-white font-bold mt-1">निःशुल्क साहित्य</div>
+
+              {/* सामाजिक सुधार */}
+              <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-6 border-l-4 border-purple-500">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold mr-4">
+                    🌟
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">सामाजिक सुधार</h3>
+                </div>
+                <div className="space-y-3">
+                  <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
+                    <p className="text-sm font-semibold text-purple-800 mb-1">मुक्ति दिलाना:</p>
+                    <p className="text-xs text-gray-700">सामाजिक, धार्मिक, अंधविश्वास से बाहर निकलकर</p>
+                  </div>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    सामाजिक कुरीतियों, मृत्युभोज, आडंबरों व आर्थिक अपव्यय से बचाकर युवाओं को शिक्षित व जागरूक कराना।
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats Section */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+              <div className="bg-white p-6 rounded-xl shadow-md text-center border-t-4 border-blue-500">
+                <div className="text-3xl font-bold text-blue-600 mb-2">3000+</div>
+                <div className="text-sm text-gray-600 font-medium">सदस्य</div>
+              </div>
+              <div className="bg-white p-6 rounded-xl shadow-md text-center border-t-4 border-green-500">
+                <div className="text-3xl font-bold text-green-600 mb-2">₹2 करोड़</div>
+                <div className="text-sm text-gray-600 font-medium">प्रोजेक्ट</div>
+              </div>
+              <div className="bg-white p-6 rounded-xl shadow-md text-center border-t-4 border-orange-500">
+                <div className="text-3xl font-bold text-orange-600 mb-2">700+</div>
+                <div className="text-sm text-gray-600 font-medium">विद्यालय</div>
+              </div>
+              <div className="bg-white p-6 rounded-xl shadow-md text-center border-t-4 border-purple-500">
+                <div className="text-3xl font-bold text-purple-600 mb-2">3 लाख+</div>
+                <div className="text-sm text-gray-600 font-medium">निःशुल्क साहित्य</div>
+              </div>
+            </div>
+
+            {/* निष्कर्ष / संदेश */}
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white text-center">
+              <div className="max-w-4xl mx-auto">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-3xl mr-4">
+                    🤝
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold">निष्कर्ष / संदेश</h3>
+                </div>
+                <p className="text-lg md:text-xl leading-relaxed opacity-95 mb-6">
+                  "एरोज्ञा" समाजोद्धार व पर्यावरण संरक्षण, मानवीय व पुण्य कार्यों में आप सभी की भागीदारी, मार्गदर्शन व सहयोग की अपेक्षा करता है।
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <a
+                    href="/apply"
+                    className="bg-white text-indigo-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300"
+                  >
+                    सदस्य बनें
+                  </a>
+                  <a
+                    href="/contact"
+                    className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-indigo-600 transition-colors duration-300"
+                  >
+                    संपर्क करें
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -70,7 +198,7 @@ export default function AboutPage() {
             </div>
             <div className="bg-gradient-to-r from-orange-50 to-red-50 p-8 rounded-2xl border-2 border-orange-200">
               <p className="text-xl text-gray-800 leading-relaxed text-center italic">
-                &ldquo;मानवता की शिक्षा/ज्ञान का तीर, इंसान को जाति, धर्म, वर्ग, क्षेत्र और राजनीति से ऊपर उठाते हुए 
+                &ldquo;मानवता की शिक्षा/ज्ञान का तीर, इंसान को जाति, धर्म, वर्ग, क्षेत्र और राजनीति से ऊपर उठाते हुए
                 मानव बनाकर मनुष्य जीवन की सत्यता व वास्तविकता का ज्ञान कराना - यही एरोज्ञा मिशन है।&rdquo;
               </p>
             </div>
@@ -98,7 +226,7 @@ export default function AboutPage() {
                   <p><strong>वर्तमान कार्यकारिणी:</strong> 25 सदस्यीय कमेटी</p>
                 </div>
               </div>
-              
+
               <div className="bg-white p-8 rounded-xl shadow-lg">
                 <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
                   <span className="text-4xl mr-3">🏗️</span>
@@ -119,106 +247,132 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Major Achievements */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-12 text-center">हमारी उपलब्धियां</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              <div className="bg-gradient-to-br from-blue-400 to-indigo-600 text-white p-6 rounded-xl shadow-2xl text-center transform hover:scale-110 transition-all duration-300">
-                <div className="text-6xl mb-3">📚</div>
-                <div className="text-4xl font-black mb-2 drop-shadow-lg">3 लाख+</div>
-                <div className="text-sm font-bold">निःशुल्क साहित्य वितरित</div>
-              </div>
-              
-              <div className="bg-gradient-to-br from-green-400 to-emerald-600 text-white p-6 rounded-xl shadow-2xl text-center transform hover:scale-110 transition-all duration-300">
-                <div className="text-6xl mb-3">🏫</div>
-                <div className="text-4xl font-black mb-2 drop-shadow-lg">700+</div>
-                <div className="text-sm font-bold">विद्यालय/कॉलेज में संगोष्ठी</div>
-              </div>
-              
-              <div className="bg-gradient-to-br from-red-400 to-rose-600 text-white p-6 rounded-xl shadow-2xl text-center transform hover:scale-110 transition-all duration-300">
-                <div className="text-6xl mb-3">❤️</div>
-                <div className="text-4xl font-black mb-2 drop-shadow-lg">200+</div>
-                <div className="text-sm font-bold">रक्तदाता वीर</div>
-              </div>
-              
-              <div className="bg-gradient-to-br from-purple-400 to-violet-600 text-white p-6 rounded-xl shadow-2xl text-center transform hover:scale-110 transition-all duration-300">
-                <div className="text-6xl mb-3">🏥</div>
-                <div className="text-4xl font-black mb-2 drop-shadow-lg">100+</div>
-                <div className="text-sm font-bold">देहदान की घोषणा</div>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="bg-orange-50 border-2 border-orange-200 p-6 rounded-xl">
-                <h3 className="text-xl font-bold text-gray-800 mb-3 flex items-center">
-                  <span className="text-2xl mr-2">🌳</span>
-                  पर्यावरण संरक्षण
-                </h3>
-                <p className="text-gray-700">हजारों पौधों का वृक्षारोपण जन्मदिन, शादी, सालगिरह और शुभ अवसरों पर</p>
-              </div>
-              
-              <div className="bg-pink-50 border-2 border-pink-200 p-6 rounded-xl">
-                <h3 className="text-xl font-bold text-gray-800 mb-3 flex items-center">
-                  <span className="text-2xl mr-2">👩</span>
-                  महिला सशक्तिकरण
-                </h3>
-                <p className="text-gray-700">महिला जागरूकता कार्यक्रम और शैक्षणिक प्रशिक्षण सत्र</p>
-              </div>
-              
-              <div className="bg-yellow-50 border-2 border-yellow-200 p-6 rounded-xl">
-                <h3 className="text-xl font-bold text-gray-800 mb-3 flex items-center">
-                  <span className="text-2xl mr-2">💰</span>
-                  आर्थिक सहयोग
-                </h3>
-                <p className="text-gray-700">लाइलाज बीमारी और शैक्षणिक संस्थानों में आर्थिक सहायता</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Library Project */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">🏛️ अत्याधुनिक पुस्तकालय प्रोजेक्ट</h2>
-            <p className="text-xl mb-8 opacity-90">
-              राजस्थान प्रदेश के ग्रामीण क्षेत्र में सबसे बड़ा अत्याधुनिक निःशुल्क सार्वजनिक पुस्तकालय संस्थान
-            </p>
-               <div className="grid md:grid-cols-3 gap-6 mb-6">
-                 <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-2xl shadow-2xl text-center transform hover:scale-105 transition border-4 border-yellow-300">
-                   <div className="text-5xl font-black text-white mb-2 drop-shadow-2xl">₹2 करोड़</div>
-                   <div className="text-base text-yellow-100 font-bold">कुल प्रोजेक्ट लागत</div>
-                 </div>
-                 <div className="bg-gradient-to-br from-emerald-500 to-green-700 p-6 rounded-2xl shadow-2xl text-center transform hover:scale-105 transition border-4 border-green-300">
-                   <div className="text-5xl font-black text-white mb-2 drop-shadow-2xl">78</div>
-                   <div className="text-base text-green-100 font-bold">सीटें उपलब्ध</div>
-                 </div>
-                 <div className="bg-gradient-to-br from-pink-500 to-rose-700 p-6 rounded-2xl shadow-2xl text-center transform hover:scale-105 transition border-4 border-pink-300">
-                   <div className="text-5xl font-black text-white mb-2 drop-shadow-2xl">100%</div>
-                   <div className="text-base text-pink-100 font-bold">निःशुल्क सेवा</div>
-                 </div>
-               </div>
-            <div className="bg-white bg-opacity-10 p-6 rounded-xl border-2 border-white border-opacity-20">
-              <h3 className="text-xl font-bold mb-4 text-white">सुविधाएं</h3>
-              <div className="grid md:grid-cols-2 gap-4 text-left">
-                <div className="flex items-start">
-                  <span className="text-yellow-300 mr-2 font-bold">✓</span>
-                  <span className="text-white font-medium">पुस्तकालय सेवा</span>
+      <section className="py-20 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-20 w-40 h-40 bg-yellow-300 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-pink-300 rounded-full blur-2xl"></div>
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-7xl mx-auto">
+            {/* Header */}
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full mb-6 shadow-2xl">
+                <span className="text-4xl">🏛️</span>
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black mb-6 bg-gradient-to-r from-yellow-300 via-pink-300 to-cyan-300 bg-clip-text text-transparent drop-shadow-2xl">
+                अत्याधुनिक पुस्तकालय प्रोजेक्ट
+              </h2>
+              <p className="text-xl md:text-2xl mb-4 opacity-95 font-semibold max-w-4xl mx-auto leading-relaxed">
+                राजस्थान प्रदेश के ग्रामीण क्षेत्र में सबसे बड़ा अत्याधुनिक निःशुल्क सार्वजनिक पुस्तकालय संस्थान
+              </p>
+              <div className="w-32 h-1 bg-gradient-to-r from-yellow-400 to-pink-400 mx-auto rounded-full"></div>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid md:grid-cols-3 gap-8 mb-16">
+              <div className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-600 rounded-3xl blur-lg opacity-75 group-hover:opacity-100 transition duration-500"></div>
+                <div className="relative bg-gradient-to-br from-amber-500 to-orange-600 p-8 rounded-3xl shadow-2xl text-center transform hover:scale-110 transition-all duration-500 border-4 border-yellow-300">
+                  <div className="text-6xl md:text-7xl font-black text-white mb-3 drop-shadow-2xl animate-pulse">₹2 करोड़</div>
+                  <div className="text-lg text-yellow-100 font-bold">कुल प्रोजेक्ट लागत</div>
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-300 rounded-full flex items-center justify-center">
+                    <span className="text-orange-600 font-black text-sm">💰</span>
+                  </div>
                 </div>
-                <div className="flex items-start">
-                  <span className="text-yellow-300 mr-2 font-bold">✓</span>
-                  <span className="text-white font-medium">कोचिंग संस्थान</span>
+              </div>
+
+              <div className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-green-600 rounded-3xl blur-lg opacity-75 group-hover:opacity-100 transition duration-500"></div>
+                <div className="relative bg-gradient-to-br from-emerald-500 to-green-700 p-8 rounded-3xl shadow-2xl text-center transform hover:scale-110 transition-all duration-500 border-4 border-green-300">
+                  <div className="text-6xl md:text-7xl font-black text-white mb-3 drop-shadow-2xl animate-pulse">78</div>
+                  <div className="text-lg text-green-100 font-bold">सीटें उपलब्ध</div>
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-300 rounded-full flex items-center justify-center">
+                    <span className="text-green-700 font-black text-sm">🪑</span>
+                  </div>
                 </div>
-                <div className="flex items-start">
-                  <span className="text-yellow-300 mr-2 font-bold">✓</span>
-                  <span className="text-white font-medium">स्किल डेवलपमेंट सेंटर</span>
+              </div>
+
+              <div className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-rose-600 rounded-3xl blur-lg opacity-75 group-hover:opacity-100 transition duration-500"></div>
+                <div className="relative bg-gradient-to-br from-pink-500 to-rose-700 p-8 rounded-3xl shadow-2xl text-center transform hover:scale-110 transition-all duration-500 border-4 border-pink-300">
+                  <div className="text-6xl md:text-7xl font-black text-white mb-3 drop-shadow-2xl animate-pulse">100%</div>
+                  <div className="text-lg text-pink-100 font-bold">निःशुल्क सेवा</div>
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-pink-300 rounded-full flex items-center justify-center">
+                    <span className="text-pink-700 font-black text-sm">🆓</span>
+                  </div>
                 </div>
-                <div className="flex items-start">
-                  <span className="text-yellow-300 mr-2 font-bold">✓</span>
-                  <span className="text-white font-medium">जरूरतमंद विद्यार्थियों और महिलाओं के लिए निःशुल्क</span>
+              </div>
+            </div>
+
+            {/* Features Section */}
+            <div className="bg-white bg-opacity-10 backdrop-blur-lg p-10 rounded-3xl border-2 border-white border-opacity-30 shadow-2xl">
+              <div className="text-center mb-10">
+                <h3 className="text-3xl md:text-4xl font-bold text-black mb-4 flex items-center justify-center">
+                  <span className="text-5xl mr-4 text-black">✨</span>
+                  उपलब्ध सुविधाएं
+                  <span className="text-5xl ml-4">✨</span>
+                </h3>
+                <div className="w-24 h-1 bg-gradient-to-r from-cyan-400 to-blue-400 mx-auto rounded-full"></div>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="group bg-gradient-to-br from-blue-500 to-indigo-600 p-6 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 border-2 border-blue-300">
+                  <div className="text-center">
+                    <div className="text-4xl mb-3 group-hover:animate-bounce">📚</div>
+                    <div className="text-white font-bold text-lg">पुस्तकालय सेवा</div>
+                    <div className="text-blue-100 text-sm mt-2">व्यापक पुस्तक संग्रह</div>
+                  </div>
+                </div>
+
+                <div className="group bg-gradient-to-br from-purple-500 to-violet-600 p-6 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 border-2 border-purple-300">
+                  <div className="text-center">
+                    <div className="text-4xl mb-3 group-hover:animate-bounce">🎓</div>
+                    <div className="text-white font-bold text-lg">कोचिंग संस्थान</div>
+                    <div className="text-purple-100 text-sm mt-2">प्रतियोगी परीक्षा तैयारी</div>
+                  </div>
+                </div>
+
+                <div className="group bg-gradient-to-br from-teal-500 to-cyan-600 p-6 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 border-2 border-teal-300">
+                  <div className="text-center">
+                    <div className="text-4xl mb-3 group-hover:animate-bounce">🛠️</div>
+                    <div className="text-white font-bold text-lg">स्किल डेवलपमेंट</div>
+                    <div className="text-teal-100 text-sm mt-2">कौशल विकास केंद्र</div>
+                  </div>
+                </div>
+
+                <div className="group bg-gradient-to-br from-rose-500 to-pink-600 p-6 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 border-2 border-rose-300">
+                  <div className="text-center">
+                    <div className="text-4xl mb-3 group-hover:animate-bounce">👩‍🎓</div>
+                    <div className="text-white font-bold text-lg">विशेष सहायता</div>
+                    <div className="text-rose-100 text-sm mt-2">जरूरतमंदों के लिए निःशुल्क</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Info */}
+              <div className="mt-10 bg-gradient-to-r from-indigo-600 to-purple-600 p-8 rounded-2xl border-2 border-indigo-300">
+                <div className="text-center">
+                  <h4 className="text-2xl font-bold text-white mb-4 flex items-center justify-center">
+                    <span className="text-3xl mr-3">🌟</span>
+                    विशेष लाभार्थी
+                    <span className="text-3xl ml-3">🌟</span>
+                  </h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="bg-white bg-opacity-20 p-4 text-black-300 rounded-xl">
+                      <div className="text-yellow-300 text-2xl mb-2">👨‍🎓</div>
+                      <div className="text-black font-semibold">जरूरतमंद विद्यार्थी</div>
+                      <div className="text-black text-sm">पूर्णतः निःशुल्क शिक्षा</div>
+                    </div>
+                    <div className="bg-white bg-opacity-20 p-4 text-black-300 rounded-xl">
+                      <div className="text-pink-300 text-2xl mb-2">👩‍💼</div>
+                      <div className="text-black font-semibold">महिला सशक्तिकरण</div>
+                      <div className="text-black text-sm">निःशुल्क कौशल प्रशिक्षण</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -226,92 +380,15 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team Composition */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-12 text-center">हमारी टीम</h2>
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-gradient-to-br from-blue-400 to-blue-600 p-6 rounded-xl shadow-2xl text-center transform hover:scale-105 transition">
-                <div className="text-5xl mb-3">👥</div>
-                <div className="text-4xl font-black text-white mb-2 drop-shadow-lg">25</div>
-                <div className="text-white font-bold">कार्यकारिणी सदस्य</div>
-              </div>
-              <div className="bg-gradient-to-br from-green-400 to-green-600 p-6 rounded-xl shadow-2xl text-center transform hover:scale-105 transition">
-                <div className="text-5xl mb-3">🛡️</div>
-                <div className="text-4xl font-black text-white mb-2 drop-shadow-lg">25</div>
-                <div className="text-white font-bold">संरक्षक टीम</div>
-              </div>
-              <div className="bg-gradient-to-br from-purple-400 to-purple-600 p-6 rounded-xl shadow-2xl text-center transform hover:scale-105 transition">
-                <div className="text-5xl mb-3">🌟</div>
-                <div className="text-4xl font-black text-white mb-2 drop-shadow-lg">3000+</div>
-                <div className="text-white font-bold">सक्रिय सदस्य</div>
-              </div>
-            </div>
-
-            <div className="bg-white p-8 rounded-xl shadow-lg">
-              <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">टीम में शामिल हैं</h3>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="flex items-center p-3 bg-blue-100 rounded-lg border-2 border-blue-400">
-                  <span className="text-2xl mr-3">👨‍💼</span>
-                  <span className="text-blue-900 font-bold">इंजीनियर</span>
-                </div>
-                <div className="flex items-center p-3 bg-green-100 rounded-lg border-2 border-green-400">
-                  <span className="text-2xl mr-3">👨‍⚕️</span>
-                  <span className="text-green-900 font-bold">डॉक्टर</span>
-                </div>
-                <div className="flex items-center p-3 bg-purple-100 rounded-lg border-2 border-purple-400">
-                  <span className="text-2xl mr-3">👨‍⚖️</span>
-                  <span className="text-purple-900 font-bold">वकील</span>
-                </div>
-                <div className="flex items-center p-3 bg-red-100 rounded-lg border-2 border-red-400">
-                  <span className="text-2xl mr-3">🎖️</span>
-                  <span className="text-red-900 font-bold">आईएएस / आईपीएस अधिकारी</span>
-                </div>
-                <div className="flex items-center p-3 bg-amber-100 rounded-lg border-2 border-amber-400">
-                  <span className="text-2xl mr-3">🪖</span>
-                  <span className="text-amber-900 font-bold">कर्नल / मेजर / फौज के अधिकारी</span>
-                </div>
-                <div className="flex items-center p-3 bg-pink-100 rounded-lg border-2 border-pink-400">
-                  <span className="text-2xl mr-3">👨‍🏫</span>
-                  <span className="text-pink-900 font-bold">प्रोफेसर / शिक्षाविद</span>
-                </div>
-                <div className="flex items-center p-3 bg-orange-100 rounded-lg border-2 border-orange-400">
-                  <span className="text-2xl mr-3">📰</span>
-                  <span className="text-orange-900 font-bold">पत्रकार</span>
-                </div>
-                <div className="flex items-center p-3 bg-indigo-100 rounded-lg border-2 border-indigo-400">
-                  <span className="text-2xl mr-3">👮</span>
-                  <span className="text-indigo-900 font-bold">पुलिस अधिकारी / कर्मचारी</span>
-                </div>
-                <div className="flex items-center p-3 bg-teal-100 rounded-lg border-2 border-teal-400">
-                  <span className="text-2xl mr-3">🌾</span>
-                  <span className="text-teal-900 font-bold">किसान</span>
-                </div>
-                <div className="flex items-center p-3 bg-cyan-100 rounded-lg border-2 border-cyan-400">
-                  <span className="text-2xl mr-3">👷</span>
-                  <span className="text-cyan-900 font-bold">मजदूर वर्ग</span>
-                </div>
-                <div className="flex items-center p-3 bg-lime-100 rounded-lg border-2 border-lime-400">
-                  <span className="text-2xl mr-3">🎓</span>
-                  <span className="text-lime-900 font-bold">विद्यार्थी / युवा</span>
-                </div>
-                <div className="flex items-center p-3 bg-rose-100 rounded-lg border-2 border-rose-400">
-                  <span className="text-2xl mr-3">👩</span>
-                  <span className="text-rose-900 font-bold">नारी शक्ति / महिलाएं</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Certificates & Awards */}
+      <CertificatesSection />
 
       {/* Geographical Reach */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-12 text-center">🌏 हमारी पहुंच</h2>
-            
+
             <div className="mb-12">
               <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">भारत में</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -429,14 +506,14 @@ export default function AboutPage() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8 text-center">💫 प्रेरणा की कहानी</h2>
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 p-8 rounded-2xl">
               <p className="text-xl text-gray-800 leading-relaxed mb-6 italic text-center">
-                "एक छोटी सी जन्मदिन/शादी सालगिरह व अन्य शुभ अवसर पर शिक्षा के क्षेत्र में अंशदान की शुरुआत 
+                "एक छोटी सी जन्मदिन/शादी सालगिरह व अन्य शुभ अवसर पर शिक्षा के क्षेत्र में अंशदान की शुरुआत
                 आज लाखों लोगों के लिए प्रेरणा बन गई है।"
               </p>
               <div className="bg-white p-6 rounded-xl shadow-md">
                 <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">हमारा प्रभाव</h3>
                 <p className="text-gray-700 leading-relaxed text-center">
                   इस मिशन की बदौलत आज अनेक सैकड़ों परिवारों और हजारों लोगों के जीवन में शिक्षा व मानवता की रोशनी से जीवन रोशन हो चुका है।
-                  यह एक मानवीय मिशन है जो राजनीति, धार्मिक अंधविश्वास, पाखंड, नशा और सामाजिक कुरीतियों से बाहर निकलकर 
+                  यह एक मानवीय मिशन है जो राजनीति, धार्मिक अंधविश्वास, पाखंड, नशा और सामाजिक कुरीतियों से बाहर निकलकर
                   शिक्षा व मानवीय कार्यों में भागीदारी के साथ आगे बढ़ रहा है।
                 </p>
               </div>

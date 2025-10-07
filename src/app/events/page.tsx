@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Users, Clock, Phone, Star, AlertTriangle, CheckCircle } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Phone, Star } from "lucide-react";
 import Link from 'next/link';
 import { 
   collection, 

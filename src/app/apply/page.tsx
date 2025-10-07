@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,6 +39,7 @@ import {
 } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { useSettings } from '@/contexts/SettingsContext';
+import { getAvailableSeats, areSeatsAvailable, TOTAL_LIBRARY_SEATS } from '@/lib/seatAvailability';
 
 // Generate unique application ID (6 digits)
 const generateApplicationId = () => {
@@ -65,6 +66,8 @@ export default function ApplyPage() {
   const { settings } = useSettings();
   const [selectedOption, setSelectedOption] = useState<'library' | 'member' | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [availableSeats, setAvailableSeats] = useState<number>(TOTAL_LIBRARY_SEATS);
+  const [seatsLoading, setSeatsLoading] = useState(true);
   const [applicationSubmitted, setApplicationSubmitted] = useState(false);
   const [applicationData, setApplicationData] = useState<{ applicationId: string, username: string } | null>(null);
 
@@ -126,7 +129,7 @@ export default function ApplyPage() {
         percentage: ''
       }
     ],
-    
+
     // New fields from the form image
     course: '', // For roll number mapping
     rollNumber: ''
@@ -136,44 +139,59 @@ export default function ApplyPage() {
     profile: null as File | null,
     aadharCard: null as File | null
   });
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const fetchSeats = async () => {
+      try {
+        const seats = await getAvailableSeats();
+        setAvailableSeats(seats);
+      } catch (error) {
+        console.error('Error fetching available seats:', error);
+      } finally {
+        setSeatsLoading(false);
+      }
+    };
+
+    fetchSeats();
+  }, []);
+
   // Generate PDF receipt
   const generatePDF = () => {
     const doc = new jsPDF();
-    
+
     // Professional Header with Border
     // Top border line
     doc.setLineWidth(2);
     doc.setDrawColor(34, 197, 94); // Green color
     doc.line(15, 15, 195, 15);
-    
+
     // Organization Name
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(0, 0, 0);
     doc.text('AROGYA PUSTKALAYA & COACHING INSTITUTE', 105, 25, { align: 'center' });
-    
+
     // Address
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(60, 60, 60);
     doc.text('Maliyan Ki Dhani, RGT Circle, Nagar, Gudamalani, Barmer', 105, 32, { align: 'center' });
-    
+
     // Contact Information
     doc.setFontSize(9);
     const contactInfo = `Phone: ${settings.phone || '+91 9024635808'} | Email: ${settings.email || 'arogyapustkalaya@gmail.com'}`;
     doc.text(contactInfo, 105, 38, { align: 'center' });
-    
+
     // Bottom border line for header
     doc.setLineWidth(1);
     doc.setDrawColor(200, 200, 200);
     doc.line(15, 42, 195, 42);
-    
+
     // Success Badge with better positioning
     doc.setFillColor(34, 197, 94); // Green
     doc.rect(60, 48, 90, 16, 'F');
@@ -181,19 +199,19 @@ export default function ApplyPage() {
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text('APPLICATION SUCCESSFUL', 105, 58, { align: 'center' });
-    
+
     // Reset text color
     doc.setTextColor(0, 0, 0);
-    
+
     // Application Details Box
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(0, 0, 0);
     doc.text('Application Details:', 20, 75);
-    
+
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
-    
+
     const appDetails = [
       ['Application ID:', applicationData?.applicationId || ''],
       ['Username:', applicationData?.username || ''],
@@ -208,25 +226,25 @@ export default function ApplyPage() {
       ['Application Date:', new Date().toLocaleDateString('en-IN')],
       ['Status:', 'Under Review']
     ];
-    
+
     autoTable(doc, {
       startY: 80,
       head: [],
       body: appDetails,
       theme: 'striped',
-      styles: { 
+      styles: {
         fontSize: 10,
         cellPadding: 4,
         lineColor: [200, 200, 200],
         lineWidth: 0.5
       },
       columnStyles: {
-        0: { 
-          fontStyle: 'bold', 
+        0: {
+          fontStyle: 'bold',
           cellWidth: 70,
           fillColor: [248, 250, 252]
         },
-        1: { 
+        1: {
           cellWidth: 110,
           fillColor: [255, 255, 255]
         }
@@ -237,14 +255,14 @@ export default function ApplyPage() {
         fontStyle: 'bold'
       }
     });
-    
+
     // Instructions
     const finalY = (doc as any).lastAutoTable.finalY || 200;
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(0, 0, 0);
     doc.text('Important Instructions:', 20, finalY + 15);
-    
+
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(60, 60, 60);
@@ -255,23 +273,23 @@ export default function ApplyPage() {
       '4. Visit our website: arogyapustkalaya.com/track-application',
       `5. For queries, contact: ${settings.phone || '+91 9024635808'} or email: ${settings.email || 'arogyapustkalaya@gmail.com'}`
     ];
-    
+
     let yPos = finalY + 22;
     instructions.forEach(instruction => {
       doc.text(instruction, 25, yPos);
       yPos += 6;
     });
-    
+
     // Footer with border
     doc.setLineWidth(1);
     doc.setDrawColor(200, 200, 200);
     doc.line(15, 275, 195, 275);
-    
+
     doc.setFontSize(8);
     doc.setTextColor(128, 128, 128);
     doc.text('Generated on: ' + new Date().toLocaleString('en-IN'), 105, 282, { align: 'center' });
     doc.text('This is a computer-generated document and does not require a signature', 105, 287, { align: 'center' });
-    
+
     // Save PDF
     doc.save(`Application_${applicationData?.applicationId || 'Receipt'}.pdf`);
   };
@@ -295,7 +313,7 @@ export default function ApplyPage() {
   const handleEducationChange = (id: number, field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
-      educationDetails: prev.educationDetails.map(edu => 
+      educationDetails: prev.educationDetails.map(edu =>
         edu.id === id ? { ...edu, [field]: value } : edu
       )
     }));
@@ -365,6 +383,15 @@ export default function ApplyPage() {
       return;
     }
 
+    // Check if seats are available for library applications
+    if (selectedOption === 'library') {
+      const seatsAvailable = await areSeatsAvailable();
+      if (!seatsAvailable) {
+        alert('क्षमा करें, पुस्तकालय की सभी सीटें भर गई हैं। कृपया बाद में पुनः प्रयास करें।');
+        return;
+      }
+    }
+
     // Validate required fields
     if (!formData.name || !formData.phone || !formData.fatherHusbandName || !formData.aadharNumber) {
       alert('Please fill all required fields / कृपया सभी आवश्यक फील्ड भरें');
@@ -372,7 +399,7 @@ export default function ApplyPage() {
     }
 
     // Validate education details
-    const incompleteEducation = formData.educationDetails.find(edu => 
+    const incompleteEducation = formData.educationDetails.find(edu =>
       !edu.educationLevel || !edu.board || !edu.status
     );
     if (incompleteEducation) {
@@ -517,7 +544,7 @@ export default function ApplyPage() {
 
               {/* Action Buttons */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <Button 
+                <Button
                   onClick={generatePDF}
                   className="w-full bg-green-600 hover:bg-green-700"
                   size="lg"
@@ -534,9 +561,9 @@ export default function ApplyPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Button 
-                  onClick={() => window.location.reload()} 
-                  variant="outline" 
+                <Button
+                  onClick={() => window.location.reload()}
+                  variant="outline"
                   className="w-full"
                 >
                   नया आवेदन करें
@@ -617,13 +644,12 @@ export default function ApplyPage() {
                 <div className="flex items-center justify-center space-x-2 md:space-x-4">
                   {[1, 2, 3].map((step) => (
                     <div key={step} className="flex items-center">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 ${
-                        step < currentStep 
-                          ? 'bg-green-600 text-white border-green-600' 
-                          : step === currentStep
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 ${step < currentStep
+                        ? 'bg-green-600 text-white border-green-600'
+                        : step === currentStep
                           ? 'bg-blue-600 text-white border-blue-600'
                           : 'bg-gray-200 text-gray-600 border-gray-300'
-                      }`}>
+                        }`}>
                         {step < currentStep ? '✓' : step}
                       </div>
                       <div className="ml-2 text-xs md:text-sm">
@@ -638,15 +664,14 @@ export default function ApplyPage() {
                           {step === 3 && 'दस्तावेज़ अपलोड'}
                         </div>
                       </div>
-                      {step < 3 && <div className={`w-6 md:w-8 h-0.5 ml-2 md:ml-4 ${
-                        step < currentStep ? 'bg-green-600' : 'bg-gray-300'
-                      }`}></div>}
+                      {step < 3 && <div className={`w-6 md:w-8 h-0.5 ml-2 md:ml-4 ${step < currentStep ? 'bg-green-600' : 'bg-gray-300'
+                        }`}></div>}
                     </div>
                   ))}
                 </div>
                 <div className="text-center mt-4">
                   <p className="text-sm text-gray-600">
-                    Step {currentStep} of {totalSteps} / चरण {currentStep} का {totalSteps}
+                    Step {currentStep} of {totalSteps} / चरण {totalSteps} का {currentStep}
                   </p>
                 </div>
               </div>
@@ -661,303 +686,303 @@ export default function ApplyPage() {
                       व्यक्तिगत जानकारी / Personal Information
                     </h3>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <User className="w-4 h-4 inline mr-1" />
-                        नाम / Name *
-                      </label>
-                      <Input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        placeholder="Enter full name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        पिता / पति का नाम / Father's/Husband's Name *
-                      </label>
-                      <Input
-                        type="text"
-                        name="fatherHusbandName"
-                        value={formData.fatherHusbandName}
-                        onChange={handleInputChange}
-                        placeholder="Enter father's or husband's name"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <Calendar className="w-4 h-4 inline mr-1" />
-                        जन्म तिथि / Date of Birth (optional)
-                      </label>
-                      <Input
-                        type="date"
-                        name="dateOfBirth"
-                        value={formData.dateOfBirth}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        शैक्षणिक योग्यता / Educational Qualification (optional)
-                      </label>
-                      <Input
-                        type="text"
-                        name="educationalQualification"
-                        value={formData.educationalQualification}
-                        onChange={handleInputChange}
-                        placeholder="e.g., 12th, Graduate, Post Graduate"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <Phone className="w-4 h-4 inline mr-1" />
-                        मोबाइल नंबर / Mobile Number *
-                      </label>
-                      <Input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        placeholder="+91 98765 43210"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <FileText className="w-4 h-4 inline mr-1" />
-                        आधार नंबर / Aadhar Number *
-                      </label>
-                      <Input
-                        type="text"
-                        name="aadharNumber"
-                        value={formData.aadharNumber}
-                        onChange={handleInputChange}
-                        placeholder="xxxx xxxx xxxx"
-                        maxLength={14}
-                        required
-                      />
-                      <p className="text-xs text-gray-500 mt-1">Enter 12-digit Aadhar number</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        कार्यक्षेत्र / Work Area (optional)
-                      </label>
-                      <Input
-                        type="text"
-                        name="workArea"
-                        value={formData.workArea}
-                        onChange={handleInputChange}
-                        placeholder="Enter work area"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        लिंग / Gender (optional)
-                      </label>
-                      <select
-                        name="gender"
-                        value={formData.gender}
-                        onChange={handleInputChange}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        title="Select gender"
-                      >
-                        <option value="">Select</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        ब्लड ग्रुप / Blood Group (optional)
-                      </label>
-                      <select
-                        name="bloodGroup"
-                        value={formData.bloodGroup}
-                        onChange={handleInputChange}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        title="Select blood group"
-                      >
-                        <option value="">Select</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        पिता / पति का व्यवसाय / Father's/Husband's Occupation (optional)
-                      </label>
-                      <Input
-                        type="text"
-                        name="fatherHusbandOccupation"
-                        value={formData.fatherHusbandOccupation}
-                        onChange={handleInputChange}
-                        placeholder="Enter occupation"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        वार्षिक आय / Annual Income (optional)
-                      </label>
-                      <Input
-                        type="text"
-                        name="annualIncome"
-                        value={formData.annualIncome}
-                        onChange={handleInputChange}
-                        placeholder="Enter annual income"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        अभिभावक सदस्य नं. (optional)
-                      </label>
-                      <Input
-                        type="text"
-                        name="guardianMemberNumber"
-                        value={formData.guardianMemberNumber}
-                        onChange={handleInputChange}
-                        placeholder="सदस्य संख्या"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        कमीशन तैयारी का नाम (optional)
-                      </label>
-                      <Input
-                        type="text"
-                        name="commissionPreparationName"
-                        value={formData.commissionPreparationName}
-                        onChange={handleInputChange}
-                        placeholder="तैयारी का नाम"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <MapPin className="w-4 h-4 inline mr-1" />
-                      पता / Address (optional)
-                    </label>
-                    <textarea
-                      name="address"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                      rows={3}
-                      className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Enter complete address"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      कोई एलर्जी, उपचार या कोई अन्य समस्या (optional)
-                    </label>
-                    <textarea
-                      name="anyDiseaseOrTreatment"
-                      value={formData.anyDiseaseOrTreatment}
-                      onChange={handleInputChange}
-                      rows={2}
-                      className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="स्वास्थ्य संबंधी जानकारी"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          name="familyGovernmentEmployee"
-                          checked={formData.familyGovernmentEmployee}
-                          onChange={(e) => handleCheckboxChange('familyGovernmentEmployee', e.target.checked)}
-                          className="rounded"
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          <User className="w-4 h-4 inline mr-1" />
+                          नाम / Name *
+                        </label>
+                        <Input
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          placeholder="Enter full name"
+                          required
                         />
-                        <span className="text-sm font-medium text-gray-700">
-                          परिवार से सरकारी कर्मचारी
-                        </span>
-                      </label>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          पिता / पति का नाम / Father's/Husband's Name *
+                        </label>
+                        <Input
+                          type="text"
+                          name="fatherHusbandName"
+                          value={formData.fatherHusbandName}
+                          onChange={handleInputChange}
+                          placeholder="Enter father's or husband's name"
+                          required
+                        />
+                      </div>
                     </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          <Calendar className="w-4 h-4 inline mr-1" />
+                          जन्म तिथि / Date of Birth (optional)
+                        </label>
+                        <Input
+                          type="date"
+                          name="dateOfBirth"
+                          value={formData.dateOfBirth}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          शैक्षणिक योग्यता / Educational Qualification (optional)
+                        </label>
+                        <Input
+                          type="text"
+                          name="educationalQualification"
+                          value={formData.educationalQualification}
+                          onChange={handleInputChange}
+                          placeholder="e.g., 12th, Graduate, Post Graduate"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          <Phone className="w-4 h-4 inline mr-1" />
+                          मोबाइल नंबर / Mobile Number *
+                        </label>
+                        <Input
+                          type="tel"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                          placeholder="+91 98765 43210"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          <FileText className="w-4 h-4 inline mr-1" />
+                          आधार नंबर / Aadhar Number *
+                        </label>
+                        <Input
+                          type="text"
+                          name="aadharNumber"
+                          value={formData.aadharNumber}
+                          onChange={handleInputChange}
+                          placeholder="xxxx xxxx xxxx"
+                          maxLength={14}
+                          required
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Enter 12-digit Aadhar number</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          कार्यक्षेत्र / Work Area (optional)
+                        </label>
+                        <Input
+                          type="text"
+                          name="workArea"
+                          value={formData.workArea}
+                          onChange={handleInputChange}
+                          placeholder="Enter work area"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          लिंग / Gender (optional)
+                        </label>
+                        <select
+                          name="gender"
+                          value={formData.gender}
+                          onChange={handleInputChange}
+                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          title="Select gender"
+                        >
+                          <option value="">Select</option>
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          ब्लड ग्रुप / Blood Group (optional)
+                        </label>
+                        <select
+                          name="bloodGroup"
+                          value={formData.bloodGroup}
+                          onChange={handleInputChange}
+                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          title="Select blood group"
+                        >
+                          <option value="">Select</option>
+                          <option value="A+">A+</option>
+                          <option value="A-">A-</option>
+                          <option value="B+">B+</option>
+                          <option value="B-">B-</option>
+                          <option value="AB+">AB+</option>
+                          <option value="AB-">AB-</option>
+                          <option value="O+">O+</option>
+                          <option value="O-">O-</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          पिता / पति का व्यवसाय / Father's/Husband's Occupation (optional)
+                        </label>
+                        <Input
+                          type="text"
+                          name="fatherHusbandOccupation"
+                          value={formData.fatherHusbandOccupation}
+                          onChange={handleInputChange}
+                          placeholder="Enter occupation"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          वार्षिक आय / Annual Income (optional)
+                        </label>
+                        <Input
+                          type="text"
+                          name="annualIncome"
+                          value={formData.annualIncome}
+                          onChange={handleInputChange}
+                          placeholder="Enter annual income"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          अभिभावक सदस्य नं. (optional)
+                        </label>
+                        <Input
+                          type="text"
+                          name="guardianMemberNumber"
+                          value={formData.guardianMemberNumber}
+                          onChange={handleInputChange}
+                          placeholder="सदस्य संख्या"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          कमीशन तैयारी का नाम (optional)
+                        </label>
+                        <Input
+                          type="text"
+                          name="commissionPreparationName"
+                          value={formData.commissionPreparationName}
+                          onChange={handleInputChange}
+                          placeholder="तैयारी का नाम"
+                        />
+                      </div>
+                    </div>
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        रजिस्ट्रेशन शुल्क
+                        <MapPin className="w-4 h-4 inline mr-1" />
+                        पता / Address (optional)
                       </label>
-                      <Input
-                        type="text"
-                        name="registrationFee"
-                        value="निःशुल्क"
-                        disabled
-                        className="bg-green-50 text-green-800"
-                      />
-                    </div>
-                  </div>
-
-
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <Mail className="w-4 h-4 inline mr-1" />
-                      ईमेल पता / Email Address (optional)
-                    </label>
-                    <Input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      placeholder="example@email.com"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        प्रवेश दिनांक (optional)
-                      </label>
-                      <Input
-                        type="date"
-                        name="admissionDate"
-                        value={formData.admissionDate}
+                      <textarea
+                        name="address"
+                        value={formData.address}
                         onChange={handleInputChange}
+                        rows={3}
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Enter complete address"
                       />
                     </div>
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        अध्ययन छोड़ने की तारीख (optional)
+                        कोई एलर्जी, उपचार या कोई अन्य समस्या (optional)
                       </label>
-                      <Input
-                        type="date"
-                        name="studyLeaveDate"
-                        value={formData.studyLeaveDate}
+                      <textarea
+                        name="anyDiseaseOrTreatment"
+                        value={formData.anyDiseaseOrTreatment}
                         onChange={handleInputChange}
+                        rows={2}
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="स्वास्थ्य संबंधी जानकारी"
                       />
                     </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            name="familyGovernmentEmployee"
+                            checked={formData.familyGovernmentEmployee}
+                            onChange={(e) => handleCheckboxChange('familyGovernmentEmployee', e.target.checked)}
+                            className="rounded"
+                          />
+                          <span className="text-sm font-medium text-gray-700">
+                            परिवार से सरकारी कर्मचारी
+                          </span>
+                        </label>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          रजिस्ट्रेशन शुल्क
+                        </label>
+                        <Input
+                          type="text"
+                          name="registrationFee"
+                          value="निःशुल्क"
+                          disabled
+                          className="bg-green-50 text-green-800"
+                        />
+                      </div>
+                    </div>
+
+
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <Mail className="w-4 h-4 inline mr-1" />
+                        ईमेल पता / Email Address (optional)
+                      </label>
+                      <Input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="example@email.com"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          प्रवेश दिनांक (optional)
+                        </label>
+                        <Input
+                          type="date"
+                          name="admissionDate"
+                          value={formData.admissionDate}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          अध्ययन छोड़ने की तारीख (optional)
+                        </label>
+                        <Input
+                          type="date"
+                          name="studyLeaveDate"
+                          value={formData.studyLeaveDate}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
                 )}
 
                 {/* Step 2: Education Information */}
@@ -1147,16 +1172,16 @@ export default function ApplyPage() {
                       पिछला
                     </Button>
                   )}
-                  
+
                   <div className="flex-1"></div>
-                  
+
                   {currentStep < totalSteps ? (
                     <Button
                       type="button"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        
+
                         // Validation for each step
                         if (currentStep === 1) {
                           if (!formData.name || !formData.phone || !formData.fatherHusbandName || !formData.aadharNumber) {
@@ -1165,15 +1190,15 @@ export default function ApplyPage() {
                           }
                         }
                         if (currentStep === 2) {
-                          const incompleteEducation = formData.educationDetails.find(edu => 
+                          const incompleteEducation = formData.educationDetails.find(edu =>
                             !edu.educationLevel || !edu.board || !edu.status
                           );
                           if (incompleteEducation) {
                             alert('Please complete all education details / कृपया सभी शैक्षणिक जानकारी पूरी भरें');
                             return;
                           }
-                          
-                          const missingPercentage = formData.educationDetails.find(edu => 
+
+                          const missingPercentage = formData.educationDetails.find(edu =>
                             edu.status === 'passed' && !edu.percentage
                           );
                           if (missingPercentage) {
@@ -1181,7 +1206,7 @@ export default function ApplyPage() {
                             return;
                           }
                         }
-                        
+
                         console.log('Moving from step', currentStep, 'to step', currentStep + 1);
                         setCurrentStep(currentStep + 1);
                       }}
@@ -1261,6 +1286,41 @@ export default function ApplyPage() {
                   <p className="text-green-600 text-sm">कोई शुल्क नहीं</p>
                 </div>
 
+                {/* Seat Availability */}
+                <div className={`border rounded-lg p-4 ${
+                  seatsLoading ? 'bg-gray-50 border-gray-200' :
+                  availableSeats === 0 ? 'bg-red-50 border-red-200' :
+                  availableSeats <= 10 ? 'bg-yellow-50 border-yellow-200' :
+                  'bg-blue-50 border-blue-200'
+                }`}>
+                  {seatsLoading ? (
+                    <p className="text-gray-600 text-sm animate-pulse">सीट की जानकारी लोड हो रही है...</p>
+                  ) : availableSeats === 0 ? (
+                    <>
+                      <p className="text-red-800 font-semibold">सीटें भर गई हैं</p>
+                      <p className="text-red-600 text-sm">कृपया बाद में पुनः प्रयास करें</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className={`font-semibold ${
+                        availableSeats <= 10 ? 'text-yellow-800' : 'text-blue-800'
+                      }`}>
+                        {availableSeats} सीटें उपलब्ध
+                      </p>
+                      <p className={`text-sm ${
+                        availableSeats <= 10 ? 'text-yellow-600' : 'text-blue-600'
+                      }`}>
+                        कुल {TOTAL_LIBRARY_SEATS} में से
+                      </p>
+                      {availableSeats <= 10 && (
+                        <p className="text-yellow-700 text-xs mt-1 font-medium">
+                          जल्दी करें! सीमित सीटें बची हैं
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+
                 <div className="space-y-2 text-left">
                   <h4 className="font-semibold text-gray-800">सुविधाएं:</h4>
                   <ul className="text-sm text-gray-600 space-y-1">
@@ -1283,9 +1343,13 @@ export default function ApplyPage() {
                   </ul>
                 </div>
 
-                <Button className="w-full" onClick={() => handleOptionSelect('library')}>
+                <Button 
+                  className="w-full" 
+                  onClick={() => handleOptionSelect('library')}
+                  disabled={availableSeats === 0}
+                >
                   <FileText className="w-4 h-4 mr-2" />
-                  आवेदन करें
+                  {availableSeats === 0 ? 'सीटें भर गई हैं' : 'आवेदन करें'}
                 </Button>
               </div>
             </CardContent>

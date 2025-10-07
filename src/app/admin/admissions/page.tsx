@@ -1,30 +1,21 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import {
   Search,
-  Filter,
   Eye,
-  CheckCircle,
   XCircle,
-  Clock,
-  FileText,
-  Download,
-  Edit,
-  Image as ImageIcon,
-  UserCheck
+  FileText
 } from 'lucide-react';
-import Link from 'next/link';
 import {
   collection,
   getDocs,
   query,
   orderBy,
-  where,
   doc,
   updateDoc
 } from 'firebase/firestore';
@@ -70,14 +61,6 @@ export default function AdminAdmissionsPage() {
   const [remarkText, setRemarkText] = useState('');
   const [updating, setUpdating] = useState(false);
 
-  useEffect(() => {
-    fetchApplications();
-  }, []);
-
-  useEffect(() => {
-    filterApplications();
-  }, [searchTerm, statusFilter, applications]);
-
   const fetchApplications = async () => {
     try {
       setLoading(true);
@@ -100,7 +83,7 @@ export default function AdminAdmissionsPage() {
     }
   };
 
-  const filterApplications = () => {
+  const filterApplications = useCallback(() => {
     let filtered = applications;
 
     // Filter by status
@@ -121,7 +104,15 @@ export default function AdminAdmissionsPage() {
     }
 
     setFilteredApplications(filtered);
-  };
+  }, [applications, statusFilter, searchTerm]);
+
+  useEffect(() => {
+    fetchApplications();
+  }, []);
+
+  useEffect(() => {
+    filterApplications();
+  }, [filterApplications]);
 
   const handleStatusUpdate = async (applicationId: string, newStatus: string, remarks: string = '') => {
     try {

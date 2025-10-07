@@ -14,7 +14,10 @@ import {
   Phone, 
   MessageCircle,
   Building,
-  Eye
+  Eye,
+  Upload,
+  X,
+  Image as ImageIcon
 } from 'lucide-react';
 import { 
   doc, 
@@ -22,7 +25,12 @@ import {
   setDoc, 
   serverTimestamp 
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { 
+  ref, 
+  uploadBytes, 
+  getDownloadURL 
+} from 'firebase/storage';
+import { db, storage } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface WebsiteSettings {
@@ -122,6 +130,9 @@ export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('basic');
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [faviconFile, setFaviconFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   
   const { user } = useAuth();
 
@@ -155,22 +166,149 @@ export default function AdminSettingsPage() {
     }));
   };
 
+  const handleFileUpload = async (file: File, type: 'logo' | 'favicon'): Promise<string> => {
+    const fileExtension = file.name.split('.').pop();
+    const fileName = `${type}-${Date.now()}.${fileExtension}`;
+    const storageRef = ref(storage, `website/${fileName}`);
+    
+    const snapshot = await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    
+    return downloadURL;
+  };
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        alert('कृपया केवल JPG, PNG, GIF या WebP फॉर्मेट की इमेज अपलोड करें।');
+        return;
+      }
+      
+      // Validate file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        alert('फाइल का साइज 2MB से कम होना चाहिए।');
+        return;
+      }
+      
+      setLogoFile(file);
+    }
+  };
+
+  const handleFaviconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/x-icon'];
+      if (!validTypes.includes(file.type)) {
+        alert('कृपया केवल JPG, PNG, GIF, WebP या ICO फॉर्मेट की इमेज अपलोड करें।');
+        return;
+      }
+      
+      // Validate file size (max 1MB)
+      if (file.size > 1024 * 1024) {
+        alert('फाइल का साइज 1MB से कम होना चाहिए।');
+        return;
+      }
+      
+      setFaviconFile(file);
+    }
+  };
+
+  const removeLogoFile = () => {
+    setLogoFile(null);
+  };
+
+  const removeFaviconFile = () => {
+    setFaviconFile(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleLogoDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (validTypes.includes(file.type) && file.size <= 2 * 1024 * 1024) {
+        setLogoFile(file);
+      } else {
+        alert('कृपया केवल JPG, PNG, GIF या WebP फॉर्मेट की इमेज अपलोड करें (अधिकतम 2MB)।');
+      }
+    }
+  };
+
+  const handleFaviconDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/x-icon'];
+      if (validTypes.includes(file.type) && file.size <= 1024 * 1024) {
+        setFaviconFile(file);
+      } else {
+        alert('कृपया केवल JPG, PNG, GIF, WebP या ICO फॉर्मेट की इमेज अपलोड करें (अधिकतम 1MB)।');
+      }
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
+    setUploading(true);
+    
     try {
+      const updatedSettings = { ...settings };
+
+      // Upload logo if new file is selected
+      if (logoFile) {
+        try {
+          console.log('Uploading logo:', logoFile.name);
+          const logoURL = await handleFileUpload(logoFile, 'logo');
+          console.log('Logo uploaded successfully:', logoURL);
+          updatedSettings.logo = logoURL;
+          setLogoFile(null);
+        } catch (error) {
+          console.error('Error uploading logo:', error);
+          alert(`लोगो अपलोड करने में त्रुटि हुई: ${error instanceof Error ? error.message : 'अज्ञात त्रुटि'}`);
+          return;
+        }
+      }
+
+      // Upload favicon if new file is selected
+      if (faviconFile) {
+        try {
+          console.log('Uploading favicon:', faviconFile.name);
+          const faviconURL = await handleFileUpload(faviconFile, 'favicon');
+          console.log('Favicon uploaded successfully:', faviconURL);
+          updatedSettings.favicon = faviconURL;
+          setFaviconFile(null);
+        } catch (error) {
+          console.error('Error uploading favicon:', error);
+          alert(`फेविकॉन अपलोड करने में त्रुटि हुई: ${error instanceof Error ? error.message : 'अज्ञात त्रुटि'}`);
+          return;
+        }
+      }
+
       const settingsData = {
-        ...settings,
+        ...updatedSettings,
         updatedAt: serverTimestamp(),
         updatedBy: user?.email || 'unknown'
       };
 
       await setDoc(doc(db, 'settings', 'website'), settingsData);
+      setSettings(updatedSettings);
       alert('सेटिंग्स सफलतापूर्वक सेव हो गईं!');
     } catch (error) {
       console.error('Error saving settings:', error);
       alert('सेटिंग्स सेव करने में त्रुटि हुई।');
     } finally {
       setSaving(false);
+      setUploading(false);
     }
   };
 
@@ -213,15 +351,15 @@ export default function AdminSettingsPage() {
               </div>
               <Button 
                 onClick={handleSave} 
-                disabled={saving}
+                disabled={saving || uploading}
                 className="bg-blue-600 hover:bg-blue-700"
               >
-                {saving ? (
+                {saving || uploading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                 ) : (
                   <Save className="w-4 h-4 mr-2" />
                 )}
-                {saving ? 'सेव हो रहा है...' : 'सेटिंग्स सेव करें'}
+                {uploading ? 'अपलोड हो रहा है...' : saving ? 'सेव हो रहा है...' : 'सेटिंग्स सेव करें'}
               </Button>
             </div>
           </div>
@@ -271,11 +409,11 @@ export default function AdminSettingsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center space-x-4 p-4 bg-white rounded-lg">
-                    {settings.logo ? (
+                    {settings.logo || logoFile ? (
                       <img 
-                        src={settings.logo} 
+                        src={logoFile ? URL.createObjectURL(logoFile) : settings.logo} 
                         alt={settings.siteName}
-                        className="w-12 h-12 object-contain rounded-full"
+                        className="w-12 h-12 object-contain rounded-full border"
                       />
                     ) : (
                       <div className="w-12 h-12 bg-gradient-to-br from-green-600 to-green-800 rounded-full flex items-center justify-center">
@@ -286,6 +424,11 @@ export default function AdminSettingsPage() {
                       <h3 className="text-lg font-bold text-green-800">{settings.siteName}</h3>
                       <p className="text-sm text-gray-600">{settings.tagline}</p>
                       <p className="text-xs text-gray-500 mt-1">{settings.description}</p>
+                      {(logoFile || faviconFile) && (
+                        <p className="text-xs text-blue-600 mt-1 font-medium">
+                          {logoFile && 'नया लोगो'} {logoFile && faviconFile && ' और '} {faviconFile && 'नया फेविकॉन'} अपलोड के लिए तैयार
+                        </p>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -340,24 +483,187 @@ export default function AdminSettingsPage() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Logo Upload Section */}
                       <div>
-                        <Label htmlFor="logo">लोगो URL</Label>
-                        <Input
-                          id="logo"
-                          value={settings.logo}
-                          onChange={(e) => handleInputChange('logo', e.target.value)}
-                          placeholder="https://example.com/logo.png"
-                        />
+                        <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                          लोगो अपलोड करें
+                        </Label>
+                        
+                        {/* Current Logo Display */}
+                        {settings.logo && !logoFile && (
+                          <div className="mb-3 p-3 border rounded-lg bg-gray-50">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <img 
+                                  src={settings.logo} 
+                                  alt="Current Logo" 
+                                  className="w-12 h-12 object-contain rounded border"
+                                />
+                                <div>
+                                  <p className="text-sm font-medium text-gray-700">वर्तमान लोगो</p>
+                                  <p className="text-xs text-gray-500">क्लिक करके नया लोगो अपलोड करें</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* File Upload Area */}
+                        <div className="relative">
+                          <input
+                            type="file"
+                            id="logoUpload"
+                            accept="image/*"
+                            onChange={handleLogoChange}
+                            className="hidden"
+                          />
+                          
+                          {logoFile ? (
+                            <div className="p-4 border-2 border-green-300 border-dashed rounded-lg bg-green-50">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                  <ImageIcon className="w-8 h-8 text-green-600" />
+                                  <div>
+                                    <p className="text-sm font-medium text-green-800">{logoFile.name}</p>
+                                    <p className="text-xs text-green-600">
+                                      {(logoFile.size / 1024).toFixed(1)} KB
+                                    </p>
+                                  </div>
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={removeLogoFile}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <label
+                              htmlFor="logoUpload"
+                              className="flex flex-col items-center justify-center p-6 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                              onDragOver={handleDragOver}
+                              onDrop={handleLogoDrop}
+                            >
+                              <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                              <p className="text-sm text-gray-600 text-center">
+                                <span className="font-medium text-blue-600">क्लिक करें</span> या फाइल को यहाँ ड्रैग करें
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                PNG, JPG, GIF (अधिकतम 2MB)
+                              </p>
+                            </label>
+                          )}
+                        </div>
+
+                        {/* Manual URL Input */}
+                        <div className="mt-3">
+                          <Label htmlFor="logoUrl" className="text-xs text-gray-600">
+                            या URL से लोगो सेट करें
+                          </Label>
+                          <Input
+                            id="logoUrl"
+                            value={settings.logo}
+                            onChange={(e) => handleInputChange('logo', e.target.value)}
+                            placeholder="https://example.com/logo.png"
+                            className="mt-1"
+                          />
+                        </div>
                       </div>
+
+                      {/* Favicon Upload Section */}
                       <div>
-                        <Label htmlFor="favicon">फेविकॉन URL</Label>
-                        <Input
-                          id="favicon"
-                          value={settings.favicon}
-                          onChange={(e) => handleInputChange('favicon', e.target.value)}
-                          placeholder="https://example.com/favicon.ico"
-                        />
+                        <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                          फेविकॉन अपलोड करें
+                        </Label>
+                        
+                        {/* Current Favicon Display */}
+                        {settings.favicon && !faviconFile && (
+                          <div className="mb-3 p-3 border rounded-lg bg-gray-50">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <img 
+                                  src={settings.favicon} 
+                                  alt="Current Favicon" 
+                                  className="w-8 h-8 object-contain rounded border"
+                                />
+                                <div>
+                                  <p className="text-sm font-medium text-gray-700">वर्तमान फेविकॉन</p>
+                                  <p className="text-xs text-gray-500">क्लिक करके नया फेविकॉन अपलोड करें</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* File Upload Area */}
+                        <div className="relative">
+                          <input
+                            type="file"
+                            id="faviconUpload"
+                            accept="image/*,.ico"
+                            onChange={handleFaviconChange}
+                            className="hidden"
+                          />
+                          
+                          {faviconFile ? (
+                            <div className="p-4 border-2 border-green-300 border-dashed rounded-lg bg-green-50">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                  <ImageIcon className="w-8 h-8 text-green-600" />
+                                  <div>
+                                    <p className="text-sm font-medium text-green-800">{faviconFile.name}</p>
+                                    <p className="text-xs text-green-600">
+                                      {(faviconFile.size / 1024).toFixed(1)} KB
+                                    </p>
+                                  </div>
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={removeFaviconFile}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <label
+                              htmlFor="faviconUpload"
+                              className="flex flex-col items-center justify-center p-6 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                              onDragOver={handleDragOver}
+                              onDrop={handleFaviconDrop}
+                            >
+                              <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                              <p className="text-sm text-gray-600 text-center">
+                                <span className="font-medium text-blue-600">क्लिक करें</span> या फाइल को यहाँ ड्रैग करें
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                ICO, PNG, JPG (अधिकतम 1MB)
+                              </p>
+                            </label>
+                          )}
+                        </div>
+
+                        {/* Manual URL Input */}
+                        <div className="mt-3">
+                          <Label htmlFor="faviconUrl" className="text-xs text-gray-600">
+                            या URL से फेविकॉन सेट करें
+                          </Label>
+                          <Input
+                            id="faviconUrl"
+                            value={settings.favicon}
+                            onChange={(e) => handleInputChange('favicon', e.target.value)}
+                            placeholder="https://example.com/favicon.ico"
+                            className="mt-1"
+                          />
+                        </div>
                       </div>
                     </div>
                   </CardContent>

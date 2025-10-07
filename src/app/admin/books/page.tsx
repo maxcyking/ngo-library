@@ -32,7 +32,7 @@ import {
   where 
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { useAuth } from '@/contexts/AuthContext';
+
 import { Book, BookTransaction } from '@/lib/types';
 import { IssueBookModal } from '@/components/books/IssueBookModal';
 import { ReturnBookModal } from '@/components/books/ReturnBookModal';
@@ -48,7 +48,7 @@ export default function BooksPage() {
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   
-  const { user } = useAuth();
+
 
   // Fetch books from Firebase
   const fetchBooks = async () => {

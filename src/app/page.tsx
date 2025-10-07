@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { HeroSlider } from "@/components/home/hero-slider";
 import { NewsTicker } from "@/components/home/news-ticker";
-import { QuickStats } from "@/components/home/quick-stats";
+
 import { Testimonials } from "@/components/home/testimonials";
 import { GalleryPreview } from "@/components/home/gallery-preview";
 import { DonationCTA } from "@/components/home/donation-cta";
@@ -54,8 +55,137 @@ export default function Home() {
       {/* News Ticker */}
       <NewsTicker />
 
-      {/* Quick Stats */}
-      <QuickStats />
+      {/* Organization Introduction - Four Key Points */}
+      <section className="py-16 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              एरोज्ञा पुस्तकालय एवं सेवा संस्था
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              जाति, धर्म, वर्ग, समुदाय से ऊपर उठकर शिक्षा जागरूकता का मानवीय कार्य
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-8">
+            {/* परिचय */}
+            <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-6 border-t-4 border-blue-500">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold mr-4">
+                  🏹
+                </div>
+                <h3 className="text-xl font-bold text-gray-800">परिचय</h3>
+              </div>
+              <div className="space-y-3">
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <p className="text-sm font-semibold text-blue-800 mb-1">एरोज्ञा शब्द की उत्पत्ति:</p>
+                  <p className="text-sm text-gray-700">
+                    <span className="font-bold text-blue-600">एरो:</span> तीर/बाण<br />
+                    <span className="font-bold text-blue-600">ज्ञा:</span> ज्ञान/शिक्षा
+                  </p>
+                </div>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  यह अंग्रेजी व हिन्दी शब्दों को जोड़कर एक यूनिक नाम रखा गया, जो जाति, धर्म, वर्ग, समुदाय से ऊपर उठकर एक शिक्षा जागरूकता का मानवीय कार्य का मंच है।
+                </p>
+              </div>
+            </div>
+
+            {/* उद्देश्य */}
+            <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-6 border-t-4 border-green-500">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white text-xl font-bold mr-4">
+                  🎯
+                </div>
+                <h3 className="text-xl font-bold text-gray-800">उद्देश्य</h3>
+              </div>
+              <div className="space-y-3">
+                <div className="bg-green-50 p-3 rounded-lg">
+                  <p className="text-sm font-semibold text-green-800 mb-1">पंजीकृत संस्था:</p>
+                  <p className="text-sm text-gray-700">सरकार द्वारा रजिस्ट्रर्ड सार्वजनिक चैरिटेबल ट्रस्ट</p>
+                </div>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  "एरोज्ञा" शिक्षाविदों, विद्वानों, समाज सुधारकों, पर्यावरण प्रेमियों, वैज्ञानिक व दार्शनिक विचारकों की एक पहल है, जिसका कार्यक्षेत्र देश भर में है।
+                </p>
+              </div>
+            </div>
+
+            {/* मुख्य उद्देश्य */}
+            <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-6 border-t-4 border-orange-500">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white text-xl font-bold mr-4">
+                  📚
+                </div>
+                <h3 className="text-xl font-bold text-gray-800">मुख्य उद्देश्य</h3>
+              </div>
+              <div className="space-y-2">
+                <div className="bg-orange-50 p-2 rounded text-xs text-gray-700">
+                  ✓ प्रतियोगिता पूर्ण व बदलते परिपेक्ष में युवाओं का मार्गदर्शन
+                </div>
+                <div className="bg-orange-50 p-2 rounded text-xs text-gray-700">
+                  ✓ मोटिवेशन देना, साहित्य उपलब्ध करवाना
+                </div>
+                <div className="bg-orange-50 p-2 rounded text-xs text-gray-700">
+                  ✓ गरीब तबके के बच्चों को विद्यालय से जोड़ना
+                </div>
+                <div className="bg-orange-50 p-2 rounded text-xs text-gray-700">
+                  ✓ वैज्ञानिक व तकनीकी विचार विकसित करना
+                </div>
+                <div className="bg-orange-50 p-2 rounded text-xs text-gray-700">
+                  ✓ जरूरतमंदों की आर्थिक सहायता करना
+                </div>
+              </div>
+            </div>
+
+            {/* सामाजिक सुधार */}
+            <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-6 border-t-4 border-purple-500">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold mr-4">
+                  🌟
+                </div>
+                <h3 className="text-xl font-bold text-gray-800">सामाजिक सुधार</h3>
+              </div>
+              <div className="space-y-3">
+                <div className="bg-purple-50 p-3 rounded-lg">
+                  <p className="text-sm font-semibold text-purple-800 mb-1">मुक्ति दिलाना:</p>
+                  <p className="text-xs text-gray-700">सामाजिक, धार्मिक, अंधविश्वास से बाहर निकलकर</p>
+                </div>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  सामाजिक कुरीतियों, मृत्युभोज, आडंबरों व आर्थिक अपव्यय से बचाकर युवाओं को शिक्षित व जागरूक कराना।
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* निष्कर्ष / संदेश */}
+          <div className="mt-12 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl p-8 text-white text-center">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-3xl mr-4">
+                  🤝
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold">निष्कर्ष / संदेश</h3>
+              </div>
+              <p className="text-lg md:text-xl leading-relaxed opacity-95 mb-6">
+                "एरोज्ञा" समाजोद्धार व पर्यावरण संरक्षण, मानवीय व पुण्य कार्यों में आप सभी की भागीदारी, मार्गदर्शन व सहयोग की अपेक्षा करता है।
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                  href="/about"
+                  className="bg-white text-indigo-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300"
+                >
+                  विस्तार से जानें
+                </a>
+                <a
+                  href="/apply"
+                  className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-indigo-600 transition-colors duration-300"
+                >
+                  सदस्य बनें
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Mission Statement Section */}
       <section className="py-16 bg-gradient-to-r from-orange-600 via-red-600 to-purple-600 text-white">
@@ -70,7 +200,7 @@ export default function Home() {
               🏹 मानवता की ओर शिक्षा का तीर
             </h2>
             <p className="text-xl md:text-2xl mb-8 leading-relaxed opacity-95">
-              "इंसान को जाति, धर्म, वर्ग, क्षेत्र और राजनीति से ऊपर उठाते हुए मानव बनाकर 
+              "इंसान को जाति, धर्म, वर्ग, क्षेत्र और राजनीति से ऊपर उठाते हुए मानव बनाकर
               मनुष्य जीवन की सत्यता व वास्तविकता का ज्ञान कराना"
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -110,11 +240,11 @@ export default function Home() {
                 राजस्थान के मरुस्थल में मानवता का प्रकाश
               </h1>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed" itemProp="description">
-                <time itemProp="foundingDate" dateTime="2020">7 अगस्त 2020</time> को प्रथम देहदानी <strong> अमराराम बोस</strong> ने 
+                <time itemProp="foundingDate" dateTime="2020">7 अगस्त 2020</time> को प्रथम देहदानी <strong> अमराराम बोस</strong> ने
                 <span itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
                   <span itemProp="addressRegion">राजस्थान</span> के <span itemProp="addressLocality">बाड़मेर जिले</span> के गुडामालानी उपखण्ड क्षेत्र
-                </span> में इस मिशन की शुरुआत की। अध्यक्ष <strong> कालुराम माली</strong>के नेतृत्व में 
-                यह संस्था आज <strong>राजस्थान प्रदेश के मरुस्थल में ग्रामीण क्षेत्र का प्रथम ऐसा संस्थान</strong> बन गया है जो जाति, धर्म, वर्ग और क्षेत्र से ऊपर उठकर 
+                </span> में इस मिशन की शुरुआत की। अध्यक्ष <strong> कालुराम माली</strong>के नेतृत्व में
+                यह संस्था आज <strong>राजस्थान प्रदेश के मरुस्थल में ग्रामीण क्षेत्र का प्रथम ऐसा संस्थान</strong> बन गया है जो जाति, धर्म, वर्ग और क्षेत्र से ऊपर उठकर
                 मानवता के लिए समर्पित है।
               </p>
               <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 p-6 rounded-xl mb-6">
@@ -123,7 +253,7 @@ export default function Home() {
                   ₹2 करोड़ का प्रोजेक्ट
                 </h3>
                 <p className="text-gray-700 mb-2">
-                  <strong>7 अगस्त 2022</strong> को मालियों की ढाणी, आरजीटी सर्कल के पास 78 सीटों के साथ 
+                  <strong>7 अगस्त 2022</strong> को मालियों की ढाणी, आरजीटी सर्कल के पास 78 सीटों के साथ
                   अत्याधुनिक पुस्तकालय व कोचिंग संस्थान का शिलान्यास हुआ। <strong>₹60 लाख+</strong> का कार्य पूर्ण हो चुका है।
                 </p>
                 <p className="text-sm text-gray-600">
@@ -146,9 +276,11 @@ export default function Home() {
               </div>
             </div>
             <div className="relative">
-              <img
-                src="https://images.unsplash.com/photo-1497486751825-1233686d5d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+              <Image
+                src="/images/home1.jpg"
                 alt="एरोज्ञा पुस्तकालय भवन निर्माण"
+                width={600}
+                height={400}
                 className="rounded-lg shadow-lg w-full h-auto"
               />
               <div className="absolute -bottom-6 -right-6 bg-gradient-to-r from-orange-600 to-red-600 text-white p-6 rounded-lg shadow-lg">
@@ -228,7 +360,7 @@ export default function Home() {
               </div>
               <div className="relative">
                 <img
-                  src="https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                  src="images/home2.jpg"
                   alt="प्रेरणा और सामाजिक कार्य"
                   className="rounded-2xl shadow-2xl w-full h-auto"
                 />
@@ -252,8 +384,8 @@ export default function Home() {
                   हमारा प्रभाव
                 </h3>
                 <p className="text-gray-700 leading-relaxed text-center">
-                  इस मिशन की बदौलत आज अनेक सैकड़ों परिवारों और हजारों लोगों के जीवन में शिक्षा व मानवता की रोशनी से जीवन रोशन हो चुका है। 
-                  यह एक मानवीय मिशन है जो राजनीति, धार्मिक अंधविश्वास, पाखंड, नशा और सामाजिक कुरीतियों से बाहर निकलकर 
+                  इस मिशन की बदौलत आज अनेक सैकड़ों परिवारों और हजारों लोगों के जीवन में शिक्षा व मानवता की रोशनी से जीवन रोशन हो चुका है।
+                  यह एक मानवीय मिशन है जो राजनीति, धार्मिक अंधविश्वास, पाखंड, नशा और सामाजिक कुरीतियों से बाहर निकलकर
                   शिक्षा व मानवीय कार्यों में भागीदारी के साथ आगे बढ़ रहा है।
                 </p>
                 <div className="grid grid-cols-3 gap-4 mt-6">

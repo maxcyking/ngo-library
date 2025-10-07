@@ -6,14 +6,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Search, Filter, Users, Clock, MapPin, Phone, Mail } from 'lucide-react';
+import { BookOpen, Search } from 'lucide-react';
 import { 
   collection, 
   query, 
   orderBy, 
   onSnapshot, 
-  where,
-  getDocs
+  where
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 

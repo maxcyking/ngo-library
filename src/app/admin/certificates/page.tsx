@@ -16,8 +16,7 @@ import {
   Save,
   X,
   Upload,
-  Link,
-  Image
+  Link
 } from "lucide-react";
 import {
   collection,

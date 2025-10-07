@@ -12,7 +12,10 @@ import {
   ArrowLeft, 
   BookOpen, 
   Save,
-  Tag
+  Tag,
+  Upload,
+  X,
+  Image as ImageIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { 
@@ -27,7 +30,12 @@ import {
   doc,
   increment
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { 
+  ref, 
+  uploadBytes, 
+  getDownloadURL 
+} from 'firebase/storage';
+import { db, storage } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface BookCategory {
@@ -43,6 +51,8 @@ export default function AddBookPage() {
   const [loading, setLoading] = useState(false);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [categories, setCategories] = useState<BookCategory[]>([]);
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [bookData, setBookData] = useState({
     title: '',
     author: '',
@@ -103,11 +113,80 @@ export default function AddBookPage() {
     }));
   };
 
+  const handleFileUpload = async (file: File): Promise<string> => {
+    const fileExtension = file.name.split('.').pop();
+    const fileName = `book-cover-${Date.now()}.${fileExtension}`;
+    const storageRef = ref(storage, `book-covers/${fileName}`);
+    
+    const snapshot = await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    
+    return downloadURL;
+  };
+
+  const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        alert('कृपया केवल JPG, PNG, GIF या WebP फॉर्मेट की इमेज अपलोड करें।');
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('फाइल का साइज 5MB से कम होना चाहिए।');
+        return;
+      }
+      
+      setCoverImageFile(file);
+    }
+  };
+
+  const removeCoverImageFile = () => {
+    setCoverImageFile(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleCoverImageDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (validTypes.includes(file.type) && file.size <= 5 * 1024 * 1024) {
+        setCoverImageFile(file);
+      } else {
+        alert('कृपया केवल JPG, PNG, GIF या WebP फॉर्मेट की इमेज अपलोड करें (अधिकतम 5MB)।');
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setUploading(true);
 
     try {
+      let coverImageUrl = bookData.coverImage;
+
+      // Upload cover image if file is selected
+      if (coverImageFile) {
+        try {
+          console.log('Uploading cover image:', coverImageFile.name);
+          coverImageUrl = await handleFileUpload(coverImageFile);
+          console.log('Cover image uploaded successfully:', coverImageUrl);
+        } catch (error) {
+          console.error('Error uploading cover image:', error);
+          alert(`कवर इमेज अपलोड करने में त्रुटि हुई: ${error instanceof Error ? error.message : 'अज्ञात त्रुटि'}`);
+          return;
+        }
+      }
+
       const totalCopies = parseInt(bookData.totalCopies) || 1;
       const newBook = {
         title: bookData.title,
@@ -123,7 +202,7 @@ export default function AddBookPage() {
         price: bookData.price ? parseFloat(bookData.price) : null,
         location: bookData.location || null,
         description: bookData.description || null,
-        coverImage: bookData.coverImage || null,
+        coverImage: coverImageUrl || null,
         addedDate: new Date(),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -152,6 +231,7 @@ export default function AddBookPage() {
       alert('पुस्तक जोड़ने में त्रुटि हुई। कृपया पुनः प्रयास करें।');
     } finally {
       setLoading(false);
+      setUploading(false);
     }
   };
 
@@ -365,24 +445,102 @@ export default function AddBookPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="coverImage">कवर इमेज URL</Label>
-                      <Input
-                        id="coverImage"
-                        name="coverImage"
-                        type="url"
-                        value={bookData.coverImage}
-                        onChange={handleInputChange}
-                        placeholder="https://example.com/cover.jpg"
-                      />
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        कवर इमेज अपलोड करें
+                      </Label>
+                      
+                      {/* File Upload Area */}
+                      <div className="relative mb-3">
+                        <input
+                          type="file"
+                          id="coverImageUpload"
+                          accept="image/*"
+                          onChange={handleCoverImageChange}
+                          className="hidden"
+                        />
+                        
+                        {coverImageFile ? (
+                          <div className="p-4 border-2 border-green-300 border-dashed rounded-lg bg-green-50">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <ImageIcon className="w-8 h-8 text-green-600" />
+                                <div>
+                                  <p className="text-sm font-medium text-green-800">{coverImageFile.name}</p>
+                                  <p className="text-xs text-green-600">
+                                    {(coverImageFile.size / 1024).toFixed(1)} KB
+                                  </p>
+                                </div>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={removeCoverImageFile}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <label
+                            htmlFor="coverImageUpload"
+                            className="flex flex-col items-center justify-center p-6 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                            onDragOver={handleDragOver}
+                            onDrop={handleCoverImageDrop}
+                          >
+                            <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                            <p className="text-sm text-gray-600 text-center">
+                              <span className="font-medium text-blue-600">क्लिक करें</span> या फाइल को यहाँ ड्रैग करें
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              PNG, JPG, GIF (अधिकतम 5MB)
+                            </p>
+                          </label>
+                        )}
+                      </div>
+
+                      {/* Manual URL Input */}
+                      <div>
+                        <Label htmlFor="coverImageUrl" className="text-xs text-gray-600">
+                          या URL से कवर इमेज सेट करें
+                        </Label>
+                        <Input
+                          id="coverImageUrl"
+                          name="coverImage"
+                          type="url"
+                          value={bookData.coverImage}
+                          onChange={handleInputChange}
+                          placeholder="https://example.com/cover.jpg"
+                          className="mt-1"
+                        />
+                      </div>
+
+                      {/* Preview */}
+                      {(coverImageFile || bookData.coverImage) && (
+                        <div className="mt-3 p-3 border rounded-lg bg-gray-50">
+                          <p className="text-xs text-gray-600 mb-2">प्रीव्यू:</p>
+                          <img 
+                            src={coverImageFile ? URL.createObjectURL(coverImageFile) : bookData.coverImage} 
+                            alt="Book Cover Preview" 
+                            className="w-20 h-28 object-cover rounded border shadow-sm"
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div className="pt-4">
                       <Button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || uploading}
                         className="w-full"
                       >
-                        {loading ? (
+                        {uploading ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            अपलोड हो रहा है...
+                          </>
+                        ) : loading ? (
                           <>
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                             जोड़ा जा रहा है...

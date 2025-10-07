@@ -9,14 +9,11 @@ export const PAN_NO = "AAKTA0718M";
 export const PUBLIC_NAVIGATION = [
   { href: "/", label: "मुख्य पृष्ठ" },
   { href: "/about", label: "संस्था का परिचय" },
+  { href: "/work-areas", label: "कार्य क्षेत्र" },
   { href: "/library", label: "साहित्य सूची" },
-  { href: "/donations", label: "दान सूची" },
-  { href: "/user/certificates", label: "प्रमाणपत्र" },
-  { href: "/user/team", label: "हमारी टीम" },
   { href: "/events", label: "कार्यक्रम" },
   { href: "/news", label: "समाचार" },
   { href: "/media", label: "मीडिया" },
-  { href: "/apply", label: "आवेदन करें" },
   { href: "/contact", label: "संपर्क" },
 ];
 
