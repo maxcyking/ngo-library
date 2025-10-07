@@ -36,18 +36,62 @@ export default function ContactPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log("Form submitted:", formData);
-    alert("आपका संदेश भेज दिया गया है। हम जल्द ही आपसे संपर्क करेंगे।");
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      subject: "",
-      message: ""
-    });
+    
+    // Validate required fields
+    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+      alert("कृपया सभी आवश्यक फील्ड भरें।");
+      return;
+    }
+
+    try {
+      // Send email notifications
+      const emailData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        subject: formData.subject,
+        message: formData.message,
+        submittedAt: new Date().toLocaleString('hi-IN', {
+          timeZone: 'Asia/Kolkata',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      };
+
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'contact-form',
+          data: emailData
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        alert("आपका संदेश सफलतापूर्वक भेज दिया गया है। हम जल्द ही आपसे संपर्क करेंगे।");
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: ""
+        });
+      } else {
+        alert("संदेश भेजने में त्रुटि हुई। कृपया पुनः प्रयास करें।");
+      }
+    } catch (error) {
+      console.error('Error sending contact form:', error);
+      alert("संदेश भेजने में त्रुटि हुई। कृपया पुनः प्रयास करें।");
+    }
   };
 
   return (

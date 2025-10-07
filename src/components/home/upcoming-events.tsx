@@ -107,7 +107,7 @@ export function UpcomingEvents() {
                 isFeatured: false,
                 isUrgent: false,
                 registrationFee: 0,
-                contactPerson: ' आत्माराम बोरा',
+                contactPerson: ' अमराराम बोस',
                 contactPhone: '+91 9024635808',
                 requirements: [],
                 benefits: [],
@@ -130,7 +130,7 @@ export function UpcomingEvents() {
                 isFeatured: true,
                 isUrgent: true,
                 registrationFee: 0,
-                contactPerson: ' बाबूराम शर्मा',
+                contactPerson: ' कालुराम माली',
                 contactPhone: '+91 99288 00933',
                 requirements: [],
                 benefits: [],
@@ -384,11 +384,11 @@ export function UpcomingEvents() {
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <strong> आत्माराम बोरा (अध्यक्ष)</strong><br />
+                  <strong> अमराराम बोस </strong><br />
                   📞 +91 9024635808
                 </div>
                 <div>
-                  <strong> बाबूराम शर्मा (उपाध्यक्ष)</strong><br />
+                  <strong> कालुराम माली </strong><br />
                   📞 +91 99288 00933
                 </div>
               </div>

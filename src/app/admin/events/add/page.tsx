@@ -377,7 +377,7 @@ export default function AddEventPage() {
                           name="contactPerson"
                           value={eventData.contactPerson}
                           onChange={handleInputChange}
-                          placeholder=" आत्माराम बोरा"
+                          placeholder=" अमराराम बोस"
                           required
                         />
                       </div>

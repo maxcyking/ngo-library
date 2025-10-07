@@ -40,14 +40,14 @@ export function DonationCTA() {
       color: "bg-green-500",
       hoverColor: "hover:bg-green-600",
       link: "/donations",
-      stats: "₹35 लाख का लक्ष्य"
+      stats: "2 करोड़ से अधिक का लक्ष्य...."
     }
   ];
 
   const emergencyContact = {
     title: "आपातकालीन रक्त की आवश्यकता?",
     subtitle: "24/7 उपलब्ध सेवा",
-    phone: "+91 99518 00733",
+    phone: "+91 9024635808",
     description: "तुरंत संपर्क करें - हम आपकी मदद करेंगे"
   };
 

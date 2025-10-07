@@ -465,6 +465,53 @@ export default function ApplyPage() {
 
       await addDoc(collection(db, 'library-applications'), applicationDataToSave);
 
+      // Send email notifications
+      try {
+        console.log('Sending email notifications for application:', applicationId);
+        const emailData = {
+          name: formData.name,
+          applicationId,
+          phone: formData.phone,
+          email: formData.email,
+          aadharNumber: formData.aadharNumber,
+          address: formData.address,
+          occupation: formData.fatherHusbandOccupation || formData.workArea || 'Not specified',
+          submittedAt: new Date().toLocaleString('hi-IN', {
+            timeZone: 'Asia/Kolkata',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })
+        };
+
+        console.log('Email data:', emailData);
+
+        const emailResponse = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type: 'library-application',
+            data: emailData
+          }),
+        });
+
+        const emailResult = await emailResponse.json();
+        console.log('Email API response:', emailResult);
+
+        if (!emailResult.success) {
+          console.error('Email sending failed:', emailResult.message);
+        } else {
+          console.log('Email notifications sent successfully');
+        }
+      } catch (emailError) {
+        console.error('Error sending email notifications:', emailError);
+        // Don't fail the application submission if email fails
+      }
+
       setApplicationData({ applicationId, username });
       setApplicationSubmitted(true);
 
@@ -581,7 +628,7 @@ export default function ApplyPage() {
                 <div className="flex flex-col sm:flex-row justify-center gap-4 text-sm">
                   <a href="tel:+919951800733" className="text-green-600 hover:text-green-700 font-medium flex items-center justify-center">
                     <Phone className="w-4 h-4 mr-1" />
-                    +91 99518 00733
+                    +91 9024635808
                   </a>
                   <a href="mailto:arogyapustkalaya@gmail.com" className="text-blue-600 hover:text-blue-700 font-medium flex items-center justify-center">
                     <Mail className="w-4 h-4 mr-1" />
@@ -872,7 +919,7 @@ export default function ApplyPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          कमीशन तैयारी का नाम (optional)
+                          कंपीटिशन /प्रतियोगिता परीक्षा तैयारी (optional)
                         </label>
                         <Input
                           type="text"
@@ -1436,7 +1483,7 @@ export default function ApplyPage() {
                   <div className="space-y-2 text-sm text-gray-600">
                     <p className="flex items-center">
                       <Phone className="w-4 h-4 text-green-500 mr-2" />
-                      +91 99518 00733
+                      +91 9024635808
                     </p>
                     <p className="flex items-center">
                       <Mail className="w-4 h-4 text-green-500 mr-2" />

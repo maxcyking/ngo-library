@@ -513,11 +513,11 @@ export default function EventsPage() {
                 <CardContent>
                   <div className="space-y-3 text-gray-600">
                     <div>
-                      <strong> आत्माराम बोरा (अध्यक्ष)</strong><br />
+                      <strong> अमराराम बोस</strong><br />
                       📞 +91 9024635808
                     </div>
                     <div>
-                      <strong> बाबूराम शर्मा (उपाध्यक्ष)</strong><br />
+                      <strong> कालुराम माली</strong><br />
                       📞 +91 99288 00933
                     </div>
                     <div>

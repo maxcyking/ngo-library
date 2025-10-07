@@ -379,7 +379,7 @@ export default function RegisterPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2 text-sm text-gray-600">
-                      <p><strong>फोन:</strong> +91 99518 00733</p>
+                      <p><strong>फोन:</strong> +91 9024635808</p>
                       <p><strong>ईमेल:</strong> arogyapustkalaya@gmail.com</p>
                       <p><strong>समय:</strong> सुबह 9:00 से शाम 6:00</p>
                     </div>

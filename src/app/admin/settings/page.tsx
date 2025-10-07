@@ -84,6 +84,19 @@ interface WebsiteSettings {
   ifscCode: string;
   upiId: string;
   
+  // Email Configuration
+  emailConfig?: {
+    enabled: boolean;
+    smtpHost: string;
+    smtpPort: number;
+    smtpSecure: boolean;
+    smtpUser: string;
+    smtpPassword: string;
+    fromName: string;
+    fromEmail: string;
+    adminEmail: string;
+  };
+  
   // Last Updated
   updatedAt?: Date;
   updatedBy?: string;
@@ -97,8 +110,8 @@ export default function AdminSettingsPage() {
     description: 'बाड़मेर राजस्थान में 2020 से सेवारत एरोग्या पुस्तकालय एवं सेवा संस्था। निःशुल्क पुस्तकालय, रक्तदान शिविर, स्वास्थ्य सेवा।',
     logo: '',
     favicon: '',
-    phone: '+91 96600 89144',
-    whatsapp: '+91 96600 89144',
+    phone: '+91 9024635808',
+    whatsapp: '+91 9024635808',
     email: 'arogyapustkalaya@gmail.com',
     address: 'गुडामलानी, बाड़मेर, राजस्थान',
     mapLink: '',
@@ -110,8 +123,8 @@ export default function AdminSettingsPage() {
     linkedin: '',
     establishedYear: '2020',
     registrationNumber: '',
-    chairperson: 'श्री आत्माराम बोरा',
-    viceChairperson: 'श्री बाबूराम शर्मा',
+    chairperson: 'श्री अमराराम बोस',
+    viceChairperson: 'श्री कालुराम माली',
     secretary: '',
     officeHours: 'सुबह 9:00 से शाम 6:00 तक',
     libraryHours: 'सुबह 9:00 से शाम 6:00 तक',
@@ -119,12 +132,23 @@ export default function AdminSettingsPage() {
     googleAnalytics: '',
     googleVerification: '',
     bingVerification: '',
-    emergencyContact: 'श्री आत्माराम बोरा',
-    emergencyPhone: '+91 96600 89144',
+    emergencyContact: 'श्री अमराराम बोस',
+    emergencyPhone: '+91 9024635808',
     bankName: '',
     accountNumber: '',
     ifscCode: '',
-    upiId: ''
+    upiId: '',
+    emailConfig: {
+      enabled: false,
+      smtpHost: 'smtp.gmail.com',
+      smtpPort: 587,
+      smtpSecure: false,
+      smtpUser: '',
+      smtpPassword: '',
+      fromName: 'एरोज्ञा पुस्तकालय',
+      fromEmail: '',
+      adminEmail: 'arogyapustkalaya@gmail.com'
+    }
   });
   
   const [loading, setLoading] = useState(true);
@@ -133,6 +157,8 @@ export default function AdminSettingsPage() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [faviconFile, setFaviconFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [testingEmail, setTestingEmail] = useState(false);
+  const [testEmailResult, setTestEmailResult] = useState<{ success: boolean; message: string } | null>(null);
   
   const { user } = useAuth();
 
@@ -143,7 +169,7 @@ export default function AdminSettingsPage() {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      const settingsDoc = await getDoc(doc(db, 'settings', 'website'));
+      const settingsDoc = await getDoc(doc(db, 'settings', 'general'));
       if (settingsDoc.exists()) {
         const data = settingsDoc.data();
         setSettings(prev => ({
@@ -300,7 +326,7 @@ export default function AdminSettingsPage() {
         updatedBy: user?.email || 'unknown'
       };
 
-      await setDoc(doc(db, 'settings', 'website'), settingsData);
+      await setDoc(doc(db, 'settings', 'general'), settingsData);
       setSettings(updatedSettings);
       alert('सेटिंग्स सफलतापूर्वक सेव हो गईं!');
     } catch (error) {
@@ -312,9 +338,64 @@ export default function AdminSettingsPage() {
     }
   };
 
+  // Email configuration functions
+  const handleEmailConfigChange = (field: string, value: string | number | boolean) => {
+    setSettings(prev => ({
+      ...prev,
+      emailConfig: {
+        ...prev.emailConfig!,
+        [field]: value
+      }
+    }));
+  };
+
+  const testEmailConfiguration = async () => {
+    if (!settings.emailConfig?.smtpUser || !settings.emailConfig?.smtpPassword) {
+      setTestEmailResult({
+        success: false,
+        message: 'कृपया SMTP उपयोगकर्ता नाम और पासवर्ड दर्ज करें'
+      });
+      return;
+    }
+
+    setTestingEmail(true);
+    setTestEmailResult(null);
+
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'test-email',
+          data: {
+            email: settings.emailConfig.adminEmail || settings.email
+          }
+        }),
+      });
+
+      const result = await response.json();
+      setTestEmailResult({
+        success: result.success,
+        message: result.success 
+          ? 'परीक्षण ईमेल सफलतापूर्वक भेजा गया! कृपया अपना इनबॉक्स चेक करें।'
+          : `परीक्षण ईमेल भेजने में त्रुटि: ${result.message}`
+      });
+    } catch (error) {
+      setTestEmailResult({
+        success: false,
+        message: 'परीक्षण ईमेल भेजने में त्रुटि हुई'
+      });
+    } finally {
+      setTestingEmail(false);
+    }
+  };
+
   const tabs = [
     { id: 'basic', label: 'मुख्य जानकारी', icon: <Globe className="w-4 h-4" /> },
     { id: 'contact', label: 'संपर्क विवरण', icon: <Phone className="w-4 h-4" /> },
+    { id: 'email', label: 'ईमेल सेटिंग्स', icon: <MessageCircle className="w-4 h-4" /> },
     { id: 'social', label: 'सोशल मीडिया', icon: <MessageCircle className="w-4 h-4" /> },
     { id: 'organization', label: 'संस्था विवरण', icon: <Building className="w-4 h-4" /> },
     { id: 'seo', label: 'SEO सेटिंग्स', icon: <Settings className="w-4 h-4" /> }
@@ -684,7 +765,7 @@ export default function AdminSettingsPage() {
                           id="phone"
                           value={settings.phone}
                           onChange={(e) => handleInputChange('phone', e.target.value)}
-                          placeholder="+91 96600 89144"
+                          placeholder="+91 9024635808"
                         />
                       </div>
                       <div>
@@ -693,7 +774,7 @@ export default function AdminSettingsPage() {
                           id="whatsapp"
                           value={settings.whatsapp}
                           onChange={(e) => handleInputChange('whatsapp', e.target.value)}
-                          placeholder="+91 96600 89144"
+                          placeholder="+91 9024635808"
                         />
                       </div>
                     </div>
@@ -874,7 +955,7 @@ export default function AdminSettingsPage() {
                           id="chairperson"
                           value={settings.chairperson}
                           onChange={(e) => handleInputChange('chairperson', e.target.value)}
-                          placeholder="श्री आत्माराम बोरा"
+                          placeholder="श्री अमराराम बोस"
                         />
                       </div>
                       <div>
@@ -883,7 +964,7 @@ export default function AdminSettingsPage() {
                           id="viceChairperson"
                           value={settings.viceChairperson}
                           onChange={(e) => handleInputChange('viceChairperson', e.target.value)}
-                          placeholder="श्री बाबूराम शर्मा"
+                          placeholder="श्री कालुराम माली"
                         />
                       </div>
                       <div>
@@ -904,7 +985,7 @@ export default function AdminSettingsPage() {
                           id="emergencyContact"
                           value={settings.emergencyContact}
                           onChange={(e) => handleInputChange('emergencyContact', e.target.value)}
-                          placeholder="श्री आत्माराम बोरा"
+                          placeholder="श्री अमराराम बोस"
                         />
                       </div>
                       <div>
@@ -913,7 +994,7 @@ export default function AdminSettingsPage() {
                           id="emergencyPhone"
                           value={settings.emergencyPhone}
                           onChange={(e) => handleInputChange('emergencyPhone', e.target.value)}
-                          placeholder="+91 96600 89144"
+                          placeholder="+91 9024635808"
                         />
                       </div>
                     </div>
@@ -962,6 +1043,203 @@ export default function AdminSettingsPage() {
                         </div>
                       </div>
                     </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Email Settings Tab */}
+              {activeTab === 'email' && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MessageCircle className="w-5 h-5" />
+                      ईमेल सेटिंग्स (SMTP Configuration)
+                    </CardTitle>
+                    <p className="text-sm text-gray-600">
+                      पुस्तकालय आवेदन और संपर्क फॉर्म के लिए ईमेल सूचनाएं सेटअप करें
+                    </p>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Enable Email Notifications */}
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="emailEnabled"
+                        checked={settings.emailConfig?.enabled || false}
+                        onChange={(e) => handleEmailConfigChange('enabled', e.target.checked)}
+                        className="rounded border-gray-300"
+                      />
+                      <Label htmlFor="emailEnabled" className="text-sm font-medium">
+                        ईमेल सूचनाएं सक्षम करें (Enable Email Notifications)
+                      </Label>
+                    </div>
+
+                    {settings.emailConfig?.enabled && (
+                      <>
+                        {/* SMTP Configuration */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="smtpHost">SMTP Host *</Label>
+                            <Input
+                              id="smtpHost"
+                              value={settings.emailConfig?.smtpHost || ''}
+                              onChange={(e) => handleEmailConfigChange('smtpHost', e.target.value)}
+                              placeholder="smtp.gmail.com"
+                              className="mt-1"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                              Gmail के लिए: smtp.gmail.com
+                            </p>
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="smtpPort">SMTP Port *</Label>
+                            <Input
+                              id="smtpPort"
+                              type="number"
+                              value={settings.emailConfig?.smtpPort || 587}
+                              onChange={(e) => handleEmailConfigChange('smtpPort', parseInt(e.target.value))}
+                              placeholder="587"
+                              className="mt-1"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                              Gmail: 587 (TLS/STARTTLS) या 465 (SSL) - Port 587 के लिए SSL/TLS को disable रखें
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id="smtpSecure"
+                            checked={settings.emailConfig?.smtpSecure || false}
+                            onChange={(e) => handleEmailConfigChange('smtpSecure', e.target.checked)}
+                            className="rounded border-gray-300"
+                          />
+                          <Label htmlFor="smtpSecure" className="text-sm">
+                            SSL सुरक्षा सक्षम करें (केवल Port 465 के लिए - Port 587 के लिए disable रखें)
+                          </Label>
+                        </div>
+
+                        {/* Authentication */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="smtpUser">SMTP Username (Email) *</Label>
+                            <Input
+                              id="smtpUser"
+                              type="email"
+                              value={settings.emailConfig?.smtpUser || ''}
+                              onChange={(e) => handleEmailConfigChange('smtpUser', e.target.value)}
+                              placeholder="your-email@gmail.com"
+                              className="mt-1"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="smtpPassword">SMTP Password (App Password) *</Label>
+                            <Input
+                              id="smtpPassword"
+                              type="password"
+                              value={settings.emailConfig?.smtpPassword || ''}
+                              onChange={(e) => handleEmailConfigChange('smtpPassword', e.target.value)}
+                              placeholder="App Password"
+                              className="mt-1"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                              Gmail के लिए App Password का उपयोग करें
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* From Email Configuration */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="fromName">भेजने वाले का नाम (From Name)</Label>
+                            <Input
+                              id="fromName"
+                              value={settings.emailConfig?.fromName || ''}
+                              onChange={(e) => handleEmailConfigChange('fromName', e.target.value)}
+                              placeholder="एरोज्ञा पुस्तकालय"
+                              className="mt-1"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="fromEmail">भेजने वाला ईमेल (From Email)</Label>
+                            <Input
+                              id="fromEmail"
+                              type="email"
+                              value={settings.emailConfig?.fromEmail || ''}
+                              onChange={(e) => handleEmailConfigChange('fromEmail', e.target.value)}
+                              placeholder="noreply@yourdomain.com"
+                              className="mt-1"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                              खाली छोड़ने पर SMTP Username का उपयोग होगा
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Admin Email */}
+                        <div>
+                          <Label htmlFor="adminEmail">व्यवस्थापक ईमेल (Admin Email) *</Label>
+                          <Input
+                            id="adminEmail"
+                            type="email"
+                            value={settings.emailConfig?.adminEmail || ''}
+                            onChange={(e) => handleEmailConfigChange('adminEmail', e.target.value)}
+                            placeholder="admin@yourdomain.com"
+                            className="mt-1"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            इस ईमेल पर सभी सूचनाएं भेजी जाएंगी
+                          </p>
+                        </div>
+
+                        {/* Test Email */}
+                        <div className="border-t pt-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <div>
+                              <h4 className="font-medium">ईमेल कॉन्फ़िगरेशन परीक्षण</h4>
+                              <p className="text-sm text-gray-600">
+                                सेटिंग्स सेव करने से पहले ईमेल कॉन्फ़िगरेशन का परीक्षण करें
+                              </p>
+                            </div>
+                            <Button
+                              type="button"
+                              onClick={testEmailConfiguration}
+                              disabled={testingEmail || !settings.emailConfig?.smtpUser || !settings.emailConfig?.smtpPassword}
+                              className="bg-blue-600 hover:bg-blue-700"
+                            >
+                              {testingEmail ? 'परीक्षण हो रहा है...' : 'परीक्षण ईमेल भेजें'}
+                            </Button>
+                          </div>
+
+                          {testEmailResult && (
+                            <div className={`p-3 rounded-md ${
+                              testEmailResult.success 
+                                ? 'bg-green-50 border border-green-200 text-green-800' 
+                                : 'bg-red-50 border border-red-200 text-red-800'
+                            }`}>
+                              <p className="text-sm">{testEmailResult.message}</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Gmail Setup Instructions */}
+                        <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                          <h4 className="font-medium text-blue-900 mb-2">📧 Gmail सेटअप निर्देश:</h4>
+                          <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+                            <li>अपने Gmail अकाउंट में 2-Factor Authentication सक्षम करें</li>
+                            <li>Google Account Settings → Security → App Passwords पर जाएं</li>
+                            <li>एक नया App Password बनाएं</li>
+                            <li>यहाँ वह App Password दर्ज करें (Gmail password नहीं)</li>
+                            <li><strong>सही सेटिंग्स:</strong> Host: smtp.gmail.com, Port: 587, SSL/TLS: ❌ Disabled</li>
+                            <li><strong>वैकल्पिक:</strong> Port: 465, SSL/TLS: ✅ Enabled (यदि 587 काम न करे)</li>
+                          </ol>
+                        </div>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
               )}

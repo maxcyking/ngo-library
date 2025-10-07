@@ -152,7 +152,7 @@ export const SOCIAL_LINKS = {
 // Contact Information
 export const CONTACT_INFO = {
   address: "रजि. ऑफिस - एरोज्ञा पुस्तकालय एवं सेवा संस्था, खसरा नं. 686/600, मालिया की ढाणी, आर जी टी सर्किल, नगर, गुडामलानी 344031, जिला - बाड़मेर (राजस्थान)",
-  phone: "+91 99518 00733",
+  phone: "+91 9024635808",
   email: "arogyapustkalaya@gmail.com",
   timings: "सुबह 9:00 से शाम 6:00 तक",
   website: "www.arogyabmr.org",
@@ -162,21 +162,21 @@ export const CONTACT_INFO = {
 export const TEAM_MEMBERS = {
   founders: [
     {
-      name: "मती मीना देवी धर्मपत्नी  आत्माराम बोरा",
+      name: "मती मीना देवी धर्मपत्नी  अमराराम बोस",
       position: "मुख्य संरक्षक",
-      phone: "+91 99518 00733",
+      phone: "+91 9024635808",
       image: "/team/meena-devi.jpg"
     }
   ],
   executives: [
     {
-      name: " आत्माराम बोरा",
+      name: " अमराराम बोस",
       position: "अध्यक्ष",
       phone: "+91 9024635808",
       image: "/team/atmaram-bora.jpg"
     },
     {
-      name: " बाबूराम शर्मा",
+      name: " कालुराम माली",
       position: "उपाध्यक्ष",
       phone: "+91 99288 00933",
       image: "/team/baburam-sharma.jpg"

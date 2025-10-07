@@ -40,7 +40,7 @@ interface TeamMember {
 const teamMembers: TeamMember[] = [
   {
     id: "1",
-    name: "आत्माराम बोरा",
+    name: "अमराराम बोस",
     fatherName: "सावा राम",
     position: "प्रबंध निदेशक / संस्थापक",
     village: "धंधलावास, गुडामलानी",

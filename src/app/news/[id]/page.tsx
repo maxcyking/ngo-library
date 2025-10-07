@@ -422,7 +422,7 @@ export default function NewsDetailPage() {
                 </p>
                 <div className="space-y-2 text-sm">
                   <p className="text-gray-700">
-                    <strong>फोन:</strong> +91 99518 00733
+                    <strong>फोन:</strong> +91 9024635808
                   </p>
                   <p className="text-gray-700">
                     <strong>ईमेल:</strong> arogyapustkalaya@gmail.com

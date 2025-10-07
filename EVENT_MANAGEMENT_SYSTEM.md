@@ -73,7 +73,7 @@ A comprehensive event management system for **एरोज्ञा पुस्
   isActive: true,
   isFeatured: false,
   featuredImage: "https://example.com/image.jpg",
-  contactPerson: " आत्माराम बोरा",
+  contactPerson: " अमराराम बोस",
   contactPhone: "+91 9024635808",
   contactEmail: "arogyapustkalaya@gmail.com",
   requirements: ["पहचान पत्र", "स्वास्थ्य कार्ड"],

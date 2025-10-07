@@ -403,7 +403,7 @@ export default function AddMemberPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        कमीशन तैयारी का नाम (optional)
+                        कंपीटिशन /प्रतियोगिता परीक्षा तैयारी (optional)
                       </label>
                       <Input
                         type="text"

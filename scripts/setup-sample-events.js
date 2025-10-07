@@ -34,7 +34,7 @@ const sampleEvents = [
     isRegistrationOpen: true,
     isActive: true,
     isFeatured: true,
-    contactPerson: " आत्माराम बोरा",
+    contactPerson: " अमराराम बोस",
     contactPhone: "+91 9024635808",
     contactEmail: "arogyapustkalaya@gmail.com",
     requirements: [
@@ -85,7 +85,7 @@ const sampleEvents = [
     isRegistrationOpen: true,
     isActive: true,
     isFeatured: false,
-    contactPerson: " बाबूराम शर्मा",
+    contactPerson: " कालुराम माली",
     contactPhone: "+91 99288 00933",
     contactEmail: "arogyapustkalaya@gmail.com",
     requirements: [
@@ -142,7 +142,7 @@ const sampleEvents = [
     isActive: true,
     isFeatured: true,
     contactPerson: "मती मीना देवी",
-    contactPhone: "+91 99518 00733",
+    contactPhone: "+91 9024635808",
     contactEmail: "arogyapustkalaya@gmail.com",
     requirements: [
       "महिला प्रतिभागी (18+ आयु)",
@@ -194,7 +194,7 @@ const sampleEvents = [
     isRegistrationOpen: true,
     isActive: true,
     isFeatured: true,
-    contactPerson: " आत्माराम बोरा",
+    contactPerson: " अमराराम बोस",
     contactPhone: "+91 9024635808",
     contactEmail: "arogyapustkalaya@gmail.com",
     requirements: [
@@ -343,7 +343,7 @@ const samplePastEvents = [
     isRegistrationOpen: false,
     isActive: false,
     isFeatured: true,
-    contactPerson: " आत्माराम बोरा",
+    contactPerson: " अमराराम बोस",
     contactPhone: "+91 9024635808",
     organizers: ["एरोज्ञा पुस्तकालय एवं सेवा संस्था"],
     status: "completed"
@@ -363,7 +363,7 @@ const samplePastEvents = [
     isRegistrationOpen: false,
     isActive: false,
     isFeatured: false,
-    contactPerson: " बाबूराम शर्मा",
+    contactPerson: " कालुराम माली",
     contactPhone: "+91 99288 00933",
     organizers: ["एरोज्ञा पुस्तकालय एवं सेवा संस्था"],
     status: "completed"

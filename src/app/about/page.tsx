@@ -81,7 +81,7 @@ export default function AboutPage() {
                 <div className="space-y-3">
                   <div className="bg-green-50 p-3 rounded-lg border border-green-200">
                     <p className="text-sm font-semibold text-green-800 mb-1">पंजीकृत संस्था:</p>
-                    <p className="text-sm text-gray-700">सरकार द्वारा रजिस्ट्रर्ड सार्वजनिक चैरिटेबल ट्रस्ट</p>
+                    <p className="text-sm text-gray-700">सरकार द्वारा रजिस्ट्रेशन :- सोसाइटी /सार्वजनिक चैरिटेबल ट्रस्ट /सेक्शन 8 रजिस्ट्रेशन NGO है</p>
                   </div>
                   <p className="text-sm text-gray-600 leading-relaxed">
                     "एरोज्ञा" शिक्षाविदों, विद्वानों, समाज सुधारकों, पर्यावरण प्रेमियों, वैज्ञानिक व दार्शनिक विचारकों की एक पहल है, जिसका कार्यक्षेत्र देश भर में है।
