@@ -268,7 +268,7 @@ export const RECENT_ACTIVITIES = [
   {
     title: "पुस्तकालय भवन निर्माण कार्य",
     date: "जून 2024",
-    description: "35 लाख रुपए की लागत से नया पुस्तकालय भवन निर्माण कार्य प्रगति पर है।",
+    description: "65 लाख रुपए की लागत से नया पुस्तकालय भवन निर्माण कार्य प्रगति पर है।",
     image: "/activities/library-construction.jpg"
   },
   {

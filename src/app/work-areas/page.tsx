@@ -93,7 +93,7 @@ export default function WorkAreasPage() {
                     <div className="flex items-start">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                       <p className="text-gray-700 leading-relaxed">
-                        <span className="font-semibold text-blue-700">सामाजिक कुरीतियाँ निवारण</span> - अंधविश्वास, पाखण्ड, अमानवीय कार्य, अत्याचार निवारण
+                        <span className="font-semibold text-blue-700">सामाजिक कुरीतियाँ निवारण</span> - <strong>मृत्युभोज, बालविवाह,</strong>  अंधविश्वास, पाखण्ड, अमानवीय कार्य, अत्याचार निवारण
                       </p>
                     </div>
                     <div className="flex items-start">
@@ -108,6 +108,13 @@ export default function WorkAreasPage() {
 
               {/* Right Side - Stats */}
               <div className="order-1 lg:order-2">
+                <div className="mb-8">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+                  <p className="text-gray-700 leading-relaxed text-center">
+                    <span className="font-semibold text-blue-700">"सामाजिक कुरीतियों छोड़ - शिक्षा से नाता जोड़ो अभियान"</span> के तहत हजारों विद्यार्थियों, युवाओं, महिलाओं व वरिष्ठजनों के साथ शपथ ग्रहण कर नशावृत्ति और सामाजिक कुरीतियों से मुक्त
+                  </p>
+                </div>
+              </div>
                 <div className="grid grid-cols-2 gap-6">
                   <div className="bg-white p-6 rounded-xl shadow-md text-center border-t-4 border-blue-500">
                     <div className="text-3xl font-bold text-blue-600 mb-2">2020</div>
@@ -706,7 +713,7 @@ export default function WorkAreasPage() {
                   </div>
                   <div className="bg-white p-4 rounded-lg border border-green-200">
                     <h4 className="font-bold text-green-800 mb-2">दानकर्ता:</h4>
-                    <p className="text-sm text-gray-700">निंभाराम माली पुत्र भोमाराम माली</p>
+                    <p className="text-sm text-gray-700">सोलंकी निम्बाराम माली पुत्र भोमाराम जी माली</p>
                   </div>
                   <div className="bg-white p-4 rounded-lg border border-green-200">
                     <h4 className="font-bold text-green-800 mb-2">स्थान:</h4>
@@ -829,8 +836,8 @@ export default function WorkAreasPage() {
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-orange-600">₹35 लाख+</div>
-                    <div className="text-sm text-gray-600">निर्माण कार्य (जून 2024 तक)</div>
+                    <div className="text-3xl font-bold text-orange-600">₹65 लाख+</div>
+                    <div className="text-sm text-gray-600">निर्माण कार्य (जून 2026 तक)</div>
                   </div>
                 </div>
               </div>

@@ -84,7 +84,7 @@ export function LatestNews() {
               {
                 id: 'sample-1',
                 title: 'पुस्तकालय भवन निर्माण कार्य प्रगति पर',
-                shortDescription: '35 लाख रुपए की लागत से नया पुस्तकालय भवन निर्माण कार्य तेजी से प्रगति पर है।',
+                shortDescription: '65 लाख रुपए की लागत से नया पुस्तकालय भवन निर्माण कार्य तेजी से प्रगति पर है।',
                 content: '',
                 slug: 'library-construction-progress',
                 category: 'निर्माण कार्य',

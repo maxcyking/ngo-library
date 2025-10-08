@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Users, Clock, ArrowRight, CalendarX } from "lucide-react";
 import Link from "next/link";
-import { 
-  collection, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
   onSnapshot,
   getDocs,
   Timestamp
@@ -62,12 +62,12 @@ export function UpcomingEvents() {
         );
 
         const unsubscribe = onSnapshot(
-          eventsQuery, 
+          eventsQuery,
           async (snapshot) => {
             const eventsData = await Promise.all(
               snapshot.docs.map(async (doc) => {
                 const eventData = { id: doc.id, ...doc.data() } as Event;
-                
+
                 // Fetch registration count for this event
                 try {
                   const registrationsQuery = query(
@@ -80,7 +80,7 @@ export function UpcomingEvents() {
                   console.error('Error fetching registration count:', error);
                   eventData.registeredCount = 0;
                 }
-                
+
                 return eventData;
               })
             );
@@ -239,112 +239,109 @@ export function UpcomingEvents() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {events.map((event, index) => {
               const daysUntil = getDaysUntilEvent(event.date);
-              const progressPercentage = event.maxParticipants > 0 
-                ? ((event.registeredCount || 0) / event.maxParticipants) * 100 
+              const progressPercentage = event.maxParticipants > 0
+                ? ((event.registeredCount || 0) / event.maxParticipants) * 100
                 : 0;
-            
-            return (
-              <Card 
-                key={event.id} 
-                className={`overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 ${
-                  event.isUrgent ? 'ring-2 ring-red-400 ring-opacity-50' : ''
-                } ${index === 0 ? 'md:col-span-2 lg:col-span-1' : ''}`}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start mb-2">
-                    <Badge className={`text-xs ${getCategoryColor(event.category)}`}>
-                      {event.category}
-                    </Badge>
-                    {event.isUrgent && (
-                      <Badge variant="destructive" className="text-xs animate-pulse">
-                        तत्काल आवश्यकता
+
+              return (
+                <Card
+                  key={event.id}
+                  className={`overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 ${event.isUrgent ? 'ring-2 ring-red-400 ring-opacity-50' : ''
+                    } ${index === 0 ? 'md:col-span-2 lg:col-span-1' : ''}`}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <Badge className={`text-xs ${getCategoryColor(event.category)}`}>
+                        {event.category}
                       </Badge>
-                    )}
-                    {event.isFeatured && (
-                      <Badge className="text-xs bg-yellow-100 text-yellow-800">
-                        विशेष
-                      </Badge>
-                    )}
-                  </div>
-                  <CardTitle className="text-lg font-semibold text-gray-800 line-clamp-2">
-                    {event.title}
-                  </CardTitle>
-                </CardHeader>
-                
-                <CardContent>
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Calendar className="w-4 h-4 mr-2 text-blue-500" />
-                      <span>{formatDate(event.date)}</span>
-                      {daysUntil <= 7 && (
-                        <Badge variant="warning" className="ml-2 text-xs">
-                          {daysUntil === 0 ? 'आज' : `${daysUntil} दिन बाकी`}
+                      {event.isUrgent && (
+                        <Badge variant="destructive" className="text-xs animate-pulse">
+                          तत्काल आवश्यकता
+                        </Badge>
+                      )}
+                      {event.isFeatured && (
+                        <Badge className="text-xs bg-yellow-100 text-yellow-800">
+                          विशेष
                         </Badge>
                       )}
                     </div>
-                    
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Clock className="w-4 h-4 mr-2 text-green-500" />
-                      <span>
-                        {formatTime(event.startTime)}
-                        {event.endTime && ` से ${formatTime(event.endTime)}`}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center text-sm text-gray-600">
-                      <MapPin className="w-4 h-4 mr-2 text-red-500" />
-                      <span className="line-clamp-1">{event.location}</span>
-                    </div>
-                    
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Users className="w-4 h-4 mr-2 text-purple-500" />
-                      <span>
-                        {event.registeredCount || 0}/{event.maxParticipants} पंजीकृत
-                      </span>
-                    </div>
-                  </div>
+                    <CardTitle className="text-lg font-semibold text-gray-800 line-clamp-2">
+                      {event.title}
+                    </CardTitle>
+                  </CardHeader>
 
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                    {event.description}
-                  </p>
+                  <CardContent>
+                    <div className="space-y-3 mb-4">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Calendar className="w-4 h-4 mr-2 text-blue-500" />
+                        <span>{formatDate(event.date)}</span>
+                        {daysUntil <= 7 && (
+                          <Badge variant="warning" className="ml-2 text-xs">
+                            {daysUntil === 0 ? 'आज' : `${daysUntil} दिन बाकी`}
+                          </Badge>
+                        )}
+                      </div>
 
-                  {/* Progress Bar */}
-                  <div className="mb-4">
-                    <div className="flex justify-between text-xs text-gray-500 mb-1">
-                      <span>पंजीकरण प्रगति</span>
-                      <span>{Math.round(progressPercentage)}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          progressPercentage > 80 ? 'bg-red-500' : 
-                          progressPercentage > 60 ? 'bg-yellow-500' : 'bg-green-500'
-                        }`}
-                        style={{ width: `${Math.min(progressPercentage, 100)}%` }}
-                      ></div>
-                    </div>
-                  </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Clock className="w-4 h-4 mr-2 text-green-500" />
+                        <span>
+                          {formatTime(event.startTime)}
+                          {event.endTime && ` से ${formatTime(event.endTime)}`}
+                        </span>
+                      </div>
 
-                  <div className="flex gap-2">
-                    <Link href={`/events/${event.id}`} className="flex-1">
-                      <Button 
-                        className={`w-full ${
-                          event.isUrgent 
-                            ? 'bg-red-600 hover:bg-red-700' 
-                            : 'bg-blue-600 hover:bg-blue-700'
-                        }`}
-                      >
-                        {progressPercentage >= 100 ? 'प्रतीक्षा सूची' : 'पंजीकरण करें'}
-                      </Button>
-                    </Link>
-                    <Link href={`/events/${event.id}`}>
-                      <Button variant="outline" size="sm">
-                        विवरण
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <MapPin className="w-4 h-4 mr-2 text-red-500" />
+                        <span className="line-clamp-1">{event.location}</span>
+                      </div>
+
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Users className="w-4 h-4 mr-2 text-purple-500" />
+                        <span>
+                          {event.registeredCount || 0}/{event.maxParticipants} पंजीकृत
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                      {event.description}
+                    </p>
+
+                    {/* Progress Bar */}
+                    <div className="mb-4">
+                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>पंजीकरण प्रगति</span>
+                        <span>{Math.round(progressPercentage)}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full transition-all duration-300 ${progressPercentage > 80 ? 'bg-red-500' :
+                              progressPercentage > 60 ? 'bg-yellow-500' : 'bg-green-500'
+                            }`}
+                          style={{ width: `${Math.min(progressPercentage, 100)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Link href={`/events/${event.id}`} className="flex-1">
+                        <Button
+                          className={`w-full ${event.isUrgent
+                              ? 'bg-red-600 hover:bg-red-700'
+                              : 'bg-blue-600 hover:bg-blue-700'
+                            }`}
+                        >
+                          {progressPercentage >= 100 ? 'प्रतीक्षा सूची' : 'पंजीकरण करें'}
+                        </Button>
+                      </Link>
+                      <Link href={`/events/${event.id}`}>
+                        <Button variant="outline" size="sm">
+                          विवरण
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
               );
             })}
           </div>
@@ -389,7 +386,10 @@ export function UpcomingEvents() {
                 </div>
                 <div>
                   <strong> कालुराम माली </strong><br />
-                  📞 +91 99288 00933
+                  📞 +91 90013 67753
+                </div><div>
+                  <strong> चंद्रशेखर भाटिया </strong><br />
+                  📞 +91 91166 91911
                 </div>
               </div>
               <p className="text-xs text-gray-500 mt-4">

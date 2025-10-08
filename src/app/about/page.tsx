@@ -60,7 +60,7 @@ export default function AboutPage() {
                   <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
                     <p className="text-sm font-semibold text-blue-800 mb-1">एरोज्ञा शब्द की उत्पत्ति:</p>
                     <p className="text-sm text-gray-700">
-                      <span className="font-bold text-blue-600">एरो:</span> तीर/बाण<br/>
+                      <span className="font-bold text-blue-600">एरो:</span> तीर/बाण<br />
                       <span className="font-bold text-blue-600">ज्ञा:</span> ज्ञान/शिक्षा
                     </p>
                   </div>
@@ -537,15 +537,15 @@ export default function AboutPage() {
                 </div>
                 <div className="space-y-4">
                   <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
-                    <p className="text-sm font-semibold text-blue-700 mb-1">सोसाइटी रजि. नं.:</p>
+                    <p className="text-sm font-semibold text-blue-700 mb-1">एरोज्ञा पुस्तकालय एवं सेवा समिति बाडमेर सोसाइटी रजि. नं.:</p>
                     <p className="text-lg font-black text-blue-900">COOP/2020/BMR/202370</p>
                   </div>
                   <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl border-2 border-green-200">
-                    <p className="text-sm font-semibold text-green-700 mb-1">सार्वजनिक चैरिटेबल TRUST रजि. नं.:</p>
+                    <p className="text-sm font-semibold text-green-700 mb-1">एरोज्ञा सेवा संस्था सार्वजनिक चैरिटेबल ट्रस्ट रजि. नं.:</p>
                     <p className="text-lg font-black text-green-900">202303092400011</p>
                   </div>
                   <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl border-2 border-purple-200">
-                    <p className="text-sm font-semibold text-purple-700 mb-1">CIN NO.:</p>
+                    <p className="text-sm font-semibold text-purple-700 mb-1">एरोज्ञा सेवा संस्था फाउंडेशन <br /> सेक्शन 8 रजिस्ट्रेशन- <br /> CIN NO.:</p>
                     <p className="text-lg font-black text-purple-900">U88900RJ2025NPL106455</p>
                   </div>
                 </div>

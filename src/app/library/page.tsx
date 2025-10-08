@@ -501,9 +501,11 @@ export default function LibraryPage() {
                 
                 <div className="text-center">
                   <div className="bg-white p-6 rounded-lg shadow-md">
-                    <div className="text-3xl font-bold text-green-600 mb-2">35 लाख रुपए</div>
-                    <div className="text-gray-700 mb-4">कुल निर्माण लागत</div>
-                    <div className="text-lg font-semibold text-blue-600">जून 2024 तक पूर्ण होने की संभावना</div>
+                    <div className="text-3xl font-bold text-green-600 mb-2">65 से अधिक</div>
+                    <div className="text-gray-700 mb-4">कार्य पूर्ण</div>
+                    <div className="text-lg font-semibold text-blue-600 mb-2">2 करोड़ से अधिक का प्रोजेक्ट</div>
+                    <div className="text-sm text-gray-600 mb-2">निरन्तर भामाशाहों के सहयोग से संस्थान निर्माणाधीन</div>
+                    <div className="text-lg font-semibold text-blue-600">2026 में पूर्ण होने की संभावना</div>
                   </div>
                 </div>
               </div>

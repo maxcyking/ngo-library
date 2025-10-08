@@ -37,7 +37,7 @@ const heroSlides = [
   {
     image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2022&q=80",
     title: "नया पुस्तकालय भवन निर्माण कार्य प्रगति पर",
-    description: "35 लाख रुपए की लागत से आधुनिक पुस्तकालय भवन का निर्माण",
+    description: "65 लाख रुपए की लागत से आधुनिक पुस्तकालय भवन का निर्माण",
     ctaText: "प्रगति देखें",
     ctaLink: "/projects",
   },
@@ -240,12 +240,13 @@ export default function Home() {
                 राजस्थान के मरुस्थल में मानवता का प्रकाश
               </h1>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed" itemProp="description">
-                <time itemProp="foundingDate" dateTime="2020">7 अगस्त 2020</time> को प्रथम देहदानी <strong> अमराराम बोस</strong> ने
+                मिशन की स्थापना <time itemProp="foundingDate" dateTime="2020">7 अगस्त 2020</time> को संस्थापक <strong>अमराराम बोस </strong> 
                 <span itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
-                  <span itemProp="addressRegion">राजस्थान</span> के <span itemProp="addressLocality">बाड़मेर जिले</span> के गुडामालानी उपखण्ड क्षेत्र
-                </span> में इस मिशन की शुरुआत की। अध्यक्ष <strong> कालुराम माली</strong>के नेतृत्व में
-                यह संस्था आज <strong>राजस्थान प्रदेश के मरुस्थल में ग्रामीण क्षेत्र का प्रथम ऐसा संस्थान</strong> बन गया है जो जाति, धर्म, वर्ग और क्षेत्र से ऊपर उठकर
-                मानवता के लिए समर्पित है।
+                  <span itemProp="addressLocality">बाडमेर जिले</span>
+                </span> के प्रथम देहदानी एवं अध्यक्ष <strong>कालुराम माली</strong> के साथ अध्यात्मिक गुरु नेमनाथ जी महाराज प्रागमठ सिणधरी, 
+                गुरू रामभारती जी महाराज पायला मठ सिणधरी, गुरु गणेशनाथ जी महाराज शिव मठ सांचौर, बौद्ध भिक्षु डॉ सिद्धार्थ वर्धन "गौरव" 
+                सहित एरोज्ञा टीम के साथ मानवीय मिशन की शुरुआत की गई जो आज जाति धर्म वर्ग क्षेत्र राजनीति से उपर उठकर 
+                <span itemProp="addressRegion">राजस्थान</span> के मरू प्रदेश सहित पूरे देश में <strong>मानवता की मिसाल बन चुकी है।</strong>
               </p>
               <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 p-6 rounded-xl mb-6">
                 <h3 className="font-bold text-gray-800 mb-3 flex items-center">

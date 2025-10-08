@@ -132,8 +132,19 @@ export async function sendEmail(emailData: EmailData): Promise<boolean> {
       text: emailData.text || emailData.html.replace(/<[^>]*>/g, ''), // Strip HTML for text version
     };
 
+    console.log('📧 Sending email:', {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      smtpUser: config.user
+    });
+
     const result = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', result.messageId);
+    console.log('✅ Email sent successfully:', {
+      messageId: result.messageId,
+      to: mailOptions.to,
+      from: mailOptions.from
+    });
     return true;
   } catch (error) {
     console.error('Error sending email:', error);
@@ -151,12 +162,21 @@ export async function sendAdminNotification(subject: string, html: string): Prom
     }
 
     const settings = settingsDoc.data();
-    const adminEmail = settings.email || settings.emailConfig?.adminEmail;
+    const adminEmail = settings.emailConfig?.adminEmail;
 
     if (!adminEmail) {
-      console.error('Admin email not configured');
+      console.error('Admin email not configured in emailConfig.adminEmail');
       return false;
     }
+
+    // Get SMTP configuration to avoid sending to SMTP user
+    const emailConfig = await getEmailConfig();
+    if (emailConfig && adminEmail.toLowerCase() === emailConfig.user.toLowerCase()) {
+      console.warn('⚠️ Admin email is same as SMTP user. This will cause duplicate emails.');
+      console.warn('Please set a different admin email in settings to avoid this issue.');
+    }
+
+    console.log('📧 Sending admin notification to:', adminEmail);
 
     return await sendEmail({
       to: adminEmail,

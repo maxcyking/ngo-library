@@ -148,26 +148,24 @@ export default function DonationsPage() {
           <div className="max-w-5xl mx-auto">
             <div className="grid md:grid-cols-2 gap-6">
               {/* Left Side - Organization Details */}
-              <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-orange-200">
-                <h3 className="text-2xl font-bold text-orange-600 mb-4 text-center">
-                  संस्था पंजीकरण विवरण
-                </h3>
-                <div className="space-y-3 text-gray-700">
-                  <div className="text-center mb-4">
-                    <h4 className="text-xl font-bold text-gray-800">एरोज्ञा</h4>
-                    <p className="font-semibold text-gray-700">पुस्तकालय एवं सेवा संस्था</p>
+              <div className="bg-white p-8 rounded-2xl shadow-2xl border-2 border-orange-300">
+                <div className="text-center mb-6">
+                  <div className="text-5xl mb-4">🏛️</div>
+                  <h3 className="text-2xl font-bold text-orange-600 mb-2">एरोज्ञा</h3>
+                  <p className="text-xl font-semibold text-gray-700">पुस्तकालय एवं सेवा संस्था</p>
+                </div>
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
+                    <p className="text-sm font-semibold text-blue-700 mb-1">एरोज्ञा पुस्तकालय एवं सेवा समिति बाडमेर सोसाइटी रजि. नं.:</p>
+                    <p className="text-lg font-black text-blue-900">COOP/2020/BMR/202370</p>
                   </div>
-                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-3 rounded-lg">
-                    <p className="text-sm"><strong className="text-blue-700">सोसाइटी रजि. नं.:</strong></p>
-                    <p className="font-bold text-blue-900">COOP/2020/BMR/202370</p>
+                  <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl border-2 border-green-200">
+                    <p className="text-sm font-semibold text-green-700 mb-1">एरोज्ञा सेवा संस्था सार्वजनिक चैरिटेबल ट्रस्ट रजि. नं.:</p>
+                    <p className="text-lg font-black text-green-900">202303092400011</p>
                   </div>
-                  <div className="bg-gradient-to-r from-green-50 to-green-100 p-3 rounded-lg">
-                    <p className="text-sm"><strong className="text-green-700">सार्वजनिक चैरिटेबल TRUST रजि. नं.:</strong></p>
-                    <p className="font-bold text-green-900">202303092400011</p>
-                  </div>
-                  <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-lg">
-                    <p className="text-sm"><strong className="text-purple-700">CIN NO.:</strong></p>
-                    <p className="font-bold text-purple-900">U88900RJ2025NPL106455</p>
+                  <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl border-2 border-purple-200">
+                    <p className="text-sm font-semibold text-purple-700 mb-1">एरोज्ञा सेवा संस्था फाउंडेशन <br /> सेक्शन 8 रजिस्ट्रेशन- <br /> CIN NO.:</p>
+                    <p className="text-lg font-black text-purple-900">U88900RJ2025NPL106455</p>
                   </div>
                 </div>
               </div>
