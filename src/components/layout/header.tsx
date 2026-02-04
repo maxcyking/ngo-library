@@ -31,7 +31,7 @@ export function Header({ userRole = 'guest' }: HeaderProps) {
               <span className="hidden md:inline">"एक रोटी कम खाओ लेकिन बच्चों को जरूर पढ़ाओ!"</span>
               <span className="md:hidden">शिक्षा दान करें</span>
             </div>
-            <Link href="/donations">
+            <Link href="/donate">
               <Button 
                 size="sm" 
                 className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 animate-pulse"

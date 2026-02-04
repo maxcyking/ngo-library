@@ -11,6 +11,7 @@ export const PUBLIC_NAVIGATION = [
   { href: "/about", label: "संस्था का परिचय" },
   { href: "/work-areas", label: "कार्य क्षेत्र" },
   { href: "/library", label: "साहित्य सूची" },
+  { href: "/donations", label: "दान सूची" },
   { href: "/events", label: "कार्यक्रम" },
   { href: "/news", label: "समाचार" },
   { href: "/media", label: "मीडिया" },

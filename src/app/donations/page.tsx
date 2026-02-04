@@ -115,79 +115,62 @@ export default function DonationsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-red-600 to-red-800 text-white py-16">
+<section className="bg-gradient-to-r from-red-600 to-red-800 text-white py-4 overflow-hidden relative">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              {/* Title Section - Compact */}
+              <div className="text-center md:text-left">
+                <h1 className="text-2xl md:text-3xl font-bold mb-1">
               ❤️ दान सूची
             </h1>
-            <p className="text-xl mb-8">
-              रक्तदान, देहदान और आर्थिक सहायता - जीवन दान का महान कार्य
+                <p className="text-sm md:text-base opacity-90">
+                  जीवन दान का महान कार्य
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-              <div className="bg-white bg-opacity-20 p-4 rounded-lg text-black">
-                <div className="text-2xl font-bold">{bloodDonors.length}+</div>
-                <div className="text-sm">रक्तदाता</div>
               </div>
-              <div className="bg-white bg-opacity-20 p-4 rounded-lg text-black">
-                <div className="text-2xl font-bold">{bodyDonors.length}+</div>
-                <div className="text-sm">देहदाता</div>
+              
+              {/* Animated Stats Cards */}
+              <div className="flex gap-3 md:gap-4">
+                <div className="bg-white bg-opacity-20 backdrop-blur-sm p-3 rounded-lg border border-white border-opacity-30 hover:bg-opacity-30 transition-all duration-300 transform hover:scale-105 animate-pulse">
+                  <div className="text-center">
+                    <div className="text-xl md:text-2xl font-bold text-yellow-300 animate-bounce">
+                      {bloodDonors.length}+
               </div>
-              <div className="bg-white bg-opacity-20 p-4 rounded-lg text-black">
-                <div className="text-2xl font-bold">{financialDonors.length}+</div>
-                <div className="text-sm">भामाशाह</div>
+                    <div className="text-xs text-white opacity-90">🩸 रक्तदाता</div>
               </div>
             </div>
+                
+                <div className="bg-white bg-opacity-20 backdrop-blur-sm p-3 rounded-lg border border-white border-opacity-30 hover:bg-opacity-30 transition-all duration-300 transform hover:scale-105 animate-pulse" style={{animationDelay: '0.2s'}}>
+                  <div className="text-center">
+                    <div className="text-xl md:text-2xl font-bold text-green-300 animate-bounce" style={{animationDelay: '0.2s'}}>
+                      {bodyDonors.length}+
           </div>
+                    <div className="text-xs text-white opacity-90">🙏 देहदाता</div>
         </div>
-      </section>
-
-      {/* Organization Registration Details & Motivational Message */}
-      <section className="py-8 bg-gradient-to-r from-orange-50 to-yellow-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Left Side - Organization Details */}
-              <div className="bg-white p-8 rounded-2xl shadow-2xl border-2 border-orange-300">
-                <div className="text-center mb-6">
-                  <div className="text-5xl mb-4">🏛️</div>
-                  <h3 className="text-2xl font-bold text-orange-600 mb-2">एरोज्ञा</h3>
-                  <p className="text-xl font-semibold text-gray-700">पुस्तकालय एवं सेवा संस्था</p>
                 </div>
-                <div className="space-y-4">
-                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
-                    <p className="text-sm font-semibold text-blue-700 mb-1">एरोज्ञा पुस्तकालय एवं सेवा समिति बाडमेर सोसाइटी रजि. नं.:</p>
-                    <p className="text-lg font-black text-blue-900">COOP/2020/BMR/202370</p>
+                
+                <div className="bg-white bg-opacity-20 backdrop-blur-sm p-3 rounded-lg border border-white border-opacity-30 hover:bg-opacity-30 transition-all duration-300 transform hover:scale-105 animate-pulse" style={{animationDelay: '0.4s'}}>
+                  <div className="text-center">
+                    <div className="text-xl md:text-2xl font-bold text-blue-300 animate-bounce" style={{animationDelay: '0.4s'}}>
+                      {financialDonors.length}+
+                    </div>
+                    <div className="text-xs text-white opacity-90">🏆 भामाशाह</div>
                   </div>
-                  <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl border-2 border-green-200">
-                    <p className="text-sm font-semibold text-green-700 mb-1">एरोज्ञा सेवा संस्था सार्वजनिक चैरिटेबल ट्रस्ट रजि. नं.:</p>
-                    <p className="text-lg font-black text-green-900">202303092400011</p>
-                  </div>
-                  <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl border-2 border-purple-200">
-                    <p className="text-sm font-semibold text-purple-700 mb-1">एरोज्ञा सेवा संस्था फाउंडेशन <br /> सेक्शन 8 रजिस्ट्रेशन- <br /> CIN NO.:</p>
-                    <p className="text-lg font-black text-purple-900">U88900RJ2025NPL106455</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Side - Motivational Messages */}
-              <div className="bg-gradient-to-br from-red-500 to-orange-600 p-6 rounded-xl shadow-2xl text-white flex flex-col justify-center">
-                <div className="text-center mb-6">
-                  <div className="text-6xl mb-4">✍️</div>
-                  <p className="text-2xl md:text-3xl font-black leading-relaxed italic drop-shadow-lg mb-6">
-                    "कलम की ताकत दुनिया की सबसे बड़ी ताकत है!"
-                  </p>
-                </div>
-                <div className="bg-white bg-opacity-20 backdrop-blur-sm p-6 rounded-xl border-2 border-white border-opacity-40">
-                  <p className="text-xl md:text-2xl font-bold text-center leading-relaxed drop-shadow-lg text-orange-400">
-                    "एक रोटी कम खाओ लेकिन बच्चों को जरूर पढ़ाओ!!"
-                  </p>
                 </div>
               </div>
             </div>
           </div>
+          
+          {/* Floating Animation Elements */}
+          <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+            <div className="absolute top-2 left-10 text-red-300 opacity-30 animate-ping">❤️</div>
+            <div className="absolute top-3 right-20 text-yellow-300 opacity-40 animate-pulse">⭐</div>
+            <div className="absolute bottom-2 left-1/4 text-white opacity-20 animate-bounce">🎯</div>
+            <div className="absolute bottom-3 right-1/3 text-green-300 opacity-30 animate-ping">✨</div>
+          </div>
         </div>
       </section>
+
 
       {/* Tab Navigation */}
       <section className="py-8 bg-white shadow-sm">
@@ -493,6 +476,53 @@ export default function DonationsPage() {
               <Button size="lg" variant="secondary">
                 आर्थिक सहायता करें
               </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Organization Registration Details & Motivational Message */}
+      <section className="py-8 bg-gradient-to-r from-orange-50 to-yellow-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Left Side - Organization Details */}
+              <div className="bg-white p-8 rounded-2xl shadow-2xl border-2 border-orange-300">
+                <div className="text-center mb-6">
+                  <div className="text-5xl mb-4">🏛️</div>
+                  <h3 className="text-2xl font-bold text-orange-600 mb-2">एरोज्ञा</h3>
+                  <p className="text-xl font-semibold text-gray-700">पुस्तकालय एवं सेवा संस्था</p>
+                </div>
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
+                    <p className="text-sm font-semibold text-blue-700 mb-1">एरोज्ञा पुस्तकालय एवं सेवा समिति बाडमेर सोसाइटी रजि. नं.:</p>
+                    <p className="text-lg font-black text-blue-900">COOP/2020/BMR/202370</p>
+                  </div>
+                  <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl border-2 border-green-200">
+                    <p className="text-sm font-semibold text-green-700 mb-1">एरोज्ञा सेवा संस्था सार्वजनिक चैरिटेबल ट्रस्ट रजि. नं.:</p>
+                    <p className="text-lg font-black text-green-900">202303092400011</p>
+                  </div>
+                  <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl border-2 border-purple-200">
+                    <p className="text-sm font-semibold text-purple-700 mb-1">एरोज्ञा सेवा संस्था फाउंडेशन <br /> सेक्शन 8 रजिस्ट्रेशन- <br /> CIN NO.:</p>
+                    <p className="text-lg font-black text-purple-900">U88900RJ2025NPL106455</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Side - Motivational Messages */}
+              <div className="bg-gradient-to-br from-red-500 to-orange-600 p-6 rounded-xl shadow-2xl text-white flex flex-col justify-center">
+                <div className="text-center mb-6">
+                  <div className="text-6xl mb-4">✍️</div>
+                  <p className="text-2xl md:text-3xl font-black leading-relaxed italic drop-shadow-lg mb-6">
+                    "कलम की ताकत दुनिया की सबसे बड़ी ताकत है!"
+                  </p>
+                </div>
+                <div className="bg-white bg-opacity-20 backdrop-blur-sm p-6 rounded-xl border-2 border-white border-opacity-40">
+                  <p className="text-xl md:text-2xl font-bold text-center leading-relaxed drop-shadow-lg text-orange-400">
+                    "एक रोटी कम खाओ लेकिन बच्चों को जरूर पढ़ाओ!!"
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
