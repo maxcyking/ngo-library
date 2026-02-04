@@ -34,6 +34,12 @@ export default function DonatePage() {
   const [donationType, setDonationType] = useState<DonationType>("money");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [lastDonation, setLastDonation] = useState<{
+    name: string;
+    amount: string;
+    message: string;
+    date: string;
+  } | null>(null);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -102,8 +108,12 @@ export default function DonatePage() {
         image: settings.logo || "",
         handler: async function (response: any) {
           // Payment successful
+          console.log("Payment successful:", response);
+          setLoading(true);
+          
           try {
-            await addDoc(collection(db, "financialDonors"), {
+            // Save to Firebase
+            const docRef = await addDoc(collection(db, "financialDonors"), {
               name: formData.name,
               email: formData.email,
               phone: formData.phone,
@@ -112,11 +122,23 @@ export default function DonatePage() {
               purpose: formData.message || "सामान्य दान",
               date: new Date().toLocaleDateString("hi-IN"),
               paymentId: response.razorpay_payment_id,
+              paymentSignature: response.razorpay_signature || "",
+              orderId: response.razorpay_order_id || "",
               isActive: true,
               createdAt: serverTimestamp(),
             });
 
-            setSuccess(true);
+            console.log("Donation saved to Firebase:", docRef.id);
+
+            // Store donation details for success page
+            setLastDonation({
+              name: formData.name,
+              amount: amount.toString(),
+              message: formData.message || "सामान्य दान",
+              date: new Date().toLocaleDateString("hi-IN")
+            });
+
+            // Clear form
             setFormData({
               name: "",
               email: "",
@@ -130,9 +152,21 @@ export default function DonatePage() {
               dateOfBirth: "",
               medicalHistory: "",
             });
+
+            // Show success page
+            setLoading(false);
+            setSuccess(true);
+            
           } catch (error) {
             console.error("Error saving donation:", error);
-            alert("दान सफल रहा लेकिन डेटा सेव करने में त्रुटि हुई");
+            setLoading(false);
+            alert("दान सफल रहा लेकिन डेटा सेव करने में त्रुटि हुई। कृपया हमसे संपर्क करें।");
+          }
+        },
+        modal: {
+          ondismiss: function() {
+            setLoading(false);
+            console.log("Payment cancelled by user");
           }
         },
         prefill: {
@@ -269,22 +303,99 @@ export default function DonatePage() {
         <div className="max-w-2xl mx-auto px-4">
           <Card className="text-center shadow-lg">
             <CardContent className="p-8">
-              <div className="bg-green-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+              <div className="bg-green-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 animate-bounce">
                 <CheckCircle className="w-12 h-12 text-green-600" />
               </div>
               <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                दान सफल!
+                🙏 दान सफल!
               </h2>
-              <p className="text-gray-600 mb-6">
-                आपके उदार योगदान के लिए धन्यवाद। आपका दान समाज सेवा में उपयोग किया जाएगा।
+              <p className="text-xl text-gray-600 mb-6">
+                आपके उदार योगदान के लिए धन्यवाद
               </p>
-              <div className="flex gap-4 justify-center">
-                <Button onClick={() => setSuccess(false)}>
+
+              {/* Donation Details */}
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200 rounded-xl p-6 mb-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">💰 दान विवरण</h3>
+                <div className="space-y-2 text-left">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">दानदाता:</span>
+                    <span className="font-semibold">{lastDonation?.name || "Anonymous"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">राशि:</span>
+                    <span className="font-bold text-green-600 text-xl">₹{lastDonation?.amount}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">दिनांक:</span>
+                    <span className="font-semibold">{lastDonation?.date}</span>
+                  </div>
+                  {lastDonation?.message && lastDonation.message !== "सामान्य दान" && (
+                    <div className="pt-2 border-t">
+                      <span className="text-gray-600">संदेश:</span>
+                      <p className="font-semibold mt-1">{lastDonation.message}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Thank You Message */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <p className="text-gray-700 leading-relaxed">
+                  आपका योगदान समाज सेवा, शिक्षा और स्वास्थ्य के क्षेत्र में उपयोग किया जाएगा। 
+                  आपकी उदारता से हम और भी बेहतर सेवाएं प्रदान कर सकेंगे।
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  onClick={() => {
+                    setSuccess(false);
+                    setLastDonation(null);
+                    setFormData({
+                      name: "",
+                      email: "",
+                      phone: "",
+                      address: "",
+                      amount: "",
+                      message: "",
+                      bloodGroup: "",
+                      age: "",
+                      lastDonation: "",
+                      dateOfBirth: "",
+                      medicalHistory: "",
+                    });
+                  }}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Heart className="w-4 h-4 mr-2" />
                   और दान करें
                 </Button>
-                <Button variant="outline" onClick={() => window.location.href = "/"}>
-                  मुख्य पृष्ठ पर जाएं
+                <Button 
+                  variant="outline" 
+                  onClick={() => window.location.href = "/donations"}
+                >
+                  दान सूची देखें
                 </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => window.location.href = "/"}
+                >
+                  मुख्य पृष्ठ
+                </Button>
+              </div>
+
+              {/* Contact Info */}
+              <div className="mt-6 pt-6 border-t">
+                <p className="text-sm text-gray-600 mb-2">रसीद या किसी सहायता के लिए संपर्क करें:</p>
+                <div className="flex flex-col sm:flex-row justify-center gap-4 text-sm">
+                  <a href={`tel:${settings.phone}`} className="text-green-600 hover:text-green-700 font-medium">
+                    📞 {settings.phone}
+                  </a>
+                  <a href={`mailto:${settings.email}`} className="text-blue-600 hover:text-blue-700 font-medium">
+                    ✉️ {settings.email}
+                  </a>
+                </div>
               </div>
             </CardContent>
           </Card>
